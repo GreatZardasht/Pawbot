@@ -422,9 +422,16 @@ class Fun:
 
     @commands.command(aliases=['ascii'])
     async def asciify(self, ctx, *, text: str):
-        """ Test """
+        """ Turns any text given into ascii """
         texttoascii = text.replace(" ", "%20")
         await self.asciitext(ctx, f"http://artii.herokuapp.com/make?text={texttoascii}")
+
+    @commands.command(aliases=["say"])
+    async def echo(self, ctx, *, text: str):
+        """ Says what you want (removes @​everyone and @​here) """
+        removeeveryone = text.replace("@everyone", "everyone")
+        removehere = removeeveryone.replace("@here", "here")
+        await ctx.send(removehere)
 
 
 def setup(bot):
