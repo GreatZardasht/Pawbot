@@ -51,7 +51,7 @@ class Admin:
         else:
             await ctx.send(f"No, heck off **{ctx.author.name}**.")
 
-    @commands.command()
+    @commands.command(aliases=["re"])
     @commands.check(repo.is_owner)
     async def reload(self, ctx, name: str):
         """ Reloads an extension. """
@@ -73,7 +73,7 @@ class Admin:
     @commands.command()
     @commands.check(repo.is_owner)
     async def load(self, ctx, name: str):
-        """ Reloads an extension. """
+        """ Loads an extension. """
         try:
             self.bot.load_extension(f"cogs.{name}")
         except FileNotFoundError as e:
@@ -84,7 +84,7 @@ class Admin:
     @commands.command()
     @commands.check(repo.is_owner)
     async def unload(self, ctx, name: str):
-        """ Reloads an extension. """
+        """ Unloads an extension. """
         try:
             self.bot.unload_extension(f"cogs.{name}")
         except FileNotFoundError as e:
