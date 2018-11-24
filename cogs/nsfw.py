@@ -1,10 +1,7 @@
 import random
 import discord
 import json
-import requests
-import io
 
-from io import BytesIO
 from discord.ext import commands
 from utils import http, default, sfapi, eapi
 
