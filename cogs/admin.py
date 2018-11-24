@@ -8,6 +8,7 @@ import json
 
 from dhooks import Webhook
 from utils.chat_formatting import pagify
+from utils.formats import TabularData, Plural
 from contextlib import redirect_stdout
 from copy import copy
 from typing import Union
@@ -207,8 +208,9 @@ class Admin:
         to_compile = f'async def func():\n{textwrap.indent(body, "  ")}'
 
         try:
+            start = time.perf_counter()
             exec(to_compile, env)
-        except Exception as e:
+        except EnvironmentError as e:
             return await ctx.send(f'```py\n{e.__class__.__name__}: {e}\n```')
 
         func = env['func']
@@ -219,9 +221,13 @@ class Admin:
             value = stdout.getvalue()
             await ctx.send(f'```py\n{value}{traceback.format_exc()}\n```')
         else:
-            value = stdout.getvalue()
-            reactiontosend = self.bot.get_emoji(508388437661843483)
-            await ctx.message.add_reaction(reactiontosend)
+            try:
+                value = stdout.getvalue()
+                reactiontosend = self.bot.get_emoji(508388437661843483)
+                await ctx.message.add_reaction(reactiontosend)
+                dt = (time.perf_counter() - start) * 1000.0
+            except PermissionError:
+                return await ctx.send("I couldn't react...")
 
             if ret is None:
                 if value:
@@ -230,7 +236,7 @@ class Admin:
                 if self.config.token in ret:
                     ret = self.config.realtoken
                 self._last_result = ret
-                await ctx.send(f'Inputted code:\n```py\n{body}\n```\n\nOutputted Code:\n```py\n{value}{ret}\n```')
+                await ctx.send(f'Inputted code:\n```py\n{body}\n```\n\nOutputted Code:\n```py\n{value}{ret}\n```\n*Evalled in {dt:.2f}ms*')
 
     @commands.group(aliases=["as"])
     @commands.check(repo.is_owner)
@@ -291,7 +297,6 @@ class Admin:
     @commands.check(repo.is_owner)
     async def botservers(self, ctx):
         """Lists servers"""
-        owner = ctx.author
         guilds = sorted(list(self.bot.guilds),
                         key=lambda s: s.name.lower())
         msg = ""
@@ -325,7 +330,45 @@ class Admin:
             file.seek(0)
             json.dump(content, file)
             file.truncate()
-        await ctx.send(f"I have successfully blacklisted the id **{uid}**")
+        await ctx.send(f"I have successfully blacklisted the id **{uid}**")#
+
+    @commands.command()
+    @commands.check(repo.is_owner)
+    async def sql(self, ctx, *, query: str):
+        """Run some SQL."""
+
+        query = self.cleanup_code(query)
+
+        is_multistatement = query.count(';') > 1
+        if is_multistatement:
+            # fetch does not support multiple statements
+            strategy = self.bot.db.execute
+        else:
+            strategy = self.bot.db.fetch
+
+        try:
+            start = time.perf_counter()
+            results = await strategy(query)
+            dt = (time.perf_counter() - start) * 1000.0
+        except Exception:
+            return await ctx.send(f'```py\n{traceback.format_exc()}\n```')
+
+        rows = len(results)
+        if is_multistatement or rows == 0:
+            return await ctx.send(f'`{dt:.2f}ms: {results}`')
+
+        headers = list(results[0].keys())
+        table = TabularData()
+        table.set_columns(headers)
+        table.add_rows(list(r.values()) for r in results)
+        render = table.render()
+
+        fmt = f'```\n{render}\n```\n*Returned {Plural(row=rows)} in {dt:.2f}ms*'
+        if len(fmt) > 2000:
+            fp = io.BytesIO(fmt.encode('utf-8'))
+            await ctx.send('Too many results...', file=discord.File(fp, 'results.txt'))
+        else:
+            await ctx.send(fmt)
 
 
 def setup(bot):
