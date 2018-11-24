@@ -5,6 +5,7 @@
   "owners": [],
   "contributors": [],
   "friends": [],
+  "beta": [],
   "prefix": [""],
   "guildBlacklist": [],
   "userBlacklist": [],
@@ -14,5 +15,6 @@
   "readywebhook": "",
   "suggwebhook": "",
   "guildjoinwebhook": "",
-  "guildleavewebhook": ""
+  "guildleavewebhook": "",
+  "customlinkwebhook": ""
 }

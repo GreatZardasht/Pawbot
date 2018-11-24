@@ -36,6 +36,105 @@ class Information:
 
         return fmt.format(d=days, h=hours, m=minutes, s=seconds)
 
+    @commands.command(aliases=["?"])
+    async def help(self, ctx, option: str=None, *, command_or_module: str=None):
+        bot = self.bot
+        pupper = self.bot
+        server = self.bot.get_emoji(513831608265080852)
+        bottag = self.bot.get_emoji(513831608265080852)
+        public_modules = ["adminpanel", "information", "encryption", "moderator", "nsfw", "fun"]
+        paws = self.bot.get_emoji(513831608265080852)
+        user = ctx.author
+        avy = user.avatar_url
+
+        if not option:
+            mods = "• " + "\n• ".join(public_modules)
+            help = discord.Embed(title=f"{paws} Hewwo {ctx.author.name}, I'm owopup! {paws}", description=f"`The fluffiest Discord Bot Around~`\nUse `{ctx.prefix}help m <module>` to get help on a set of commands or `{ctx.prefix}help c <cmd>` to get help on a specific command.\n\nAll of my modules are listed below:\n\n{mods}", color=ctx.me.colour)
+            help.set_thumbnail(url=self.bot.user.avatar_url_as(format="png"))
+            # help.set_image(url="https://www.tenor.co/Xz6G.gif")
+            help.add_field(name="Important Links", value=f"{bottag} [Bot Invite](https://discordapp.com/oauth2/authorize?client_id=365255872181567489&scope=bot&permissions=470150214)\n{server} [Support Guild Invite](https://discord.gg/c4vWDdd)", inline=True)
+            help.set_footer(text=f"Requested by {ctx.author}", icon_url=avy)
+            try:
+                await ctx.send(embed=help)
+            except discord.Forbidden:
+                await ctx.send(";w; i can't send embeds")
+
+        if option == "c" or option == "command" or option == "Command" or option == "cmd":
+            if not command_or_module:
+                return await ctx.send("You gotta specify a command to get help for y'know. :P")
+            else:
+                try:
+                    cmd = pupper.get_command(command_or_module)
+                    if cmd.cog_name == "Admin" and ctx.author.id not in repo.owners:
+                        return await ctx.send("Woah there, this command is for my owners only.")
+                    try:
+                        one = "\n```fix\nSubcommands\n" + "\n".join([f"│├{x.name} - {x.help}" for x in pupper.all_commands[command_or_module].commands]) + "```"
+                    except Exception as e:
+                        # await ctx.send(e)
+                        one = ""
+
+                    help = " ".join(cmd.clean_params)
+                    help = help
+
+                    one = one
+                    if cmd.root_parent:
+                        cmd_name = str(cmd.root_parent) + " " + str(cmd.name)
+                    else:
+                        cmd_name = cmd.name
+                    if not cmd.aliases == []:
+                        aliases = f"Aliases: ``" + ", ".join(cmd.aliases) + "``"
+                    else:
+                        aliases = ""
+
+                    info = discord.Embed(color=ctx.me.colour)
+                    info.title = f"{paws} Help for {cmd} {paws}"
+                    info.description = f"Usage: `{ctx.prefix}{cmd_name} {help}`\nCommand Description: `{cmd.help}`\n{aliases}{one}".replace(pupper.user.mention, f"@{pupper.user.name}")
+                    info.set_thumbnail(url=self.bot.user.avatar_url_as(format="png"))
+                    info.set_footer(text=f"Requested by {ctx.author}", icon_url=avy)
+                    await ctx.send(embed=info)
+                except Exception as e:
+                    await ctx.send("uhhhh ``{}`` is not a valid command.".format(command_or_module))
+        elif option == "m" or option == "module" or option == "Module":
+            if command_or_module.lower() == "fun":
+                haha = "Fun"
+                yes = "Fun"
+                extra = ""
+            elif command_or_module.lower() == "information":
+                haha = "Information"
+                yes = "Info"
+                extra = ""
+            elif command_or_module.lower() == "moderation":
+                haha = "Moderation"
+                yes = "Moderation"
+                extra = "**These Commands Require Perms**\n\n"
+            elif command_or_module.lower() == "encryption":
+                haha = "Encryption"
+                yes = "Encryption"
+                extra = ""
+            elif command_or_module.lower() == "nsfw":
+                haha = "NSFW"
+                yes = "NSFW"
+                extra = "**These can only be used in an NSFW channel**\n\n"
+            elif command_or_module.lower() == "adminpanel":
+                haha = "AdminPanel"
+                yes = "Admin Panel"
+                extra = "**Server admins only**\n\n"
+            else:
+                return await ctx.send("Uhhh, i couldn't find a module called `{}`".format(command_or_module))
+
+            haha = "\n".join([f"`{cmd.name}` - {cmd.help}" for cmd in bot.get_cog_commands(haha)])
+            help = discord.Embed(title=f"{paws} {yes} {paws}", description=extra + haha, color=ctx.me.colour)
+            help.set_thumbnail(url=self.bot.user.avatar_url_as(format="png"))
+            help.set_footer(text=f"Requested by {ctx.author}", icon_url=avy)
+            try:
+                await ctx.send(embed=help)
+            except discord.Forbidden:
+                await ctx.send(";w; i can't send embeds")
+        elif not option:
+            pass
+        else:
+            await ctx.send("The valid options are\nCommand: `owo help command|c|Command|cmd`\nModule: `owo help m|module|Module`")
+
     @commands.command()
     async def ping(self, ctx):
         """ Pong! """
@@ -70,7 +169,7 @@ class Information:
         embed.add_field(name="Dev", value="Paws#0001", inline=True)
         embed.add_field(name="Library", value="discord.py", inline=True)
         embed.add_field(name="Commands loaded", value=len([x.name for x in self.bot.commands]), inline=True)
-        embed.add_field(name="Servers", value=f"{len(ctx.bot.guilds)} (average: {avgmembers} users/server )", inline=True)
+        embed.add_field(name="Servers", value=f"{len(ctx.bot.guilds)} (avg: {avgmembers} users/server )", inline=True)
         embed.add_field(name="RAM", value=f"{ramUsage:.2f} MB", inline=True)
         embed.add_field(name="Support", value=f"[Here]({repo.invite})", inline=True)
 
@@ -120,8 +219,8 @@ class Information:
             embed.add_field(name="Bots", value=findbots, inline=True)
             embed.add_field(name="Owner", value=ctx.guild.owner, inline=True)
             embed.add_field(name="Region", value=ctx.guild.region, inline=True)
-            embed.add_field(name="Created", value=default.date(ctx.guild.created_at), inline=True)
             embed.add_field(name='Emojis', value=emojilist, inline=False)
+            embed.add_field(name="Created", value=default.date(ctx.guild.created_at), inline=False)
             await ctx.send(content=f"ℹ information about **{ctx.guild.name}**", embed=embed)
 
     @commands.command()
@@ -131,20 +230,47 @@ class Information:
             user = ctx.author
 
         embed = discord.Embed(colour=249742)
-        embed.set_thumbnail(url=user.avatar_url)
 
-        embed.add_field(name="Full name", value=user, inline=True)
-
-        if hasattr(user, "nick"):
-            embed.add_field(name="Nickname", value=user.nick, inline=True)
+        if str(user.status) is "online":
+            usrstatus = "<:online:514203909363859459> Online"
+        elif str(user.status) is "idle":
+            usrstatus = "<:away:514203859057639444> Away"
+        elif str(user.status) is "dnd":
+            usrstatus = "<:dnd:514203823888138240> DnD"
+        elif str(user.status) is "offline":
+            usrstatus = "<:offline:514203770452836359> Offline"
         else:
-            embed.add_field(name="Nickname", value="None", inline=True)
+            usrstatus = "<:online:514203909363859459> Online"
 
-        embed.add_field(name="Account created", value=default.date(user.created_at), inline=True)
+        if user.nick:
+            nick = user.nick
+        else:
+            nick = "No Nickname"
 
+        if user.activity:
+            usrgame = f"{user.activity.name}\n{user.activity.details}"
+        else:
+            usrgame = "No current game"
+
+        usrroles = ""
+
+        for Role in user.roles:
+            if "@everyone" in Role.name:
+                usrroles += "| @everyone | "
+            else:
+                usrroles += f"{Role.mention} | "
+
+        if len(usrroles) > 1024:
+            usrroles = "Too many to count!"
+
+        embed.set_thumbnail(url=user.avatar_url)
+        embed.add_field(name="Name", value=f"{user.name}#{user.discriminator}\n{nick}\n({user.id})", inline=True)
+        embed.add_field(name="Status", value=usrstatus, inline=True)
+        embed.add_field(name="Game", value=usrgame, inline=False)
+        embed.add_field(name="Roles", value=usrroles, inline=False)
+        embed.add_field(name="Created On", value=default.date(user.created_at), inline=True)
         if hasattr(user, "joined_at"):
             embed.add_field(name="Joined this server", value=default.date(user.joined_at), inline=True)
-
         await ctx.send(content=f"ℹ About **{user.name}**", embed=embed)
 
     @commands.command()
@@ -190,13 +316,32 @@ class Information:
             suggestionem.set_author(name=f"From {ctx.author}", icon_url=ctx.author.avatar_url)
             suggestionem.set_footer(text=footer, icon_url=guild_pic)
             try:
-                await ctx.send("Alright, i sent your suggestion!!")
-                await webhook.execute(embeds=suggestionem)
+                await ctx.send("Alright, I sent your suggestion!!")
+                await webhook.send(embeds=suggestionem)
                 await webhook.close()
-            except Exception as e:
+            except ValueError as e:
                 await ctx.send("uhm.. something went wrong, try again later..")
                 logchannel = self.bot.get_channel(508420200815656966)
                 return await logchannel.send(f"`ERROR`\n```py\n{e}\n```\nRoot server: {ctx.guild.name} ({ctx.guild.id})\nRoot user: {ctx.author.name}#{ctx.author.discriminator} ({ctx.author.id})")
+
+    @commands.command()
+    async def customlink(self, ctx, invsuffix: str, invlink: str):
+        """ Request a custom discord invite """
+        webhook = Webhook(self.config.customlinkwebhook, is_async=True)
+        color = ctx.author.color
+        footer = f"Sent from {ctx.guild.name}"
+        guild_pic = ctx.guild.icon_url
+        embed = dhooks.Embed(description=f"Requested suffix: {invsuffix}\nInvite link: {invlink}", colour=color, timestamp=True)
+        embed.set_author(name=f"From {ctx.author}", icon_url=ctx.author.avatar_url)
+        embed.set_footer(text=footer, icon_url=guild_pic)
+        try:
+            await ctx.send("Alright, I sent your request!!")
+            await webhook.send(embeds=embed)
+            await webhook.close()
+        except ValueError as e:
+            await ctx.send("uhm.. something went wrong, try again later..")
+            logchannel = self.bot.get_channel(508420200815656966)
+            return await logchannel.send(f"`ERROR`\n```py\n{e}\n```\nRoot server: {ctx.guild.name} ({ctx.guild.id})\nRoot user: {ctx.author.name}#{ctx.author.discriminator} ({ctx.author.id})")
 
     @commands.command()
     async def args(self, ctx, *args):
