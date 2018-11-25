@@ -69,8 +69,8 @@ class Information:
                 except AttributeError:
                     one = ""
 
-                help = " ".join(cmd.clean_params)
-                help = help
+                uwu = " ".join(cmd.clean_params)
+                uwu = uwu
 
                 one = one
                 if cmd.root_parent:
@@ -84,7 +84,7 @@ class Information:
 
                 info = discord.Embed(color=ctx.me.colour)
                 info.title = f"{paws} Help for {cmd} {paws}"
-                info.description = f"Usage: `{ctx.prefix}{cmd_name} {help}`\nCommand Description: `{cmd.help}`\n{aliases}{one}".replace(bot.user.mention, f"@{bot.user.name}")
+                info.description = f"Usage: `{ctx.prefix}{cmd_name} {uwu}`\nCommand Description: `{cmd.help}`\n{aliases}{one}".replace(bot.user.mention, f"@{bot.user.name}")
                 info.set_thumbnail(url=self.bot.user.avatar_url_as(format="png"))
                 info.set_footer(text=f"Requested by {ctx.author}", icon_url=avy)
                 await ctx.send(embed=info)
