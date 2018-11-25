@@ -227,13 +227,15 @@ class Information:
 
         embed = discord.Embed(colour=249742)
 
-        if str(user.status) is "online":
+        usrstatus = user.status
+
+        if usrstatus == "online":
             usrstatus = "<:online:514203909363859459> Online"
-        elif str(user.status) is "idle":
+        elif usrstatus == "idle":
             usrstatus = "<:away:514203859057639444> Away"
-        elif str(user.status) is "dnd":
+        elif usrstatus == "dnd":
             usrstatus = "<:dnd:514203823888138240> DnD"
-        elif str(user.status) is "offline":
+        elif usrstatus == "offline":
             usrstatus = "<:offline:514203770452836359> Offline"
         else:
             usrstatus = "<:online:514203909363859459> Online"
