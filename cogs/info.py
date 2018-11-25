@@ -66,10 +66,11 @@ class Information:
                     return await ctx.send("Woah there, this command is for my owners only.")
                 try:
                     one = "\n```fix\nSubcommands\n" + "\n".join([f"│├{x.name} - {x.help}" for x in bot.all_commands[command_or_module].commands]) + "```"
-                except ValueError as e:
+                except AttributeError:
                     one = ""
 
-                uwu = " ".join(cmd.clean_params)
+                help = " ".join(cmd.clean_params)
+                help = help
 
                 one = one
                 if cmd.root_parent:
@@ -87,7 +88,7 @@ class Information:
                 info.set_thumbnail(url=self.bot.user.avatar_url_as(format="png"))
                 info.set_footer(text=f"Requested by {ctx.author}", icon_url=avy)
                 await ctx.send(embed=info)
-            except Exception as e:
+            except ValueError:
                 await ctx.send("uhhhh ``{}`` is not a valid command.".format(command_or_module))
         elif option == "m" or option == "module" or option == "Module":
             if command_or_module.lower() == "fun":
@@ -118,11 +119,11 @@ class Information:
                 return await ctx.send("Uhhh, i couldn't find a module called `{}`".format(command_or_module))
 
             cogname = "\n".join([f"`{cmd.name}` - {cmd.help}" for cmd in bot.get_cog_commands(cogname)])
-            help = discord.Embed(title=f"{paws} {embedcommandname} {paws}", description=extra + cogname, color=ctx.me.colour)
-            help.set_thumbnail(url=self.bot.user.avatar_url_as(format="png"))
-            help.set_footer(text=f"Requested by {ctx.author}", icon_url=avy)
+            embed = discord.Embed(title=f"{paws} {embedcommandname} {paws}", description=extra + cogname, color=ctx.me.colour)
+            embed.set_thumbnail(url=self.bot.user.avatar_url_as(format="png"))
+            embed.set_footer(text=f"Requested by {ctx.author}", icon_url=avy)
             try:
-                await ctx.send(embed=help)
+                await ctx.send(embed=embed)
             except discord.Forbidden:
                 await ctx.send(";w; i can't send embeds")
         elif not option:
