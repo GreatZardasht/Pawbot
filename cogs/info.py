@@ -39,7 +39,6 @@ class Information:
     @commands.command(aliases=["?"])
     async def help(self, ctx, option: str=None, *, command_or_module: str=None):
         bot = self.bot
-        pupper = self.bot
         server = self.bot.get_emoji(513831608265080852)
         bottag = self.bot.get_emoji(513831608265080852)
         public_modules = ["adminpanel", "information", "encryption", "moderator", "nsfw", "fun"]
@@ -49,81 +48,77 @@ class Information:
 
         if not option:
             mods = "• " + "\n• ".join(public_modules)
-            help = discord.Embed(title=f"{paws} Hewwo {ctx.author.name}, I'm owopup! {paws}", description=f"`The fluffiest Discord Bot Around~`\nUse `{ctx.prefix}help m <module>` to get help on a set of commands or `{ctx.prefix}help c <cmd>` to get help on a specific command.\n\nAll of my modules are listed below:\n\n{mods}", color=ctx.me.colour)
-            help.set_thumbnail(url=self.bot.user.avatar_url_as(format="png"))
-            # help.set_image(url="https://www.tenor.co/Xz6G.gif")
-            help.add_field(name="Important Links", value=f"{bottag} [Bot Invite](https://discordapp.com/oauth2/authorize?client_id=365255872181567489&scope=bot&permissions=470150214)\n{server} [Support Guild Invite](https://discord.gg/c4vWDdd)", inline=True)
-            help.set_footer(text=f"Requested by {ctx.author}", icon_url=avy)
+            embed = discord.Embed(title=f"{paws} Hewwo {ctx.author.name}, I'm owopup! {paws}", description=f"`The fluffiest Discord Bot Around~`\nUse `{ctx.prefix}help m <module>` to get help on a set of commands or `{ctx.prefix}help c <cmd>` to get help on a specific command.\n\nAll of my modules are listed below:\n\n{mods}", color=ctx.me.colour)
+            embed.set_thumbnail(url=self.bot.user.avatar_url_as(format="png"))
+            embed.add_field(name="Important Links", value=f"{bottag} [Bot Invite](https://discordapp.com/oauth2/authorize?client_id=365255872181567489&scope=bot&permissions=470150214)\n{server} [Support Guild Invite](https://discord.gg/c4vWDdd)", inline=True)
+            embed.set_footer(text=f"Requested by {ctx.author}", icon_url=avy)
             try:
-                await ctx.send(embed=help)
+                await ctx.send(embed=embed)
             except discord.Forbidden:
                 await ctx.send(";w; i can't send embeds")
 
         if option == "c" or option == "command" or option == "Command" or option == "cmd":
             if not command_or_module:
                 return await ctx.send("You gotta specify a command to get help for y'know. :P")
-            else:
+            try:
+                cmd = bot.get_command(command_or_module)
+                if cmd.cog_name == "Admin" and ctx.author.id not in repo.owners:
+                    return await ctx.send("Woah there, this command is for my owners only.")
                 try:
-                    cmd = pupper.get_command(command_or_module)
-                    if cmd.cog_name == "Admin" and ctx.author.id not in repo.owners:
-                        return await ctx.send("Woah there, this command is for my owners only.")
-                    try:
-                        one = "\n```fix\nSubcommands\n" + "\n".join([f"│├{x.name} - {x.help}" for x in pupper.all_commands[command_or_module].commands]) + "```"
-                    except Exception as e:
-                        # await ctx.send(e)
-                        one = ""
+                    one = "\n```fix\nSubcommands\n" + "\n".join([f"│├{x.name} - {x.help}" for x in bot.all_commands[command_or_module].commands]) + "```"
+                except ValueError as e:
+                    one = ""
 
-                    help = " ".join(cmd.clean_params)
-                    help = help
+                uwu = " ".join(cmd.clean_params)
 
-                    one = one
-                    if cmd.root_parent:
-                        cmd_name = str(cmd.root_parent) + " " + str(cmd.name)
-                    else:
-                        cmd_name = cmd.name
-                    if not cmd.aliases == []:
-                        aliases = f"Aliases: ``" + ", ".join(cmd.aliases) + "``"
-                    else:
-                        aliases = ""
+                one = one
+                if cmd.root_parent:
+                    cmd_name = str(cmd.root_parent) + " " + str(cmd.name)
+                else:
+                    cmd_name = cmd.name
+                if not cmd.aliases == []:
+                    aliases = f"Aliases: ``" + ", ".join(cmd.aliases) + "``"
+                else:
+                    aliases = ""
 
-                    info = discord.Embed(color=ctx.me.colour)
-                    info.title = f"{paws} Help for {cmd} {paws}"
-                    info.description = f"Usage: `{ctx.prefix}{cmd_name} {help}`\nCommand Description: `{cmd.help}`\n{aliases}{one}".replace(pupper.user.mention, f"@{pupper.user.name}")
-                    info.set_thumbnail(url=self.bot.user.avatar_url_as(format="png"))
-                    info.set_footer(text=f"Requested by {ctx.author}", icon_url=avy)
-                    await ctx.send(embed=info)
-                except Exception as e:
-                    await ctx.send("uhhhh ``{}`` is not a valid command.".format(command_or_module))
+                info = discord.Embed(color=ctx.me.colour)
+                info.title = f"{paws} Help for {cmd} {paws}"
+                info.description = f"Usage: `{ctx.prefix}{cmd_name} {help}`\nCommand Description: `{cmd.help}`\n{aliases}{one}".replace(bot.user.mention, f"@{bot.user.name}")
+                info.set_thumbnail(url=self.bot.user.avatar_url_as(format="png"))
+                info.set_footer(text=f"Requested by {ctx.author}", icon_url=avy)
+                await ctx.send(embed=info)
+            except Exception as e:
+                await ctx.send("uhhhh ``{}`` is not a valid command.".format(command_or_module))
         elif option == "m" or option == "module" or option == "Module":
             if command_or_module.lower() == "fun":
-                haha = "Fun"
-                yes = "Fun"
+                cogname = "Fun"
+                embedcommandname = "Fun"
                 extra = ""
             elif command_or_module.lower() == "information":
-                haha = "Information"
-                yes = "Info"
+                cogname = "Information"
+                embedcommandname = "Info"
                 extra = ""
             elif command_or_module.lower() == "moderation":
-                haha = "Moderation"
-                yes = "Moderation"
+                cogname = "Moderation"
+                embedcommandname = "Moderation"
                 extra = "**These Commands Require Perms**\n\n"
             elif command_or_module.lower() == "encryption":
-                haha = "Encryption"
-                yes = "Encryption"
+                cogname = "Encryption"
+                embedcommandname = "Encryption"
                 extra = ""
             elif command_or_module.lower() == "nsfw":
-                haha = "NSFW"
-                yes = "NSFW"
+                cogname = "NSFW"
+                embedcommandname = "NSFW"
                 extra = "**These can only be used in an NSFW channel**\n\n"
             elif command_or_module.lower() == "adminpanel":
-                haha = "AdminPanel"
-                yes = "Admin Panel"
+                cogname = "AdminPanel"
+                embedcommandname = "Admin Panel"
                 extra = "**Server admins only**\n\n"
             else:
                 return await ctx.send("Uhhh, i couldn't find a module called `{}`".format(command_or_module))
 
-            haha = "\n".join([f"`{cmd.name}` - {cmd.help}" for cmd in bot.get_cog_commands(haha)])
-            help = discord.Embed(title=f"{paws} {yes} {paws}", description=extra + haha, color=ctx.me.colour)
+            cogname = "\n".join([f"`{cmd.name}` - {cmd.help}" for cmd in bot.get_cog_commands(cogname)])
+            help = discord.Embed(title=f"{paws} {embedcommandname} {paws}", description=extra + cogname, color=ctx.me.colour)
             help.set_thumbnail(url=self.bot.user.avatar_url_as(format="png"))
             help.set_footer(text=f"Requested by {ctx.author}", icon_url=avy)
             try:
