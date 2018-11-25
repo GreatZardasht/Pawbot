@@ -50,8 +50,8 @@ class Moderation:
         query = "SELECT * FROM adminpanel WHERE serverid = $1;"
         row = await self.bot.db.fetchrow(query, ctx.guild.id)
         if row is None:
-            query = "INSERT INTO adminpanel VALUES ($1, $2, $3, $4, $5, $6);"
-            await self.bot.db.execute(query, ctx.guild.id, 1, 0, 0, 0, 1)
+            query = "INSERT INTO adminpanel VALUES ($1, $2, $3, $4, $5, $6, $7);"
+            await self.bot.db.execute(query, ctx.guild.id, 0, 0, 1, 0, 0, 0)
             query = "SELECT * FROM adminpanel WHERE serverid = $1;"
             row = await self.bot.db.fetchrow(query, ctx.guild.id)
         return row
@@ -462,11 +462,10 @@ class Moderation:
         await msgtodel.delete()
         await ctx.message.delete()
         if rowcheck['embeds'] is 0 or not permissions.can_embed(ctx):
-            await channel.send(f"```\n{msgtodel.author.name}#{msgtodel.author.discriminator}: {msgtodel.content}\n```")
-        else:
-            embed = discord.Embed(colour=discord.Colour(0x5fa05e), description=f"{msgtodel.content}")
-            embed.set_author(name=f"{msgtodel.author.name}", icon_url=f"{msgtodel.author.avatar_url}")
-            await channel.send(embed=embed)
+            return await channel.send(f"```\n{msgtodel.author.name}#{msgtodel.author.discriminator}: {msgtodel.content}\n```")
+        embed = discord.Embed(colour=discord.Colour(0x5fa05e), description=f"{msgtodel.content}")
+        embed.set_author(name=f"{msgtodel.author.name}", icon_url=f"{msgtodel.author.avatar_url}")
+        await channel.send(embed=embed)
 
 
 def setup(bot):
