@@ -6,8 +6,6 @@ from io import BytesIO
 from discord.ext import commands
 from utils import permissions, default
 
-embedenabled = 1
-
 
 class MemberID(commands.Converter):
     async def convert(self, ctx, argument):
@@ -47,6 +45,16 @@ class Moderation:
     def generatecase():
         case = random.randint(11111, 99999)
         return f"{int(case)}"
+
+    async def getserverstuff(self, ctx):
+        query = "SELECT * FROM adminpanel WHERE serverid = $1;"
+        row = await self.bot.db.fetchrow(query, ctx.guild.id)
+        if row is None:
+            query = "INSERT INTO adminpanel VALUES ($1, $2, $3, $4, $5, $6);"
+            await self.bot.db.execute(query, ctx.guild.id, 1, 0, 0, 0, 1)
+            query = "SELECT * FROM adminpanel WHERE serverid = $1;"
+            row = await self.bot.db.fetchrow(query, ctx.guild.id)
+        return row
 
     @commands.command()
     @commands.guild_only()
@@ -428,21 +436,6 @@ class Moderation:
 
         await self.do_removal(ctx, search, predicate)
 
-    @prune.command(name='reactions')
-    async def _reactions(self, ctx, search=100):
-        """Removes all reactions from messages that have them."""
-
-        if search > 2000:
-            return await ctx.send(f'Too many messages to search for ({search}/2000)')
-
-        total_reactions = 0
-        async for message in ctx.history(limit=search, before=ctx.message):
-            if not message.reactions:
-                total_reactions += sum(r.count for r in message.reactions)
-                await message.clear_reactions()
-
-        await ctx.send(f'Successfully removed {total_reactions} reactions.')
-
     @commands.command()
     @commands.guild_only()
     @permissions.has_permissions(manage_roles=True)
@@ -465,9 +458,10 @@ class Moderation:
     @commands.guild_only()
     async def move(self, ctx, msgid: int, channel: discord.TextChannel):
         msgtodel = await ctx.channel.get_message(msgid)
+        rowcheck = await self.getserverstuff(ctx)
         await msgtodel.delete()
         await ctx.message.delete()
-        if embedenabled is 0 or not permissions.can_embed(ctx):
+        if rowcheck['embeds'] is 0 or not permissions.can_embed(ctx):
             await channel.send(f"```\n{msgtodel.author.name}#{msgtodel.author.discriminator}: {msgtodel.content}\n```")
         else:
             embed = discord.Embed(colour=discord.Colour(0x5fa05e), description=f"{msgtodel.content}")
