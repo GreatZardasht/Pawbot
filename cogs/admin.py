@@ -3,6 +3,7 @@ import aiohttp
 import traceback
 import discord
 import textwrap
+import asyncio
 import io
 import json
 
@@ -330,7 +331,7 @@ class Admin:
             file.seek(0)
             json.dump(content, file)
             file.truncate()
-        await ctx.send(f"I have successfully blacklisted the id **{uid}**")#
+        await ctx.send(f"I have successfully blacklisted the id **{uid}**")
 
     @commands.command()
     @commands.check(repo.is_owner)
@@ -369,6 +370,31 @@ class Admin:
             await ctx.send('Too many results...', file=discord.File(fp, 'results.txt'))
         else:
             await ctx.send(fmt)
+
+    @commands.command()
+    @commands.check(repo.is_owner)
+    async def uplink(self, ctx, uplinkchannelid: int, timeouttime: int):
+        """ Connect to a channel and echo messages between them """
+        msguplinkchan = self.bot.get_channel(uplinkchannelid)
+        with open("uplink.json", "r+") as file:
+            content = json.load(file)
+            content["uplinkchan"] = uplinkchannelid
+            content["downlinkchan"] = ctx.channel.id
+            file.seek(0)
+            json.dump(content, file)
+            file.truncate()
+        await msguplinkchan.send("A support staff member has connected to the channel.")
+        await ctx.send("Connected.")
+        await asyncio.sleep(timeouttime)
+        with open("uplink.json", "r+") as file:
+            content = json.load(file)
+            content["uplinkchan"] = 0
+            content["downlinkchan"] = 0
+            file.seek(0)
+            json.dump(content, file)
+            file.truncate()
+        await ctx.send("Disconnected.")
+        await msguplinkchan.send("The connection was closed.")
 
 
 def setup(bot):
