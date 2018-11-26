@@ -39,8 +39,8 @@ class Events:
             _traceback = ''.join(_traceback)
             error = '```py\n{2}{0}: {3}\n```'.format(type(err).__name__, ctx.message.content, _traceback, err)
             logchannel = self.bot.get_channel(508420200815656966)
-            await ctx.send("There was an error in processing the command, our staff have been notified.")
-            await logchannel.send(f"`ERROR`\n{error}\nRoot server: {ctx.guild.name} ({ctx.guild.id})\nRoot user: {ctx.author.name}#{ctx.author.discriminator} ({ctx.author.id})")
+            await ctx.send("There was an error in processing the command, our staff team have been notified, and will be in contact soon.")
+            await logchannel.send(f"`ERROR`\n{error}\nRoot Server: {ctx.guild.name} ({ctx.guild.id})\nRoot Channel: {ctx.channel.name} ({ctx.channel.id})\nRoot User: {ctx.author.name}#{ctx.author.discriminator} ({ctx.author.id})")
 
         elif isinstance(err, errors.CheckFailure):
             pass
