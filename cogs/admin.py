@@ -247,7 +247,7 @@ class Admin:
         if ctx.invoked_subcommand is None:
             await ctx.send("...")
 
-    @sudo.command(aliases=["u", "--u", "--user", "user"])
+    @sudo.command(aliases=["user"])
     @commands.check(repo.is_owner)
     async def sudo_user(self, ctx, who: Union[discord.Member, discord.User], *, command: str):
         """Run a cmd under someone else's name
@@ -258,7 +258,7 @@ class Admin:
         new_ctx = await self.bot.get_context(msg)
         await self.bot.invoke(new_ctx)
 
-    @sudo.command(aliases=["c", "--c", "--channel", "channel"])
+    @sudo.command(aliases=["channel"])
     @commands.check(repo.is_owner)
     async def sudo_channel(self, ctx, chid: int, *, command: str):
         """Run a command as another user."""
@@ -342,7 +342,6 @@ class Admin:
 
         is_multistatement = query.count(';') > 1
         if is_multistatement:
-            # fetch does not support multiple statements
             strategy = self.bot.db.execute
         else:
             strategy = self.bot.db.fetch
@@ -371,10 +370,17 @@ class Admin:
         else:
             await ctx.send(fmt)
 
-    @commands.command()
+    @commands.group(aliases=["ul"])
     @commands.check(repo.is_owner)
-    async def uplink(self, ctx, uplinkchannelid: int, timeouttime: int):
-        """ Connect to a channel and echo messages between them """
+    async def uplink(self, ctx):
+        """ Relay messages between current and target channel """
+        if ctx.invoked_subcommand is None:
+            await ctx.send("...")
+
+    @uplink.command(alisases=['--o', 'open'])
+    @commands.check(repo.is_owner)
+    async def uplink_open(self, ctx, uplinkchannelid: int):
+        """ Open the connection """
         msguplinkchan = self.bot.get_channel(uplinkchannelid)
         with open("uplink.json", "r+") as file:
             content = json.load(file)
@@ -385,16 +391,22 @@ class Admin:
             file.truncate()
         await msguplinkchan.send("A support staff member has connected to the channel.")
         await ctx.send("Connected.")
-        await asyncio.sleep(timeouttime)
+
+    @uplink.command(aliases=['--c', 'close'])
+    @commands.check(repo.is_owner)
+    async def uplink_close(self, ctx):
+        """ Close the connection """
         with open("uplink.json", "r+") as file:
-            content = json.load(file)
-            content["uplinkchan"] = 0
-            content["downlinkchan"] = 0
-            file.seek(0)
-            json.dump(content, file)
-            file.truncate()
-        await ctx.send("Disconnected.")
-        await msguplinkchan.send("The connection was closed.")
+	    content = json.load(file)
+	    msguplinkchan = self.bot.get_channel(content["uplinkchan"])
+	    content["uplinkchan"] = 0
+	    content["downlinkchan"] = 0
+	    file.seek(0)
+	    json.dump(content, file)
+	    file.truncate()
+	await msguplinkchan.send("The connection was closed.")
+	await ctx.send("Disconnected")
+
 
 
 def setup(bot):
