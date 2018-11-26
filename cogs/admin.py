@@ -375,9 +375,12 @@ class Admin:
     async def uplink(self, ctx):
         """ Relay messages between current and target channel """
         if ctx.invoked_subcommand is None:
-            await ctx.send("...")
+            _help = await ctx.bot.formatter.format_help_for(ctx, ctx.command)
 
-    @uplink.command(alisases=['--o', 'open'])
+            for page in _help:
+                await ctx.send(page)
+
+    @uplink.command(name='-o')
     @commands.check(repo.is_owner)
     async def uplink_open(self, ctx, uplinkchannelid: int):
         """ Open the connection """
@@ -389,24 +392,23 @@ class Admin:
             file.seek(0)
             json.dump(content, file)
             file.truncate()
-        await msguplinkchan.send("A support staff member has connected to the channel.")
-        await ctx.send("Connected.")
+            await msguplinkchan.send("A support staff member has connected to the channel.")
+            await ctx.send("Connected.")
 
-    @uplink.command(aliases=['--c', 'close'])
+    @uplink.command(name='-c')
     @commands.check(repo.is_owner)
     async def uplink_close(self, ctx):
         """ Close the connection """
         with open("uplink.json", "r+") as file:
-	    content = json.load(file)
-	    msguplinkchan = self.bot.get_channel(content["uplinkchan"])
-	    content["uplinkchan"] = 0
-	    content["downlinkchan"] = 0
-	    file.seek(0)
-	    json.dump(content, file)
-	    file.truncate()
-	await msguplinkchan.send("The connection was closed.")
-	await ctx.send("Disconnected")
-
+            content = json.load(file)
+            msguplinkchan = self.bot.get_channel(content["uplinkchan"])
+            content["uplinkchan"] = 0
+            content["downlinkchan"] = 0
+            file.seek(0)
+            json.dump(content, file)
+            file.truncate()
+            await msguplinkchan.send("The connection was closed.")
+            await ctx.send("Disconnected")
 
 
 def setup(bot):
