@@ -6,7 +6,7 @@ import io
 
 from random import randint
 from discord.ext import commands
-from utils import lists, http, default, eapi, sfapi
+from utils import lists, http, default, eapi, sfapi, permissions
 
 processapi = eapi.processapi
 processshowapi = eapi.processshowapi
@@ -28,25 +28,37 @@ class Fun:
         self.bot = bot
         self.config = default.get("config.json")
 
+    async def getserverstuff(self, ctx):
+        query = "SELECT * FROM adminpanel WHERE serverid = $1;"
+        row = await self.bot.db.fetchrow(query, ctx.guild.id)
+        if row is None:
+            query = "INSERT INTO adminpanel VALUES ($1, $2, $3, $4, $5, $6, $7);"
+            await self.bot.db.execute(query, ctx.guild.id, 0, 0, 1, 0, 0, 0)
+            query = "SELECT * FROM adminpanel WHERE serverid = $1;"
+            row = await self.bot.db.fetchrow(query, ctx.guild.id)
+        return row
+
     @commands.command(aliases=['8ball'])
     async def eightball(self, ctx, *, question: commands.clean_content):
         """ Consult 8ball to receive an answer """
         answer = random.choice(lists.ballresponse)
         await ctx.send(f"🎱 **Question:** {question}\n**Answer:** {answer}")
 
-    @staticmethod
-    async def randomimageapi(ctx, url, endpoint):
+    async def randomimageapi(self, ctx, url, endpoint):
+        rowcheck = await self.getserverstuff(ctx)
         try:
-            r = await http.get(url, res_method="json", no_cache=True)
+            urltouse = url.replace("webp", "png")
+            r = await http.get(urltouse, res_method="json", no_cache=True)
         except json.JSONDecodeError:
             return await ctx.send("Couldn't find anything from the API")
-
+        if rowcheck['embeds'] is 0 or not permissions.can_embed(ctx):
+            return await ctx.send(r[endpoint])
         embed = discord.Embed(colour=249742)
         embed.set_image(url=r[endpoint])
         await ctx.send(embed=embed)
 
-    @staticmethod
-    async def textapi(ctx, url, endpoint):
+
+    async def textapi(self, ctx, url, endpoint):
         try:
             r = await http.get(url, res_method="json", no_cache=True)
         except json.JSONDecodeError:
@@ -54,8 +66,7 @@ class Fun:
 
         await ctx.send(f"{r[endpoint]}")
 
-    @staticmethod
-    async def factapi(ctx, url, endpoint):
+    async def factapi(self, ctx, url, endpoint):
         try:
             r = await http.get(url, res_method="json", no_cache=True)
         except json.JSONDecodeError:
@@ -63,8 +74,7 @@ class Fun:
 
         await ctx.send(f'**Did you know?** 🤔\n\n{r[endpoint]}')
 
-    @staticmethod
-    async def asciitext(ctx, url):
+    async def asciitext(self, ctx, url):
         try:
             with requests.get(url) as f:
                 html = f.text
@@ -81,7 +91,7 @@ class Fun:
     @commands.command()
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def dog(self, ctx):
-        """ Posts a random dog """  # https://dog.ceo/api/breeds/image/random Fetch!
+        """ Posts a random dog """
         await self.randomimageapi(ctx, 'https://random.dog/woof.json', 'url')
 
     @commands.command()
@@ -225,22 +235,6 @@ class Fun:
         await ctx.send(f"⬇️ {t_lower}")
 
     @commands.command()
-    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
-    async def headpat(self, ctx):
-        """Posts a random headpat from headp.at"""
-
-        def url_to_bytes(url):
-            data = requests.get(url)
-            content = io.BytesIO(data.content)
-            filename = url.rsplit("/", 1)[-1]
-            return {"content": content, "filename": filename}
-
-        pats = requests.get("http://headp.at/js/pats.json").json()
-        pat = random.choice(pats)
-        file = url_to_bytes("http://headp.at/pats/{}".format(pat))
-        await ctx.send(file=discord.File(file["content"], file["filename"]))
-
-    @commands.command()
     async def hug(self, ctx, user: discord.Member = None):
         """ Hug a user! """
         if user is None:
@@ -293,18 +287,14 @@ class Fun:
 
     @commands.command(hidden=True)
     async def highcontrastphotooffruitfloatingthreateninglyinthedark(self, ctx):
-        """ .. """
+        """ Well.. It's fruit I guess? """
         await ctx.send("https://i.imgur.com/gtm1VKQ.jpg")
-
-    @commands.command(hidden=True)
-    async def lighttheme(self, ctx):
-        """ E """
-        await ctx.send("Ew https://i.imgur.com/fbIE97N.png")
 
     @commands.command()
     @commands.guild_only()
     async def ship(self, ctx, user: discord.User, *, user2: discord.User=None):
         """Checks the shiprate for 2 users"""
+        rowcheck = await self.getserverstuff(ctx)
         author = ctx.message.author
         if not user2:
             user2 = author
@@ -360,6 +350,8 @@ class Fun:
             name1 = name1[:int(len(name1) / 2):]
             name2 = user2.name.replace(" ", "")
             name2 = name2[int(len(name2) / 2)::]
+            if rowcheck['embeds'] is 0 or not permissions.can_embed(ctx):
+                return await ctx.send(f"```\n{user.name} x {user2.name}\n\n{n}% {bar} {heart}\n\nShipname: {str(name1 + name2).lower()}\n```")
             ship = discord.Embed(description=f"**{n}%** **`{bar}`** {heart}", color=ctx.me.colour)
             ship.title = f"{user.name} x {user2.name}"
             ship.set_footer(text=f"Shipname: {str(name1 + name2).lower()}")
