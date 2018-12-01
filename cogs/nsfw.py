@@ -3,7 +3,7 @@ import discord
 import json
 
 from discord.ext import commands
-from utils import http, default, sfapi, eapi
+from utils import http, default, sfapi, eapi, permissions
 
 bannedtags = ["loli", "shota"]
 
@@ -27,12 +27,25 @@ class NSFW:
         self.bot = bot
         self.config = default.get("config.json")
 
+    async def getserverstuff(self, ctx):
+        query = "SELECT * FROM adminpanel WHERE serverid = $1;"
+        row = await self.bot.db.fetchrow(query, ctx.guild.id)
+        if row is None:
+            query = "INSERT INTO adminpanel VALUES ($1, $2, $3, $4, $5, $6, $7);"
+            await self.bot.db.execute(query, ctx.guild.id, 0, 0, 1, 0, 0, 0)
+            query = "SELECT * FROM adminpanel WHERE serverid = $1;"
+            row = await self.bot.db.fetchrow(query, ctx.guild.id)
+        return row
+
     async def randomimageapi(self, ctx, url, endpoint):
+        rowcheck = await self.getserverstuff(ctx)
         try:
-            r = await http.get(url, res_method="json", no_cache=True)
+            urltouse = url.replace("webp", "png")
+            r = await http.get(urltouse, res_method="json", no_cache=True)
         except json.JSONDecodeError:
             return await ctx.send("Couldn't find anything from the API")
-
+        if rowcheck['embeds'] is 0 or not permissions.can_embed(ctx):
+            return await ctx.send(r[endpoint])
         embed = discord.Embed(colour=249742)
         embed.set_image(url=r[endpoint])
         await ctx.send(embed=embed)
@@ -42,6 +55,9 @@ class NSFW:
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def lewdneko(self, ctx):
         """ Posts a lewd neko """
+        rowcheck = await self.getserverstuff(ctx)
+        if rowcheck['nsfw'] is 0:
+            return await ctx.send(";w; NSFW is disabled in the config...")
         await self.randomimageapi(ctx, 'https://nekos.life/api/v2/img/lewd', 'url')
 
     @commands.command()
@@ -49,6 +65,9 @@ class NSFW:
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def lewdfeet(self, ctx):
         """ Posts a lewd foot image or gif """
+        rowcheck = await self.getserverstuff(ctx)
+        if rowcheck['nsfw'] is 0:
+            return await ctx.send(";w; NSFW is disabled in the config...")
         randomfoot = ["feet", "feetg"]
         await self.randomimageapi(ctx, f'https://nekos.life/api/v2/img/{random.choice(randomfoot)}', 'url')
 
@@ -57,6 +76,9 @@ class NSFW:
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def lewdkemo(self, ctx):
         """ Posts a lewd kemonomimi character """
+        rowcheck = await self.getserverstuff(ctx)
+        if rowcheck['nsfw'] is 0:
+            return await ctx.send(";w; NSFW is disabled in the config...")
         randomfox = ["holoero", "erokemo", "hololewd"]
         await self.randomimageapi(ctx, f'https://nekos.life/api/v2/img/{random.choice(randomfox)}', 'url')
 
@@ -65,12 +87,18 @@ class NSFW:
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def lewdanal(self, ctx):
         """ Posts a lewd anal gif/picture """
+        rowcheck = await self.getserverstuff(ctx)
+        if rowcheck['nsfw'] is 0:
+            return await ctx.send(";w; NSFW is disabled in the config...")
         await self.randomimageapi(ctx, f'https://nekos.life/api/v2/img/anal', 'url')
 
     @commands.command()
     @commands.is_nsfw()
     async def e621(self, ctx, *args):
         """Searches e621 with given queries."""
+        rowcheck = await self.getserverstuff(ctx)
+        if rowcheck['nsfw'] is 0:
+            return await ctx.send(";w; NSFW is disabled in the config...")
         if bannedtags in args:
             return ctx.send("Pls no")
         msgtoedit = await ctx.send("Searching...")
@@ -102,6 +130,9 @@ class NSFW:
     @commands.is_nsfw()
     async def show(self, ctx, arg):
         """Show a post from e621/e926 with given post ID"""
+        rowcheck = await self.getserverstuff(ctx)
+        if rowcheck['nsfw'] is 0:
+            return await ctx.send(";w; NSFW is disabled in the config...")
         msgtoedit = await ctx.send("Searching...")
         print("------")
         arg = str(arg)
@@ -123,6 +154,9 @@ class NSFW:
     @commands.is_nsfw()
     async def sofurry(self, ctx, *args):
         """Searches SoFurry with given queries."""
+        rowcheck = await self.getserverstuff(ctx)
+        if rowcheck['nsfw'] is 0:
+            return await ctx.send(";w; NSFW is disabled in the config...")
         maxlevel = "2"
         if bannedtags in args:
             return ctx.send("Pls no")
