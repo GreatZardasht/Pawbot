@@ -8,7 +8,7 @@ import dhooks
 from dhooks import Webhook, Embed
 from discord.ext import commands
 from datetime import datetime
-from utils import repo, default
+from utils import repo, default, permissions
 
 
 class Information:
@@ -16,6 +16,16 @@ class Information:
         self.bot = bot
         self.config = default.get("config.json")
         self.process = psutil.Process(os.getpid())
+
+    async def getserverstuff(self, ctx):
+        query = "SELECT * FROM adminpanel WHERE serverid = $1;"
+        row = await self.bot.db.fetchrow(query, ctx.guild.id)
+        if row is None:
+            query = "INSERT INTO adminpanel VALUES ($1, $2, $3, $4, $5, $6, $7);"
+            await self.bot.db.execute(query, ctx.guild.id, 0, 0, 1, 0, 0, 0)
+            query = "SELECT * FROM adminpanel WHERE serverid = $1;"
+            row = await self.bot.db.fetchrow(query, ctx.guild.id)
+        return row
 
     def get_bot_uptime(self, *, brief=False):
         now = datetime.utcnow()
@@ -147,7 +157,7 @@ class Information:
     @commands.command(aliases=['supportserver', 'feedbackserver'])
     async def botserver(self, ctx):
         """ Get an invite to our support server! """
-        if isinstance(ctx.channel, discord.DMChannel) or ctx.guild.id != 353684556848562176:
+        if isinstance(ctx.channel, discord.DMChannel) or ctx.guild.id is not 508396955660189715:
             return await ctx.send(f"**{ctx.author.name}**, you can join here! 🍻\n<{repo.invite}>")
 
         await ctx.send(f"**{ctx.author.name}**, this is my home.")
@@ -156,8 +166,12 @@ class Information:
     @commands.guild_only()
     async def about(self, ctx):
         """ About the bot """
+        rowcheck = await self.getserverstuff(ctx)
         ramUsage = self.process.memory_full_info().rss / 1024**2
         avgmembers = round(len(self.bot.users) / len(self.bot.guilds))
+
+        if rowcheck['embeds'] is 0 or not permissions.can_embed(ctx):
+            return await ctx.send(f"```\nAbout {ctx.bot.user.name} | {repo.version}\nUptime: {self.get_bot_uptime()}\nDev: Paws#0001\nLibrary: discord.py\nCommands Loaded: {len([x.name for x in self.bot.commands])}\nGuilds: {len(ctx.bot.guilds)} (avg: {avgmembers} users/server )\nRAM: {ramUsage:.2f} MB\n```")
 
         embed = discord.Embed(title=f"About **{ctx.bot.user.name}** | **{repo.version}**", colour=ctx.me.colour, url="https://discordapp.com/oauth2/authorize?client_id=460383314973556756&scope=bot&permissions=469888118",)
         embed.set_thumbnail(url=ctx.bot.user.avatar_url)
@@ -165,7 +179,7 @@ class Information:
         embed.add_field(name="Dev", value="Paws#0001", inline=True)
         embed.add_field(name="Library", value="discord.py", inline=True)
         embed.add_field(name="Commands loaded", value=len([x.name for x in self.bot.commands]), inline=True)
-        embed.add_field(name="Servers", value=f"{len(ctx.bot.guilds)} (avg: {avgmembers} users/server )", inline=True)
+        embed.add_field(name="Guilds", value=f"{len(ctx.bot.guilds)} (avg: {avgmembers} users/server )", inline=True)
         embed.add_field(name="RAM", value=f"{ramUsage:.2f} MB", inline=True)
         embed.add_field(name="Support", value=f"[Here]({repo.invite})", inline=True)
 
@@ -174,20 +188,29 @@ class Information:
     @commands.command()
     async def avatar(self, ctx, user: discord.Member = None):
         """ Get the avatar of you or someone else """
+        rowcheck = await self.getserverstuff(ctx)
+
         if user is None:
             user = ctx.author
 
+        if rowcheck['embeds'] is 0 or not permissions.can_embed(ctx):
+            return await ctx.send(user.avatar_url)
+
         embed = discord.Embed(colour=249742)
-        embed.description = f"Avatar to **{user.name}**\nClick [here]({user.avatar_url}) to get image"
-        embed.set_thumbnail(url=user.avatar_url)
+        embed.set_image(url=user.avatar_url)
         await ctx.send(embed=embed)
 
     @commands.command()
     @commands.guild_only()
     async def joinedat(self, ctx, user: discord.Member = None):
         """ Check when a user joined the current server """
+        rowcheck = await self.getserverstuff(ctx)
+
         if user is None:
             user = ctx.author
+
+        if rowcheck['embeds'] is 0 or not permissions.can_embed(ctx):
+            return await ctx.send(f"**{user}** joined **{ctx.guild.name}**\n{default.date(user.joined_at)}")
 
         embed = discord.Embed(colour=249742)
         embed.set_thumbnail(url=user.avatar_url)
@@ -200,6 +223,8 @@ class Information:
         """ Check info about current server """
         if ctx.invoked_subcommand is None:
 
+            rowcheck = await self.getserverstuff(ctx)
+            
             findbots = sum(1 for member in ctx.guild.members if member.bot)
 
             emojilist = "​"
@@ -207,6 +232,10 @@ class Information:
                 emojilist += f"{Emoji} "
             if len(emojilist) > 1024:
                 emojilist = "Too long!"
+
+            if rowcheck['embeds'] is 0 or not permissions.can_embed(ctx):
+                return await ctx.send(f"```\nServer Name: {ctx.guild.name}\nServer ID: {ctx.guild.id}\nMembers: {ctx.guild.member_count}\nBots: {findbots}\nOwner: {ctx.guild.owner}\nRegion: {ctx.guild.region}\nCreated At: {default.date(ctx.guild.created_at)}\n```\nEmojis: {emojilist}")
+
             embed = discord.Embed(colour=249742)
             embed.set_thumbnail(url=ctx.guild.icon_url)
             embed.add_field(name="Server Name", value=ctx.guild.name, inline=True)
@@ -222,6 +251,8 @@ class Information:
     @commands.command()
     async def user(self, ctx, user: discord.Member = None):
         """ Get user information """
+        rowcheck = await self.getserverstuff(ctx)
+
         if user is None:
             user = ctx.author
 
@@ -229,16 +260,16 @@ class Information:
 
         usrstatus = user.status
 
-        if usrstatus == "online":
+        if usrstatus == "online" or usrstatus == discord.Status.online:
             usrstatus = "<:online:514203909363859459> Online"
-        elif usrstatus == "idle":
+        elif usrstatus == "idle" or usrstatus == discord.Status.idle:
             usrstatus = "<:away:514203859057639444> Away"
-        elif usrstatus == "dnd":
+        elif usrstatus == "dnd" or usrstatus == discord.Status.dnd:
             usrstatus = "<:dnd:514203823888138240> DnD"
-        elif usrstatus == "offline":
+        elif usrstatus == "offline" or usrstatus == discord.Status.offline:
             usrstatus = "<:offline:514203770452836359> Offline"
         else:
-            usrstatus = "<:online:514203909363859459> Online"
+            usrstatus = "Broken"
 
         if user.nick:
             nick = user.nick
@@ -246,7 +277,7 @@ class Information:
             nick = "No Nickname"
 
         if user.activity:
-            usrgame = f"{user.activity.name}\n{user.activity.details}"
+            usrgame = f"{user.activity.name}"
         else:
             usrgame = "No current game"
 
@@ -256,10 +287,13 @@ class Information:
             if "@everyone" in Role.name:
                 usrroles += "| @everyone | "
             else:
-                usrroles += f"{Role.mention} | "
+                usrroles += f"{Role.name} | "
 
         if len(usrroles) > 1024:
             usrroles = "Too many to count!"
+        
+        if rowcheck['embeds'] is 0 or not permissions.can_embed(ctx):
+            return await ctx.send(f"Name: `{user.name}#{user.discriminator}`\nNick: `{nick}`\nUID: `{user.id}`\nStatus: {usrstatus}\nGame: `{usrgame}`\nCreated On: `{default.date(user.created_at)}`\nRoles:\n```\n{usrroles}\n```")
 
         embed.set_thumbnail(url=user.avatar_url)
         embed.add_field(name="Name", value=f"{user.name}#{user.discriminator}\n{nick}\n({user.id})", inline=True)
