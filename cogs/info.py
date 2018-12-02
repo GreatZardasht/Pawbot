@@ -5,6 +5,7 @@ import os
 import asyncio
 import dhooks
 
+from collections import Counter
 from dhooks import Webhook, Embed
 from discord.ext import commands
 from datetime import datetime
@@ -16,6 +17,7 @@ class Information:
         self.bot = bot
         self.config = default.get("config.json")
         self.process = psutil.Process(os.getpid())
+        self.counter = Counter()
 
     async def getserverstuff(self, ctx):
         query = "SELECT * FROM adminpanel WHERE serverid = $1;"
@@ -48,10 +50,11 @@ class Information:
 
     @commands.command(aliases=["?"])
     async def help(self, ctx, option: str=None, *, command_or_module: str=None):
+        """ Gives my commands! """
         bot = self.bot
         server = self.bot.get_emoji(513831608265080852)
         bottag = self.bot.get_emoji(513831608265080852)
-        public_modules = ["adminpanel", "information", "encryption", "moderator", "nsfw", "fun"]
+        public_modules = ["adminpanel", "info", "encryption", "mod", "nsfw", "fun"]
         paws = self.bot.get_emoji(513831608265080852)
         user = ctx.author
         avy = user.avatar_url
@@ -105,13 +108,13 @@ class Information:
                 cogname = "Fun"
                 embedcommandname = "Fun"
                 extra = ""
-            elif command_or_module.lower() == "information":
+            elif command_or_module.lower() == "info":
                 cogname = "Information"
                 embedcommandname = "Info"
                 extra = ""
-            elif command_or_module.lower() == "moderation":
+            elif command_or_module.lower() == "mod":
                 cogname = "Moderation"
-                embedcommandname = "Moderation"
+                embedcommandname = "Mod"
                 extra = "**These Commands Require Perms**\n\n"
             elif command_or_module.lower() == "encryption":
                 cogname = "Encryption"
@@ -382,11 +385,29 @@ class Information:
 
     @commands.command()
     async def compare(self, ctx, str1: str = None, str2: str = None):
-        """ Compare 2 strings, put in "" if you want multiple words per string """
+        """ Compare 2 strings, put in "" for multiple words per string """
         if str1 == str2:
             await ctx.send("The two strings are the same!")
         else:
             await ctx.send("The two strings are different...")
+
+    @commands.command()
+    @commands.guild_only()
+    async def remindme(self, ctx, time: int, *, reminder):
+        """ Pings you with the reminder after an amount of minutes """
+        if self.counter[f"{ctx.author.id}.reminder"] is 1:
+            return await ctx.send("You already have a current reminder!")
+        if len(reminder) > 1500:
+            return ctx.send("That reminder is too big!")
+        timetowait = int(time*60)
+        if timetowait > 604800:
+            return await ctx.send("That's too long! I can wait up to 7 days (10080 mins).")
+        timetowait = int(timetowait)
+        await ctx.send(f"Ok! I'll remind you in `{time}` minute(s) about `{reminder}`")
+        self.counter[f"{ctx.author.id}.reminder"] += 1
+        await asyncio.sleep(timetowait)
+        await ctx.send(f"{ctx.author.mention} your reminder: `{reminder}` is complete!")
+        self.counter[f"{ctx.author.id}.reminder"] -= 1
 
 
 def setup(bot):
