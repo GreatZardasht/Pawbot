@@ -45,6 +45,16 @@ class Moderation:
     def generatecase():
         case = random.randint(11111, 99999)
         return f"{int(case)}"
+    
+    async def getmodlogstuff(self, ctx):
+        query = "SELECT * FROM idstore WHERE serverid = $1;"
+        row = await self.bot.db.fetchrow(query, ctx.guild.id)
+        if row is None:
+            query = "INSERT INTO idstore VALUES ($1, $2, $3, $4, $5, $6, $7, $8);"
+            await self.bot.db.execute(query, ctx.guild.id, 0, 0, 0, 0, 1, 0, 0)
+            query = "SELECT * FROM idstore WHERE serverid = $1;"
+            row = await self.bot.db.fetchrow(query, ctx.guild.id)
+        return row
 
     async def getserverstuff(self, ctx):
         query = "SELECT * FROM adminpanel WHERE serverid = $1;"
@@ -68,16 +78,18 @@ class Moderation:
         if row is None:
             return await ctx.send("That isn't a valid case...")
         query = "UPDATE modlogs SET reason = $1 WHERE serverid = $2 AND casenumber = $3;"
-        target = self.bot.get_user(row['target'])
-        moderator = self.bot.get_user(row['moderator'])
-        logchannel = self.bot.get_channel(508578600035942410)
-        msgtoedit = await logchannel.get_message(row['caseid'])
         await self.bot.db.execute(query, reason, ctx.guild.id, case)
-        embed = discord.Embed(title=f"{row['casetype']} | Case {row['casenumber']}", colour=discord.Colour(16711680))
-        embed.add_field(name="User", value=f"{target.name}#{target.discriminator} ({target.id}) ({target.mention})", inline=False)
-        embed.add_field(name="Reason", value=f"{reason}", inline=False)
-        embed.add_field(name="Responsible Moderator", value=f"{moderator.name}#{moderator.discriminator}", inline=False)
-        await msgtoedit.edit(embed=embed)
+        target = self.bot.get_user(row['target'])
+        query = "UPDATE modlogs SET moderator = $1 WHERE serverid = $2 AND casenumber = $3;"
+        await self.bot.db.execute(query, ctx.author.id, ctx.guild.id, case)
+        moderator = self.bot.get_user(row['moderator'])
+        logchannel = await self.getmodlogstuff(ctx)
+        logchannel = self.bot.get_channel(logchannel['modlogchan'])
+        try:
+            msgtoedit = await logchannel.get_message(row['caseid'])
+            await msgtoedit.edit(content=f"**{row['casetype']}** | Case {row['casenumber']}\n**User**: {target.name}#{target.discriminator} ({target.id}) ({target.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {moderator.name}#{moderator.discriminator}")
+        except :
+            return await ctx.send("Something broke ;w;")
         await ctx.message.delete()
 
     @commands.command()
@@ -140,19 +152,16 @@ class Moderation:
         """ Kicks a user from the current server. """
         try:
             await member.kick()
-            logchannel = self.bot.get_channel(508578600035942410)
+            logchannel = await self.getmodlogstuff(ctx)
+            logchannel = self.bot.get_channel(logchannel['modlogchan'])
             casenum = self.generatecase()
             if reason is None:
-                reason = f"Responsible moderator, please type `pb!reason {casenum} <reason>`"
+                reason = f"Responsible moderator, please type `paw reason {casenum} <reason>`"
 
-            embed = discord.Embed(title=f"Kick | Case {casenum}", colour=discord.Colour(16711680))
-            embed.add_field(name="User", value=f"{member.name}#{member.discriminator} ({member.id}) ({member.mention})")
-            embed.add_field(name="Reason", value=f"{reason}")
-            embed.add_field(name="Responsible Moderator", value=f"{ctx.author.name}#{ctx.author.discriminator}")
-            logmsg = await logchannel.send(embed=embed)
+            logmsg = await logchannel.send(f"**Kick** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}")
             query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
             await self.bot.db.execute(query, ctx.guild.id, logmsg.id, int(casenum), "Kick", member.id, ctx.author.id, reason)
-        except Exception as e:
+        except PermissionError as e:
             await ctx.send(e)
 
     @commands.command(aliases=["nick"])
@@ -172,71 +181,60 @@ class Moderation:
     @commands.command()
     @commands.guild_only()
     @permissions.has_permissions(ban_members=True)
-    async def ban(self, ctx, banmember: MemberID, *, reason: str = None):
+    async def ban(self, ctx, member: discord.Member, *, reason: str = None):
         """ Bans a user from the current server. """
         try:
-            await ctx.guild.ban(discord.Object(id=banmember))
-            member = self.bot.get_user(banmember)
-            logchannel = self.bot.get_channel(508578600035942410)
+            await ctx.guild.ban(member)
+            logchannel = await self.getmodlogstuff(ctx)
+            logchannel = self.bot.get_channel(logchannel['modlogchan'])
             casenum = self.generatecase()
             if reason is None:
-                reason = f"Responsible moderator, please type `pb!reason {casenum} <reason>`"
+                reason = f"Responsible moderator, please type `paw reason {casenum} <reason>`"
 
-            embed = discord.Embed(title=f"Ban | Case {casenum}", colour=discord.Colour(16711680))
-            embed.add_field(name="User", value=f"{member.name}#{member.discriminator} ({member.id}) ({member.mention})")
-            embed.add_field(name="Reason", value=f"{reason}")
-            embed.add_field(name="Responsible Moderator", value=f"{ctx.author.name}#{ctx.author.discriminator}")
-            logmsg = await logchannel.send(embed=embed)
+            logmsg = await logchannel.send(f"**Ban** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}")
             query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
             await self.bot.db.execute(query, ctx.guild.id, logmsg.id, int(casenum), "Ban", member.id, ctx.author.id, reason)
-        except Exception as e:
+        except PermissionError as e:
             await ctx.send(e)
 
-    @commands.command()
+    @commands.command(aliases=['hackban'])
     @commands.guild_only()
     @permissions.has_permissions(ban_members=True)
-    async def softban(self, ctx, banmember: MemberID, *, reason: str = None):
-        """ Bans a user from the current server, then unbans them again. """
+    async def idban(self, ctx, banmember: int, *, reason: str = None):
+        """ Bans a user id from the current server. """
         try:
             await ctx.guild.ban(discord.Object(id=banmember))
-            await ctx.guild.unban(discord.Object(id=banmember))
-            logchannel = self.bot.get_channel(508578600035942410)
             member = self.bot.get_user(banmember)
+            logchannel = await self.getmodlogstuff(ctx)
+            logchannel = self.bot.get_channel(logchannel['modlogchan'])
             casenum = self.generatecase()
             if reason is None:
-                reason = f"Responsible moderator, please type `pb!reason {casenum} <reason>`"
+                reason = f"Responsible moderator, please type `paw reason {casenum} <reason>`"
 
-            embed = discord.Embed(title=f"Softban | Case {casenum}", colour=discord.Colour(16711680))
-            embed.add_field(name="User", value=f"{member.name}#{member.discriminator} ({member.id}) ({member.mention})")
-            embed.add_field(name="Reason", value=f"{reason}")
-            embed.add_field(name="Responsible Moderator", value=f"{ctx.author.name}#{ctx.author.discriminator}")
-            logmsg = await logchannel.send(embed=embed)
+            logmsg = await logchannel.send(f"**Hackban** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}")
             query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
-            await self.bot.db.execute(query, ctx.guild.id, logmsg.id, int(casenum), "Softban", member.id, ctx.author.id, reason)
-        except Exception as e:
+            await self.bot.db.execute(query, ctx.guild.id, logmsg.id, int(casenum), "Hackban", member.id, ctx.author.id, reason)
+        except PermissionError as e:
             await ctx.send(e)
 
     @commands.command()
     @commands.guild_only()
     @permissions.has_permissions(ban_members=True)
-    async def unban(self, ctx, banmember: MemberID, *, reason: str = None):
-        """ Bans a user from the current server. """
+    async def unban(self, ctx, banmember: int, *, reason: str = None):
+        """ Unbans a user from the current server. """
         try:
             await ctx.guild.unban(discord.Object(id=banmember))
-            logchannel = self.bot.get_channel(508578600035942410)
             member = self.bot.get_user(banmember)
+            logchannel = await self.getmodlogstuff(ctx)
+            logchannel = self.bot.get_channel(logchannel['modlogchan'])
             casenum = self.generatecase()
             if reason is None:
-                reason = f"Responsible moderator, please type `pb!reason {casenum} <reason>`"
+                reason = f"Responsible moderator, please type `paw reason {casenum} <reason>`"
 
-            embed = discord.Embed(title=f"Unban | Case {casenum}", colour=discord.Colour(16711680))
-            embed.add_field(name="User", value=f"{member.name}#{member.discriminator} ({member.id}) ({member.mention})")
-            embed.add_field(name="Reason", value=f"{reason}")
-            embed.add_field(name="Responsible Moderator", value=f"{ctx.author.name}#{ctx.author.discriminator}")
-            logmsg = await logchannel.send(embed=embed)
+            logmsg = await logchannel.send(f"**Unban** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}")
             query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
             await self.bot.db.execute(query, ctx.guild.id, logmsg.id, int(casenum), "Unban", member.id, ctx.author.id, reason)
-        except Exception as e:
+        except PermissionError as e:
             await ctx.send(e)
 
     @commands.command()
@@ -255,19 +253,17 @@ class Moderation:
 
         try:
             await member.add_roles(therole)
-            logchannel = self.bot.get_channel(508578600035942410)
+            member = self.bot.get_user(member)
+            logchannel = await self.getmodlogstuff(ctx)
+            logchannel = self.bot.get_channel(logchannel['modlogchan'])
             casenum = self.generatecase()
             if reason is None:
-                reason = f"Responsible moderator, please type `pb!reason {casenum} <reason>`"
+                reason = f"Responsible moderator, please type `paw reason {casenum} <reason>`"
 
-            embed = discord.Embed(title=f"Mute | Case {casenum}", colour=discord.Colour(16711680))
-            embed.add_field(name="User", value=f"{member.name}#{member.discriminator} ({member.id}) ({member.mention})")
-            embed.add_field(name="Reason", value=f"{reason}")
-            embed.add_field(name="Responsible Moderator", value=f"{ctx.author.name}#{ctx.author.discriminator}")
-            logmsg = await logchannel.send(embed=embed)
+            logmsg = await logchannel.send(f"**Mute** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}")
             query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
             await self.bot.db.execute(query, ctx.guild.id, logmsg.id, int(casenum), "Mute", member.id, ctx.author.id, reason)
-        except Exception as e:
+        except PermissionError as e:
             await ctx.send(e)
 
     @commands.command()
@@ -286,19 +282,17 @@ class Moderation:
 
         try:
             await member.remove_roles(therole)
-            logchannel = self.bot.get_channel(508578600035942410)
+            member = self.bot.get_user(member)
+            logchannel = await self.getmodlogstuff(ctx)
+            logchannel = self.bot.get_channel(logchannel['modlogchan'])
             casenum = self.generatecase()
             if reason is None:
-                reason = f"Responsible moderator, please type `pb!reason {casenum} <reason>`"
+                reason = f"Responsible moderator, please type `paw reason {casenum} <reason>`"
 
-            embed = discord.Embed(title=f"Unmute | Case {casenum}", colour=discord.Colour(16711680))
-            embed.add_field(name="User", value=f"{member.name}#{member.discriminator} ({member.id}) ({member.mention})")
-            embed.add_field(name="Reason", value=f"{reason}")
-            embed.add_field(name="Responsible Moderator", value=f"{ctx.author.name}#{ctx.author.discriminator}")
-            logmsg = await logchannel.send(embed=embed)
+            logmsg = await logchannel.send(f"**Mute** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}")
             query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
-            await self.bot.db.execute(query, ctx.guild.id, logmsg.id, int(casenum), "Unmute", member.id, ctx.author.id, reason)
-        except Exception as e:
+            await self.bot.db.execute(query, ctx.guild.id, logmsg.id, int(casenum), "Mute", member.id, ctx.author.id, reason)
+        except PermissionError as e:
             await ctx.send(e)
 
     @commands.group()
@@ -346,11 +340,12 @@ class Moderation:
         """ Removes messages from the current server. """
 
         if ctx.invoked_subcommand is None:
-            help_cmd = self.bot.get_command('help')
-            await ctx.invoke(help_cmd, 'prune')
+            _help = await ctx.bot.formatter.format_help_for(ctx, ctx.command)
 
-    @staticmethod
-    async def do_removal(ctx, limit, predicate, *, before=None, after=None, message=True):
+            for page in _help:
+                await ctx.send(page)
+
+    async def do_removal(self, ctx, limit, predicate, *, before=None, after=None, message=True):
         if limit > 2000:
             return await ctx.send(f'Too many messages to search given ({limit}/2000)')
 
@@ -457,6 +452,7 @@ class Moderation:
     @commands.command()
     @commands.guild_only()
     async def move(self, ctx, msgid: int, channel: discord.TextChannel):
+        """ Moves a message id to another channel. """
         msgtodel = await ctx.channel.get_message(msgid)
         rowcheck = await self.getserverstuff(ctx)
         await msgtodel.delete()

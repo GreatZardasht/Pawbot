@@ -150,9 +150,7 @@ class Fun:
 
     @commands.command()
     async def reverse(self, ctx, *, text: str):
-        """ !poow ,ffuts esreveR
-        Everything you type after reverse will of course, be reversed
-        """
+        """ !poow ,ffuts esreveR """
         t_rev = text[::-1].replace("@", "@\u200B").replace("&", "&\u200B")
         await ctx.send(f"🔁 {t_rev}")
 
@@ -189,10 +187,7 @@ class Fun:
 
     @commands.command()
     async def e926(self, ctx, *args):
-        """Searches e926 with given queries.
-        Arguments:
-        `*args` : list
-        The quer(y/ies)"""
+        """ Searches e926 with given tags. """
         msgtoedit = await ctx.send("Searching...")
         args = ' '.join(args)
         args = str(args)
@@ -220,17 +215,13 @@ class Fun:
 
     @commands.command()
     async def yell(self, ctx, *, text: str):
-        """ AAAAAAAAA!
-        Everything you type after yell will of course, be yelled
-        """
+        """ AAAAAAAAA! """
         t_upper = text.upper().replace("@", "@\u200B").replace("&", "&\u200B")
         await ctx.send(f"⬆️ {t_upper}")
 
     @commands.command()
     async def whisper(self, ctx, *, text: str):
-        """ Shh
-        Be quiet..
-        """
+        """ Shh Be quiet.. """
         t_lower = text.lower().replace("@", "@\u200B").replace("&", "&\u200B")
         await ctx.send(f"⬇️ {t_lower}")
 
@@ -284,11 +275,6 @@ class Fun:
     async def bamboozle(self, ctx):
         """ You just got bamboozled! """
         await ctx.send(f"**{ctx.author.name}** just got heckin' bamboozled!")
-
-    @commands.command(hidden=True)
-    async def highcontrastphotooffruitfloatingthreateninglyinthedark(self, ctx):
-        """ Well.. It's fruit I guess? """
-        await ctx.send("https://i.imgur.com/gtm1VKQ.jpg")
 
     @commands.command()
     @commands.guild_only()
@@ -405,7 +391,7 @@ class Fun:
 
     @commands.command()
     async def magik(self, ctx, intensity: str, imgtomagik: str):
-        """ why don'T WE JUST RELAX AND TURn on THe rADIO? wOuLd You LIKE AM OR FM """
+        """ why don'T WE JUST RELAX AND TURn on THe rADIO? """
         if imgtomagik is None:
             return ctx.send("Include some text you donk!")
         if intensity not in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']:

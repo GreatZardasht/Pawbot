@@ -242,16 +242,14 @@ class Admin:
     @commands.group(aliases=["as"])
     @commands.check(repo.is_owner)
     async def sudo(self, ctx):
-        """Run a cmd under an altered context
-        """
+        """ Run a cmd under an altered context """
         if ctx.invoked_subcommand is None:
             await ctx.send("...")
 
     @sudo.command(aliases=["user"])
     @commands.check(repo.is_owner)
     async def sudo_user(self, ctx, who: Union[discord.Member, discord.User], *, command: str):
-        """Run a cmd under someone else's name
-        """
+        """ Run a cmd under someone else's name """
         msg = copy(ctx.message)
         msg.author = who
         msg.content = ctx.prefix + command
@@ -261,7 +259,7 @@ class Admin:
     @sudo.command(aliases=["channel"])
     @commands.check(repo.is_owner)
     async def sudo_channel(self, ctx, chid: int, *, command: str):
-        """Run a command as another user."""
+        """ Run a command in a different channel. """
         cmd = copy(ctx.message)
         cmd.channel = self.bot.get_channel(chid)
         cmd.content = ctx.prefix + command
@@ -271,13 +269,14 @@ class Admin:
     @commands.command()
     @commands.check(repo.is_owner)
     async def cogs(self, ctx):
+        """ Gives all loaded cogs """
         mod = ", ".join(list(self.bot.cogs))
         await ctx.send(f"The current modules are:\n```\n{mod}\n```")
 
     @commands.command(aliases=['gsi'])
     @commands.check(repo.is_owner)
     async def getserverinfo(self, ctx, *, guild_id: int):
-        """ Makes me get the information from a guild id"""
+        """ Makes me get the information from a guild id """
         guild = self.bot.get_guild(guild_id)
         if guild is None:
             return await ctx.send("Hmph.. I got nothing..")
@@ -297,7 +296,7 @@ class Admin:
     @commands.command(alisases=['bsl'])
     @commands.check(repo.is_owner)
     async def botservers(self, ctx):
-        """Lists servers"""
+        """ Lists servers """
         guilds = sorted(list(self.bot.guilds),
                         key=lambda s: s.name.lower())
         msg = ""
@@ -314,6 +313,7 @@ class Admin:
     @commands.command(aliases=["webhooktest"])
     @commands.check(repo.is_owner)
     async def whtest(self, ctx, whlink: str, *, texttosend):
+        """ Messages a webhook """
         try:
             await ctx.message.delete()
             hook = Webhook(whlink, is_async=True)
@@ -325,6 +325,7 @@ class Admin:
     @commands.command()
     @commands.check(repo.is_owner)
     async def blacklist(self, ctx, uid: int):
+        """ Blacklists a user """
         with open("blacklist.json", "r+") as file:
             content = json.load(file)
             content["blacklist"].append(uid)
