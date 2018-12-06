@@ -161,7 +161,7 @@ class Moderation:
             logmsg = await logchannel.send(f"**Kick** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}")
             query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
             await self.bot.db.execute(query, ctx.guild.id, logmsg.id, int(casenum), "Kick", member.id, ctx.author.id, reason)
-        except PermissionError as e:
+        except discord.Forbidden as e:
             await ctx.send(e)
 
     @commands.command(aliases=["nick"])
@@ -194,7 +194,7 @@ class Moderation:
             logmsg = await logchannel.send(f"**Ban** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}")
             query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
             await self.bot.db.execute(query, ctx.guild.id, logmsg.id, int(casenum), "Ban", member.id, ctx.author.id, reason)
-        except PermissionError as e:
+        except discord.Forbidden as e:
             await ctx.send(e)
 
     @commands.command(aliases=['hackban'])
@@ -214,7 +214,7 @@ class Moderation:
             logmsg = await logchannel.send(f"**Hackban** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}")
             query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
             await self.bot.db.execute(query, ctx.guild.id, logmsg.id, int(casenum), "Hackban", member.id, ctx.author.id, reason)
-        except PermissionError as e:
+        except discord.Forbidden as e:
             await ctx.send(e)
 
     @commands.command()
@@ -234,7 +234,7 @@ class Moderation:
             logmsg = await logchannel.send(f"**Unban** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}")
             query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
             await self.bot.db.execute(query, ctx.guild.id, logmsg.id, int(casenum), "Unban", member.id, ctx.author.id, reason)
-        except PermissionError as e:
+        except discord.Forbidden as e:
             await ctx.send(e)
 
     @commands.command()
@@ -263,7 +263,7 @@ class Moderation:
             logmsg = await logchannel.send(f"**Mute** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}")
             query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
             await self.bot.db.execute(query, ctx.guild.id, logmsg.id, int(casenum), "Mute", member.id, ctx.author.id, reason)
-        except PermissionError as e:
+        except discord.Forbidden as e:
             await ctx.send(e)
 
     @commands.command()
@@ -292,7 +292,7 @@ class Moderation:
             logmsg = await logchannel.send(f"**Mute** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}")
             query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
             await self.bot.db.execute(query, ctx.guild.id, logmsg.id, int(casenum), "Mute", member.id, ctx.author.id, reason)
-        except PermissionError as e:
+        except discord.Forbidden as e:
             await ctx.send(e)
 
     @commands.group()
