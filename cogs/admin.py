@@ -227,7 +227,7 @@ class Admin:
                 reactiontosend = self.bot.get_emoji(508388437661843483)
                 await ctx.message.add_reaction(reactiontosend)
                 dt = (time.perf_counter() - start) * 1000.0
-            except PermissionError:
+            except discord.Forbidden:
                 return await ctx.send("I couldn't react...")
 
             if ret is None:
