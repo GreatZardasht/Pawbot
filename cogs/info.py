@@ -138,7 +138,10 @@ class Information:
             try:
                 await ctx.send(embed=embed)
             except discord.Forbidden:
-                await ctx.send(";w; i can't send embeds")
+                try:
+                    await ctx.author.send(embed=embed)
+                except discord.Forbidden:
+                    await ctx.send("I can't send embeds or dm you ;-;")
         elif not option:
             pass
         else:
