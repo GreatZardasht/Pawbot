@@ -160,7 +160,7 @@ class Information:
     @commands.command(aliases=['supportserver', 'feedbackserver'])
     async def botserver(self, ctx):
         """ Get an invite to our support server! """
-        if isinstance(ctx.channel, discord.DMChannel) or ctx.guild.id is not 508396955660189715:
+        if isinstance(ctx.channel, discord.DMChannel) or ctx.guild.id != 508396955660189715:
             return await ctx.send(f"**{ctx.author.name}**, you can join here! 🍻\n<{repo.invite}>")
 
         await ctx.send(f"**{ctx.author.name}**, this is my home.")
