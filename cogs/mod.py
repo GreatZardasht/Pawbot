@@ -47,14 +47,14 @@ class Moderation:
         return f"{int(case)}"
     
     async def getmodlogstuff(self, ctx):
-        query = "SELECT * FROM idstore WHERE serverid = $1;"
-        row = await self.bot.db.fetchrow(query, ctx.guild.id)
-        if row is None:
-            query = "INSERT INTO idstore VALUES ($1, $2, $3, $4, $5, $6, $7, $8);"
-            await self.bot.db.execute(query, ctx.guild.id, 0, 0, 0, 0, 1, 0, 0)
+        storequery = "SELECT * FROM idstore WHERE serverid = $1;"
+        storerow = await self.bot.db.fetchrow(storequery, ctx.guild.id)
+        if storerow is None:
+            query = "INSERT INTO idstore VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);"
+            await self.bot.db.execute(query, ctx.guild.id, "Default", "Default", 0, 0, 0, 0, 0, 0)
             query = "SELECT * FROM idstore WHERE serverid = $1;"
             row = await self.bot.db.fetchrow(query, ctx.guild.id)
-        return row
+        return storerow 
 
     async def getserverstuff(self, ctx):
         query = "SELECT * FROM adminpanel WHERE serverid = $1;"
@@ -84,7 +84,7 @@ class Moderation:
         await self.bot.db.execute(query, ctx.author.id, ctx.guild.id, case)
         moderator = self.bot.get_user(row['moderator'])
         logchannel = await self.getmodlogstuff(ctx)
-        logchannel = self.bot.get_channel(logchannel['modlogchan'])
+        logchannel = ctx.guild.get_channel(logchannel['modlogchan'])
         try:
             msgtoedit = await logchannel.get_message(row['caseid'])
             await msgtoedit.edit(content=f"**{row['casetype']}** | Case {row['casenumber']}\n**User**: {target.name}#{target.discriminator} ({target.id}) ({target.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {moderator.name}#{moderator.discriminator}")
@@ -153,7 +153,7 @@ class Moderation:
         try:
             await member.kick()
             logchannel = await self.getmodlogstuff(ctx)
-            logchannel = self.bot.get_channel(logchannel['modlogchan'])
+            logchannel = ctx.guild.get_channel(logchannel['modlogchan'])
             casenum = self.generatecase()
             if reason is None:
                 reason = f"Responsible moderator, please type `paw reason {casenum} <reason>`"
@@ -186,7 +186,7 @@ class Moderation:
         try:
             await ctx.guild.ban(member)
             logchannel = await self.getmodlogstuff(ctx)
-            logchannel = self.bot.get_channel(logchannel['modlogchan'])
+            logchannel = ctx.guild.get_channel(logchannel['modlogchan'])
             casenum = self.generatecase()
             if reason is None:
                 reason = f"Responsible moderator, please type `paw reason {casenum} <reason>`"
@@ -206,7 +206,7 @@ class Moderation:
             await ctx.guild.ban(discord.Object(id=banmember))
             member = self.bot.get_user(banmember)
             logchannel = await self.getmodlogstuff(ctx)
-            logchannel = self.bot.get_channel(logchannel['modlogchan'])
+            logchannel = ctx.guild.get_channel(logchannel['modlogchan'])
             casenum = self.generatecase()
             if reason is None:
                 reason = f"Responsible moderator, please type `paw reason {casenum} <reason>`"
@@ -226,7 +226,7 @@ class Moderation:
             await ctx.guild.unban(discord.Object(id=banmember))
             member = self.bot.get_user(banmember)
             logchannel = await self.getmodlogstuff(ctx)
-            logchannel = self.bot.get_channel(logchannel['modlogchan'])
+            logchannel = ctx.guild.get_channel(logchannel['modlogchan'])
             casenum = self.generatecase()
             if reason is None:
                 reason = f"Responsible moderator, please type `paw reason {casenum} <reason>`"
@@ -253,9 +253,8 @@ class Moderation:
 
         try:
             await member.add_roles(therole)
-            member = self.bot.get_user(member)
             logchannel = await self.getmodlogstuff(ctx)
-            logchannel = self.bot.get_channel(logchannel['modlogchan'])
+            logchannel = ctx.guild.get_channel(logchannel['modlogchan'])
             casenum = self.generatecase()
             if reason is None:
                 reason = f"Responsible moderator, please type `paw reason {casenum} <reason>`"
@@ -270,7 +269,7 @@ class Moderation:
     @commands.guild_only()
     @permissions.has_permissions(manage_roles=True)
     async def unmute(self, ctx, member: discord.Member, *, reason: str = None):
-        """ Mutes a user from the current server. """
+        """ Unmutes a user from the current server. """
         message = []
         for role in ctx.guild.roles:
             if role.name == "Muted":
@@ -282,16 +281,15 @@ class Moderation:
 
         try:
             await member.remove_roles(therole)
-            member = self.bot.get_user(member)
             logchannel = await self.getmodlogstuff(ctx)
-            logchannel = self.bot.get_channel(logchannel['modlogchan'])
+            logchannel = ctx.guild.get_channel(logchannel['modlogchan'])
             casenum = self.generatecase()
             if reason is None:
                 reason = f"Responsible moderator, please type `paw reason {casenum} <reason>`"
 
-            logmsg = await logchannel.send(f"**Mute** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}")
+            logmsg = await logchannel.send(f"**Unmute** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}")
             query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
-            await self.bot.db.execute(query, ctx.guild.id, logmsg.id, int(casenum), "Mute", member.id, ctx.author.id, reason)
+            await self.bot.db.execute(query, ctx.guild.id, logmsg.id, int(casenum), "Unmute", member.id, ctx.author.id, reason)
         except discord.Forbidden as e:
             await ctx.send(e)
 
