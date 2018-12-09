@@ -56,6 +56,16 @@ class Moderation:
             row = await self.bot.db.fetchrow(query, ctx.guild.id)
         return storerow 
 
+    async def getautomod(self, ctx):
+        query = "SELECT * FROM automod WHERE serverid = $1;"
+        row = await self.bot.db.fetchrow(query, ctx.guild.id)
+        if row is None:
+            query = "INSERT INTO automod VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);"
+            await self.bot.db.execute(query, ctx.guild.id, 0, 0, 0, 0, 10, 10, 0, 0)
+            query = "SELECT * FROM automod WHERE serverid = $1;"
+            row = await self.bot.db.fetchrow(query, ctx.guild.id)
+        return row 
+
     async def getserverstuff(self, ctx):
         query = "SELECT * FROM adminpanel WHERE serverid = $1;"
         row = await self.bot.db.fetchrow(query, ctx.guild.id)
@@ -71,6 +81,9 @@ class Moderation:
     @permissions.has_permissions(kick_members=True)
     async def reason(self, ctx, case: int = None, *, reason: str = None):
         """ Kicks a user from the current server. """
+        rowcheck = await self.getserverstuff(ctx)
+        if rowcheck['modlog'] is 0 or None:
+            return await ctx.send("Modlog isn't enabled ;-;")
         if case is None:
             return await ctx.send("That isn't a valid case...")
         query = "SELECT * FROM modlogs WHERE serverid = $1 AND casenumber = $2;"
@@ -157,6 +170,10 @@ class Moderation:
             casenum = self.generatecase()
             if reason is None:
                 reason = f"Responsible moderator, please type `paw reason {casenum} <reason>`"
+            
+            rowcheck = await self.getserverstuff(ctx)
+            if rowcheck['modlog'] is 0 or None:
+                return
 
             logmsg = await logchannel.send(f"**Kick** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}")
             query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
@@ -191,6 +208,10 @@ class Moderation:
             if reason is None:
                 reason = f"Responsible moderator, please type `paw reason {casenum} <reason>`"
 
+            rowcheck = await self.getserverstuff(ctx)
+            if rowcheck['modlog'] is 0 or None:
+                return
+
             logmsg = await logchannel.send(f"**Ban** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}")
             query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
             await self.bot.db.execute(query, ctx.guild.id, logmsg.id, int(casenum), "Ban", member.id, ctx.author.id, reason)
@@ -211,6 +232,10 @@ class Moderation:
             if reason is None:
                 reason = f"Responsible moderator, please type `paw reason {casenum} <reason>`"
 
+            rowcheck = await self.getserverstuff(ctx)
+            if rowcheck['modlog'] is 0 or None:
+                return
+
             logmsg = await logchannel.send(f"**Hackban** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}")
             query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
             await self.bot.db.execute(query, ctx.guild.id, logmsg.id, int(casenum), "Hackban", member.id, ctx.author.id, reason)
@@ -230,6 +255,10 @@ class Moderation:
             casenum = self.generatecase()
             if reason is None:
                 reason = f"Responsible moderator, please type `paw reason {casenum} <reason>`"
+
+            rowcheck = await self.getserverstuff(ctx)
+            if rowcheck['modlog'] is 0 or None:
+                return
 
             logmsg = await logchannel.send(f"**Unban** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}")
             query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
@@ -259,6 +288,10 @@ class Moderation:
             if reason is None:
                 reason = f"Responsible moderator, please type `paw reason {casenum} <reason>`"
 
+            rowcheck = await self.getserverstuff(ctx)
+            if rowcheck['modlog'] is 0 or None:
+                return
+
             logmsg = await logchannel.send(f"**Mute** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}")
             query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
             await self.bot.db.execute(query, ctx.guild.id, logmsg.id, int(casenum), "Mute", member.id, ctx.author.id, reason)
@@ -286,6 +319,10 @@ class Moderation:
             casenum = self.generatecase()
             if reason is None:
                 reason = f"Responsible moderator, please type `paw reason {casenum} <reason>`"
+
+            rowcheck = await self.getserverstuff(ctx)
+            if rowcheck['modlog'] is 0 or None:
+                return
 
             logmsg = await logchannel.send(f"**Unmute** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}")
             query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
