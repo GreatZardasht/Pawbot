@@ -6,21 +6,23 @@ class Plural:
     def __str__(self):
         v = self.value
         if v == 0 or v > 1:
-            return f'{v} {self.name}s'
-        return f'{v} {self.name}'
+            return f"{v} {self.name}s"
+        return f"{v} {self.name}"
 
-def human_join(seq, delim=', ', final='or'):
+
+def human_join(seq, delim=", ", final="or"):
     size = len(seq)
     if size == 0:
-        return ''
+        return ""
 
     if size == 1:
         return seq[0]
 
     if size == 2:
-        return f'{seq[0]} {final} {seq[1]}'
+        return f"{seq[0]} {final} {seq[1]}"
 
-    return delim.join(seq[:-1]) + f' {final} {seq[-1]}'
+    return delim.join(seq[:-1]) + f" {final} {seq[-1]}"
+
 
 class TabularData:
     def __init__(self):
@@ -57,14 +59,14 @@ class TabularData:
         +-------+-----+
         """
 
-        sep = '+'.join('-' * w for w in self._widths)
-        sep = f'+{sep}+'
+        sep = "+".join("-" * w for w in self._widths)
+        sep = f"+{sep}+"
 
         to_draw = [sep]
 
         def get_entry(d):
-            elem = '|'.join(f'{e:^{self._widths[i]}}' for i, e in enumerate(d))
-            return f'|{elem}|'
+            elem = "|".join(f"{e:^{self._widths[i]}}" for i, e in enumerate(d))
+            return f"|{elem}|"
 
         to_draw.append(get_entry(self._columns))
         to_draw.append(sep)
@@ -73,4 +75,4 @@ class TabularData:
             to_draw.append(get_entry(row))
 
         to_draw.append(sep)
-        return '\n'.join(to_draw)
+        return "\n".join(to_draw)

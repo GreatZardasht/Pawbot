@@ -28,16 +28,16 @@ class Admin:
     def cleanup_code(content):
         """Automatically removes code blocks from the code."""
         # remove ```py\n```
-        if content.startswith('```') and content.endswith('```'):
-            return '\n'.join(content.split('\n')[1:-1])
+        if content.startswith("```") and content.endswith("```"):
+            return "\n".join(content.split("\n")[1:-1])
 
         # remove `foo`
-        return content.strip('` \n')
+        return content.strip("` \n")
 
     @staticmethod
     def get_syntax_error(e):
         if e.text is None:
-            return f'```py\n{e.__class__.__name__}: {e}\n```'
+            return f"```py\n{e.__class__.__name__}: {e}\n```"
         return f'```py\n{e.text}{"^":>{e.offset}}\n{e.__class__.__name__}: {e}```'
 
     @commands.command()
@@ -67,7 +67,7 @@ class Admin:
     @commands.check(repo.is_owner)
     async def reboot(self, ctx):
         """ Reboot the bot """
-        await ctx.send('Rebooting now...')
+        await ctx.send("Rebooting now...")
         time.sleep(1)
         await self.bot.logout()
 
@@ -109,7 +109,7 @@ class Admin:
         try:
             await self.bot.change_presence(
                 activity=discord.Game(type=0, name=playing),
-                status=discord.Status.online
+                status=discord.Status.online,
             )
             dataIO.change_value("config.json", "playing", playing)
             await ctx.send(f"Successfully changed playing status to **{playing}**")
@@ -148,7 +148,7 @@ class Admin:
         if url is None and len(ctx.message.attachments) == 1:
             url = ctx.message.attachments[0].url
         else:
-            url = url.strip('<>')
+            url = url.strip("<>")
 
         try:
             bio = await http.get(url, res_method="read")
@@ -170,10 +170,10 @@ class Admin:
         if url is None and len(ctx.message.attachments) == 1:
             url = ctx.message.attachments[0].url
         else:
-            url = url.strip('<>')
+            url = url.strip("<>")
 
         try:
-            botguild = self.bot.get_guild(423879867457863680)
+            botguild = self.bot.get_guild(423_879_867_457_863_680)
             bio = await http.get(url, res_method="read")
             await botguild.create_custom_emoji(name=emojiname, image=bio)
             await ctx.message.delete()
@@ -185,18 +185,18 @@ class Admin:
         except discord.HTTPException as err:
             await ctx.send(err)
 
-    @commands.command(pass_context=True, name='eval')
+    @commands.command(pass_context=True, name="eval")
     @commands.check(repo.is_owner)
     async def _eval(self, ctx, *, body: str):
         """Evaluates a code"""
         env = {
-            'bot': self.bot,
-            'ctx': ctx,
-            'channel': ctx.channel,
-            'author': ctx.author,
-            'guild': ctx.guild,
-            'message': ctx.message,
-            '_': self._last_result
+            "bot": self.bot,
+            "ctx": ctx,
+            "channel": ctx.channel,
+            "author": ctx.author,
+            "guild": ctx.guild,
+            "message": ctx.message,
+            "_": self._last_result,
         }
 
         if "bot.http.token" in body:
@@ -212,19 +212,19 @@ class Admin:
             start = time.perf_counter()
             exec(to_compile, env)
         except EnvironmentError as e:
-            return await ctx.send(f'```py\n{e.__class__.__name__}: {e}\n```')
+            return await ctx.send(f"```py\n{e.__class__.__name__}: {e}\n```")
 
-        func = env['func']
+        func = env["func"]
         try:
             with redirect_stdout(stdout):
                 ret = await func()
         except Exception as e:
             value = stdout.getvalue()
-            await ctx.send(f'```py\n{value}{traceback.format_exc()}\n```')
+            await ctx.send(f"```py\n{value}{traceback.format_exc()}\n```")
         else:
             try:
                 value = stdout.getvalue()
-                reactiontosend = self.bot.get_emoji(508388437661843483)
+                reactiontosend = self.bot.get_emoji(508_388_437_661_843_483)
                 await ctx.message.add_reaction(reactiontosend)
                 dt = (time.perf_counter() - start) * 1000.0
             except discord.Forbidden:
@@ -232,12 +232,14 @@ class Admin:
 
             if ret is None:
                 if value:
-                    await ctx.send(f'```py\n{value}\n```')
+                    await ctx.send(f"```py\n{value}\n```")
             else:
                 if self.config.token in ret:
                     ret = self.config.realtoken
                 self._last_result = ret
-                await ctx.send(f'Inputted code:\n```py\n{body}\n```\n\nOutputted Code:\n```py\n{value}{ret}\n```\n*Evalled in {dt:.2f}ms*')
+                await ctx.send(
+                    f"Inputted code:\n```py\n{body}\n```\n\nOutputted Code:\n```py\n{value}{ret}\n```\n*Evalled in {dt:.2f}ms*"
+                )
 
     @commands.group(aliases=["as"])
     @commands.check(repo.is_owner)
@@ -248,7 +250,9 @@ class Admin:
 
     @sudo.command(aliases=["user"])
     @commands.check(repo.is_owner)
-    async def sudo_user(self, ctx, who: Union[discord.Member, discord.User], *, command: str):
+    async def sudo_user(
+        self, ctx, who: Union[discord.Member, discord.User], *, command: str
+    ):
         """ Run a cmd under someone else's name """
         msg = copy(ctx.message)
         msg.author = who
@@ -273,7 +277,7 @@ class Admin:
         mod = ", ".join(list(self.bot.cogs))
         await ctx.send(f"The current modules are:\n```\n{mod}\n```")
 
-    @commands.command(aliases=['gsi'])
+    @commands.command(aliases=["gsi"])
     @commands.check(repo.is_owner)
     async def getserverinfo(self, ctx, *, guild_id: int):
         """ Makes me get the information from a guild id """
@@ -289,25 +293,32 @@ class Admin:
         else:
             roles = ", ".join([x.name for x in guild.roles if x.name != "@everyone"])
 
-        info = discord.Embed(title="Guild info", description=f"» Name: {guild.name}\n» Members/Bots: `{members}:{len(bots)}`"f"\n» Owner: {guild.owner}\n» Created at: {guild.created_at}"f"\n» Roles: {roles}", color=discord.Color.blue())
+        info = discord.Embed(
+            title="Guild info",
+            description=f"» Name: {guild.name}\n» Members/Bots: `{members}:{len(bots)}`"
+            f"\n» Owner: {guild.owner}\n» Created at: {guild.created_at}"
+            f"\n» Roles: {roles}",
+            color=discord.Color.blue(),
+        )
         info.set_thumbnail(url=guild.icon_url)
         await ctx.send(embed=info)
 
-    @commands.command(alisases=['bsl'])
+    @commands.command(alisases=["bsl"])
     @commands.check(repo.is_owner)
     async def botservers(self, ctx):
         """ Lists servers """
-        guilds = sorted(list(self.bot.guilds),
-                        key=lambda s: s.name.lower())
+        guilds = sorted(list(self.bot.guilds), key=lambda s: s.name.lower())
         msg = ""
         for i, guild in enumerate(guilds, 1):
             members = set(guild.members)
             bots = filter(lambda m: m.bot, members)
             bots = set(bots)
             members = len(members) - len(bots)
-            msg += "`{}:` {}, `{}` `{} members, {} bots` \n".format(i, guild.name, guild.id, members, len(bots))
+            msg += "`{}:` {}, `{}` `{} members, {} bots` \n".format(
+                i, guild.name, guild.id, members, len(bots)
+            )
 
-        for page in pagify(msg, ['\n']):
+        for page in pagify(msg, ["\n"]):
             await ctx.send(page)
 
     @commands.command(aliases=["webhooktest"])
@@ -341,7 +352,7 @@ class Admin:
 
         query = self.cleanup_code(query)
 
-        is_multistatement = query.count(';') > 1
+        is_multistatement = query.count(";") > 1
         if is_multistatement:
             strategy = self.bot.db.execute
         else:
@@ -352,11 +363,11 @@ class Admin:
             results = await strategy(query)
             dt = (time.perf_counter() - start) * 1000.0
         except Exception:
-            return await ctx.send(f'```py\n{traceback.format_exc()}\n```')
+            return await ctx.send(f"```py\n{traceback.format_exc()}\n```")
 
         rows = len(results)
         if is_multistatement or rows == 0:
-            return await ctx.send(f'`{dt:.2f}ms: {results}`')
+            return await ctx.send(f"`{dt:.2f}ms: {results}`")
 
         headers = list(results[0].keys())
         table = TabularData()
@@ -364,10 +375,10 @@ class Admin:
         table.add_rows(list(r.values()) for r in results)
         render = table.render()
 
-        fmt = f'```\n{render}\n```\n*Returned {Plural(row=rows)} in {dt:.2f}ms*'
+        fmt = f"```\n{render}\n```\n*Returned {Plural(row=rows)} in {dt:.2f}ms*"
         if len(fmt) > 2000:
-            fp = io.BytesIO(fmt.encode('utf-8'))
-            await ctx.send('Too many results...', file=discord.File(fp, 'results.txt'))
+            fp = io.BytesIO(fmt.encode("utf-8"))
+            await ctx.send("Too many results...", file=discord.File(fp, "results.txt"))
         else:
             await ctx.send(fmt)
 
@@ -381,7 +392,7 @@ class Admin:
             for page in _help:
                 await ctx.send(page)
 
-    @uplink.command(name='-o')
+    @uplink.command(name="-o")
     @commands.check(repo.is_owner)
     async def uplink_open(self, ctx, uplinkchannelid: int):
         """ Open the connection """
@@ -393,10 +404,12 @@ class Admin:
             file.seek(0)
             json.dump(content, file)
             file.truncate()
-            await msguplinkchan.send("A support staff member has connected to the channel.")
+            await msguplinkchan.send(
+                "A support staff member has connected to the channel."
+            )
             await ctx.send("Connected.")
 
-    @uplink.command(name='-c')
+    @uplink.command(name="-c")
     @commands.check(repo.is_owner)
     async def uplink_close(self, ctx):
         """ Close the connection """

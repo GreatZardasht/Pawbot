@@ -15,14 +15,20 @@ class MemberID(commands.Converter):
             try:
                 return int(argument, base=10)
             except ValueError:
-                raise commands.BadArgument(f"{argument} is not a valid member or member ID.") from None
+                raise commands.BadArgument(
+                    f"{argument} is not a valid member or member ID."
+                ) from None
         else:
-            can_execute = ctx.author.id == ctx.bot.owner_id or \
-                          ctx.author == ctx.guild.owner or \
-                          ctx.author.top_role > m.top_role
+            can_execute = (
+                ctx.author.id == ctx.bot.owner_id
+                or ctx.author == ctx.guild.owner
+                or ctx.author.top_role > m.top_role
+            )
 
             if not can_execute:
-                raise commands.BadArgument('You cannot do this action on this user due to role hierarchy.')
+                raise commands.BadArgument(
+                    "You cannot do this action on this user due to role hierarchy."
+                )
             return m.id
 
 
@@ -32,7 +38,9 @@ class ActionReason(commands.Converter):
 
         if len(ret) > 512:
             reason_max = 512 - len(ret) - len(argument)
-            raise commands.BadArgument(f'reason is too long ({len(argument)}/{reason_max})')
+            raise commands.BadArgument(
+                f"reason is too long ({len(argument)}/{reason_max})"
+            )
         return ret
 
 
@@ -45,16 +53,18 @@ class Moderation:
     def generatecase():
         case = random.randint(11111, 99999)
         return f"{int(case)}"
-    
+
     async def getmodlogstuff(self, ctx):
         storequery = "SELECT * FROM idstore WHERE serverid = $1;"
         storerow = await self.bot.db.fetchrow(storequery, ctx.guild.id)
         if storerow is None:
             query = "INSERT INTO idstore VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);"
-            await self.bot.db.execute(query, ctx.guild.id, "Default", "Default", 0, 0, 0, 0, 0, 0)
+            await self.bot.db.execute(
+                query, ctx.guild.id, "Default", "Default", 0, 0, 0, 0, 0, 0
+            )
             query = "SELECT * FROM idstore WHERE serverid = $1;"
             row = await self.bot.db.fetchrow(query, ctx.guild.id)
-        return storerow 
+        return storerow
 
     async def getautomod(self, ctx):
         query = "SELECT * FROM automod WHERE serverid = $1;"
@@ -64,7 +74,7 @@ class Moderation:
             await self.bot.db.execute(query, ctx.guild.id, 0, 0, 0, 0, 10, 10, 0, 0)
             query = "SELECT * FROM automod WHERE serverid = $1;"
             row = await self.bot.db.fetchrow(query, ctx.guild.id)
-        return row 
+        return row
 
     async def getserverstuff(self, ctx):
         query = "SELECT * FROM adminpanel WHERE serverid = $1;"
@@ -82,7 +92,7 @@ class Moderation:
     async def reason(self, ctx, case: int = None, *, reason: str = None):
         """ Kicks a user from the current server. """
         rowcheck = await self.getserverstuff(ctx)
-        if rowcheck['modlog'] is 0 or None:
+        if rowcheck["modlog"] is 0 or None:
             return await ctx.send("Modlog isn't enabled ;-;")
         if case is None:
             return await ctx.send("That isn't a valid case...")
@@ -90,17 +100,23 @@ class Moderation:
         row = await self.bot.db.fetchrow(query, ctx.guild.id, case)
         if row is None:
             return await ctx.send("That isn't a valid case...")
-        query = "UPDATE modlogs SET reason = $1 WHERE serverid = $2 AND casenumber = $3;"
+        query = (
+            "UPDATE modlogs SET reason = $1 WHERE serverid = $2 AND casenumber = $3;"
+        )
         await self.bot.db.execute(query, reason, ctx.guild.id, case)
-        target = self.bot.get_user(row['target'])
-        query = "UPDATE modlogs SET moderator = $1 WHERE serverid = $2 AND casenumber = $3;"
+        target = self.bot.get_user(row["target"])
+        query = (
+            "UPDATE modlogs SET moderator = $1 WHERE serverid = $2 AND casenumber = $3;"
+        )
         await self.bot.db.execute(query, ctx.author.id, ctx.guild.id, case)
-        moderator = self.bot.get_user(row['moderator'])
+        moderator = self.bot.get_user(row["moderator"])
         logchannel = await self.getmodlogstuff(ctx)
-        logchannel = ctx.guild.get_channel(logchannel['modlogchan'])
+        logchannel = ctx.guild.get_channel(logchannel["modlogchan"])
         try:
-            msgtoedit = await logchannel.get_message(row['caseid'])
-            await msgtoedit.edit(content=f"**{row['casetype']}** | Case {row['casenumber']}\n**User**: {target.name}#{target.discriminator} ({target.id}) ({target.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {moderator.name}#{moderator.discriminator}")
+            msgtoedit = await logchannel.get_message(row["caseid"])
+            await msgtoedit.edit(
+                content=f"**{row['casetype']}** | Case {row['casenumber']}\n**User**: {target.name}#{target.discriminator} ({target.id}) ({target.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {moderator.name}#{moderator.discriminator}"
+            )
         except discord.Forbidden:
             return await ctx.send("Something broke ;w;")
         await ctx.message.delete()
@@ -118,7 +134,9 @@ class Moderation:
             await self.bot.db.execute(query, ctx.guild.id, member.id)
             await ctx.send(f"{member.name} currently has **0** warnings.")
         else:
-            await ctx.send(f"{member.name} currently has **{row['warnings']}** warnings.")
+            await ctx.send(
+                f"{member.name} currently has **{row['warnings']}** warnings."
+            )
 
     @commands.command()
     @commands.guild_only()
@@ -130,14 +148,20 @@ class Moderation:
         if row is None:
             query = "INSERT INTO warnings VALUES ($1, $2, $3);"
             await self.bot.db.execute(query, ctx.guild.id, member.id, amount)
-            await ctx.send(f"I added **{amount}** to {member.mention}'s warns! They now have **{amount}**.")
+            await ctx.send(
+                f"I added **{amount}** to {member.mention}'s warns! They now have **{amount}**."
+            )
         else:
             query = "SELECT warnings FROM warnings WHERE serverid = $1 AND userid = $2;"
             row = await self.bot.db.fetchrow(query, ctx.guild.id, member.id)
-            amountgiven = int(row['warnings'] + amount)
-            query = "UPDATE warnings SET warnings = $1 WHERE serverid = $2 AND userid = $3;"
+            amountgiven = int(row["warnings"] + amount)
+            query = (
+                "UPDATE warnings SET warnings = $1 WHERE serverid = $2 AND userid = $3;"
+            )
             await self.bot.db.execute(query, amountgiven, ctx.guild.id, member.id)
-            await ctx.send(f"I added **{amount}** to {member.mention}'s warns! They now have **{amountgiven}**.")
+            await ctx.send(
+                f"I added **{amount}** to {member.mention}'s warns! They now have **{amountgiven}**."
+            )
 
     @commands.command()
     @commands.guild_only()
@@ -149,14 +173,20 @@ class Moderation:
         if row is None:
             query = "INSERT INTO warnings VALUES ($1, $2, $3);"
             await self.bot.db.execute(query, ctx.guild.id, member.id, amount)
-            await ctx.send(f"{member.name} was not in my database! They have **0** warns though!")
+            await ctx.send(
+                f"{member.name} was not in my database! They have **0** warns though!"
+            )
         else:
             query = "SELECT warnings FROM warnings WHERE serverid = $1 AND userid = $2;"
             row = await self.bot.db.fetchrow(query, ctx.guild.id, member.id)
-            amountgiven = int(row['warnings'] - amount)
-            query = "UPDATE warnings SET warnings = $1 WHERE serverid = $2 AND userid = $3;"
+            amountgiven = int(row["warnings"] - amount)
+            query = (
+                "UPDATE warnings SET warnings = $1 WHERE serverid = $2 AND userid = $3;"
+            )
             await self.bot.db.execute(query, amountgiven, ctx.guild.id, member.id)
-            await ctx.send(f"I took **{amount}** from {member.mention}'s warns! They now have **{amountgiven}**.")
+            await ctx.send(
+                f"I took **{amount}** from {member.mention}'s warns! They now have **{amountgiven}**."
+            )
 
     @commands.command()
     @commands.guild_only()
@@ -166,18 +196,29 @@ class Moderation:
         try:
             await member.kick()
             logchannel = await self.getmodlogstuff(ctx)
-            logchannel = ctx.guild.get_channel(logchannel['modlogchan'])
+            logchannel = ctx.guild.get_channel(logchannel["modlogchan"])
             casenum = self.generatecase()
             if reason is None:
                 reason = f"Responsible moderator, please type `paw reason {casenum} <reason>`"
-            
+
             rowcheck = await self.getserverstuff(ctx)
-            if rowcheck['modlog'] is 0 or None:
+            if rowcheck["modlog"] is 0 or None:
                 return
 
-            logmsg = await logchannel.send(f"**Kick** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}")
+            logmsg = await logchannel.send(
+                f"**Kick** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}"
+            )
             query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
-            await self.bot.db.execute(query, ctx.guild.id, logmsg.id, int(casenum), "Kick", member.id, ctx.author.id, reason)
+            await self.bot.db.execute(
+                query,
+                ctx.guild.id,
+                logmsg.id,
+                int(casenum),
+                "Kick",
+                member.id,
+                ctx.author.id,
+                reason,
+            )
         except discord.Forbidden as e:
             await ctx.send(e)
 
@@ -203,22 +244,33 @@ class Moderation:
         try:
             await ctx.guild.ban(member)
             logchannel = await self.getmodlogstuff(ctx)
-            logchannel = ctx.guild.get_channel(logchannel['modlogchan'])
+            logchannel = ctx.guild.get_channel(logchannel["modlogchan"])
             casenum = self.generatecase()
             if reason is None:
                 reason = f"Responsible moderator, please type `paw reason {casenum} <reason>`"
 
             rowcheck = await self.getserverstuff(ctx)
-            if rowcheck['modlog'] is 0 or None:
+            if rowcheck["modlog"] is 0 or None:
                 return
 
-            logmsg = await logchannel.send(f"**Ban** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}")
+            logmsg = await logchannel.send(
+                f"**Ban** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}"
+            )
             query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
-            await self.bot.db.execute(query, ctx.guild.id, logmsg.id, int(casenum), "Ban", member.id, ctx.author.id, reason)
+            await self.bot.db.execute(
+                query,
+                ctx.guild.id,
+                logmsg.id,
+                int(casenum),
+                "Ban",
+                member.id,
+                ctx.author.id,
+                reason,
+            )
         except discord.Forbidden as e:
             await ctx.send(e)
 
-    @commands.command(aliases=['hackban'])
+    @commands.command(aliases=["hackban"])
     @commands.guild_only()
     @permissions.has_permissions(ban_members=True)
     async def idban(self, ctx, banmember: int, *, reason: str = None):
@@ -227,18 +279,29 @@ class Moderation:
             await ctx.guild.ban(discord.Object(id=banmember))
             member = self.bot.get_user(banmember)
             logchannel = await self.getmodlogstuff(ctx)
-            logchannel = ctx.guild.get_channel(logchannel['modlogchan'])
+            logchannel = ctx.guild.get_channel(logchannel["modlogchan"])
             casenum = self.generatecase()
             if reason is None:
                 reason = f"Responsible moderator, please type `paw reason {casenum} <reason>`"
 
             rowcheck = await self.getserverstuff(ctx)
-            if rowcheck['modlog'] is 0 or None:
+            if rowcheck["modlog"] is 0 or None:
                 return
 
-            logmsg = await logchannel.send(f"**Hackban** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}")
+            logmsg = await logchannel.send(
+                f"**Hackban** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}"
+            )
             query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
-            await self.bot.db.execute(query, ctx.guild.id, logmsg.id, int(casenum), "Hackban", member.id, ctx.author.id, reason)
+            await self.bot.db.execute(
+                query,
+                ctx.guild.id,
+                logmsg.id,
+                int(casenum),
+                "Hackban",
+                member.id,
+                ctx.author.id,
+                reason,
+            )
         except discord.Forbidden as e:
             await ctx.send(e)
 
@@ -251,18 +314,29 @@ class Moderation:
             await ctx.guild.unban(discord.Object(id=banmember))
             member = self.bot.get_user(banmember)
             logchannel = await self.getmodlogstuff(ctx)
-            logchannel = ctx.guild.get_channel(logchannel['modlogchan'])
+            logchannel = ctx.guild.get_channel(logchannel["modlogchan"])
             casenum = self.generatecase()
             if reason is None:
                 reason = f"Responsible moderator, please type `paw reason {casenum} <reason>`"
 
             rowcheck = await self.getserverstuff(ctx)
-            if rowcheck['modlog'] is 0 or None:
+            if rowcheck["modlog"] is 0 or None:
                 return
 
-            logmsg = await logchannel.send(f"**Unban** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}")
+            logmsg = await logchannel.send(
+                f"**Unban** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}"
+            )
             query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
-            await self.bot.db.execute(query, ctx.guild.id, logmsg.id, int(casenum), "Unban", member.id, ctx.author.id, reason)
+            await self.bot.db.execute(
+                query,
+                ctx.guild.id,
+                logmsg.id,
+                int(casenum),
+                "Unban",
+                member.id,
+                ctx.author.id,
+                reason,
+            )
         except discord.Forbidden as e:
             await ctx.send(e)
 
@@ -278,23 +352,36 @@ class Moderation:
         try:
             therole = discord.Object(id=message[0])
         except IndexError:
-            return await ctx.send("Are you sure you've made a role called **Muted**? Remember that it's case sensitive too...")
+            return await ctx.send(
+                "Are you sure you've made a role called **Muted**? Remember that it's case sensitive too..."
+            )
 
         try:
             await member.add_roles(therole)
             logchannel = await self.getmodlogstuff(ctx)
-            logchannel = ctx.guild.get_channel(logchannel['modlogchan'])
+            logchannel = ctx.guild.get_channel(logchannel["modlogchan"])
             casenum = self.generatecase()
             if reason is None:
                 reason = f"Responsible moderator, please type `paw reason {casenum} <reason>`"
 
             rowcheck = await self.getserverstuff(ctx)
-            if rowcheck['modlog'] is 0 or None:
+            if rowcheck["modlog"] is 0 or None:
                 return
 
-            logmsg = await logchannel.send(f"**Mute** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}")
+            logmsg = await logchannel.send(
+                f"**Mute** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}"
+            )
             query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
-            await self.bot.db.execute(query, ctx.guild.id, logmsg.id, int(casenum), "Mute", member.id, ctx.author.id, reason)
+            await self.bot.db.execute(
+                query,
+                ctx.guild.id,
+                logmsg.id,
+                int(casenum),
+                "Mute",
+                member.id,
+                ctx.author.id,
+                reason,
+            )
         except discord.Forbidden as e:
             await ctx.send(e)
 
@@ -310,23 +397,36 @@ class Moderation:
         try:
             therole = discord.Object(id=message[0])
         except IndexError:
-            return await ctx.send("Are you sure you've made a role called **Muted**? Remember that it's case sensitive too...")
+            return await ctx.send(
+                "Are you sure you've made a role called **Muted**? Remember that it's case sensitive too..."
+            )
 
         try:
             await member.remove_roles(therole)
             logchannel = await self.getmodlogstuff(ctx)
-            logchannel = ctx.guild.get_channel(logchannel['modlogchan'])
+            logchannel = ctx.guild.get_channel(logchannel["modlogchan"])
             casenum = self.generatecase()
             if reason is None:
                 reason = f"Responsible moderator, please type `paw reason {casenum} <reason>`"
 
             rowcheck = await self.getserverstuff(ctx)
-            if rowcheck['modlog'] is 0 or None:
+            if rowcheck["modlog"] is 0 or None:
                 return
 
-            logmsg = await logchannel.send(f"**Unmute** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}")
+            logmsg = await logchannel.send(
+                f"**Unmute** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}"
+            )
             query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
-            await self.bot.db.execute(query, ctx.guild.id, logmsg.id, int(casenum), "Unmute", member.id, ctx.author.id, reason)
+            await self.bot.db.execute(
+                query,
+                ctx.guild.id,
+                logmsg.id,
+                int(casenum),
+                "Unmute",
+                member.id,
+                ctx.author.id,
+                reason,
+            )
         except discord.Forbidden as e:
             await ctx.send(e)
 
@@ -343,30 +443,44 @@ class Moderation:
 
     @find.command(name="playing")
     async def find_playing(self, ctx, *, search: str):
-        result = [f"{i} | {i.activity.name}\r\n" for i in ctx.guild.members if (i.activity is not None) and (search.lower() in i.activity.name.lower()) and (not i.bot)]
+        result = [
+            f"{i} | {i.activity.name}\r\n"
+            for i in ctx.guild.members
+            if (i.activity is not None)
+            and (search.lower() in i.activity.name.lower())
+            and (not i.bot)
+        ]
         if result is None:
             return await ctx.send("Your search result was empty...")
-        data = BytesIO(''.join(result).encode('utf-8'))
-        await ctx.send(content=f"Found **{len(result)}** on your search for **{search}**",
-                       file=discord.File(data, filename=default.timetext(f'PlayingSearch')))
+        data = BytesIO("".join(result).encode("utf-8"))
+        await ctx.send(
+            content=f"Found **{len(result)}** on your search for **{search}**",
+            file=discord.File(data, filename=default.timetext(f"PlayingSearch")),
+        )
 
     @find.command(name="username", aliases=["name"])
     async def find_name(self, ctx, *, search: str):
-        result = [f"{i}\r\n" for i in ctx.guild.members if (search.lower() in i.name.lower())]
+        result = [
+            f"{i}\r\n" for i in ctx.guild.members if (search.lower() in i.name.lower())
+        ]
         if result is None:
             return await ctx.send("Your search result was empty...")
-        data = BytesIO(''.join(result).encode('utf-8'))
-        await ctx.send(content=f"Found **{len(result)}** on your search for **{search}**",
-                       file=discord.File(data, filename=default.timetext(f'NameSearch')))
+        data = BytesIO("".join(result).encode("utf-8"))
+        await ctx.send(
+            content=f"Found **{len(result)}** on your search for **{search}**",
+            file=discord.File(data, filename=default.timetext(f"NameSearch")),
+        )
 
     @find.command(name="discriminator", aliases=["discrim"])
     async def find_discriminator(self, ctx, *, search: str):
         result = [f"{i}\r\n" for i in ctx.guild.members if (search in i.discriminator)]
         if result is None:
             return await ctx.send("Your search result was empty...")
-        data = BytesIO(''.join(result).encode('utf-8'))
-        await ctx.send(content=f"Found **{len(result)}** on your search for **{search}**",
-                       file=discord.File(data, filename=default.timetext(f'DiscriminatorSearch')))
+        data = BytesIO("".join(result).encode("utf-8"))
+        await ctx.send(
+            content=f"Found **{len(result)}** on your search for **{search}**",
+            file=discord.File(data, filename=default.timetext(f"DiscriminatorSearch")),
+        )
 
     @commands.group()
     @commands.guild_only()
@@ -380,9 +494,11 @@ class Moderation:
             for page in _help:
                 await ctx.send(page)
 
-    async def do_removal(self, ctx, limit, predicate, *, before=None, after=None, message=True):
+    async def do_removal(
+        self, ctx, limit, predicate, *, before=None, after=None, message=True
+    ):
         if limit > 2000:
-            return await ctx.send(f'Too many messages to search given ({limit}/2000)')
+            return await ctx.send(f"Too many messages to search given ({limit}/2000)")
 
         if before is None:
             before = ctx.message
@@ -393,15 +509,19 @@ class Moderation:
             after = discord.Object(id=after)
 
         try:
-            deleted = await ctx.channel.purge(limit=limit, before=before, after=after, check=predicate)
+            deleted = await ctx.channel.purge(
+                limit=limit, before=before, after=after, check=predicate
+            )
         except discord.Forbidden:
-            return await ctx.send('I do not have permissions to delete messages.')
+            return await ctx.send("I do not have permissions to delete messages.")
         except discord.HTTPException as e:
-            return await ctx.send(f'Error: {e} (try a smaller search?)')
+            return await ctx.send(f"Error: {e} (try a smaller search?)")
 
         deleted = len(deleted)
         if message is True:
-            await ctx.send(f'🚮 Successfully removed {deleted} message{"" if deleted == 1 else "s"}.')
+            await ctx.send(
+                f'🚮 Successfully removed {deleted} message{"" if deleted == 1 else "s"}.'
+            )
 
     @prune.command()
     async def embeds(self, ctx, search=100):
@@ -416,9 +536,11 @@ class Moderation:
     @prune.command()
     async def images(self, ctx, search=100):
         """Removes messages that have embeds or attachments."""
-        await self.do_removal(ctx, search, lambda e: len(e.embeds) or len(e.attachments))
+        await self.do_removal(
+            ctx, search, lambda e: len(e.embeds) or len(e.attachments)
+        )
 
-    @prune.command(name='all')
+    @prune.command(name="all")
     async def _remove_all(self, ctx, search=100):
         """Removes all messages."""
         await self.do_removal(ctx, search, lambda e: True)
@@ -434,11 +556,11 @@ class Moderation:
         The substring must be at least 3 characters long.
         """
         if len(substr) < 3:
-            await ctx.send('The substring length must be at least 3 characters.')
+            await ctx.send("The substring length must be at least 3 characters.")
         else:
             await self.do_removal(ctx, 100, lambda e: substr in e.content)
 
-    @prune.command(name='bots')
+    @prune.command(name="bots")
     async def _bots(self, ctx, prefix=None, search=100):
         """Removes a bot user's messages and messages with their optional prefix."""
 
@@ -447,7 +569,7 @@ class Moderation:
 
         await self.do_removal(ctx, search, predicate)
 
-    @prune.command(name='users')
+    @prune.command(name="users")
     async def _users(self, ctx, search=100):
         """Removes only user messages. """
 
@@ -456,10 +578,10 @@ class Moderation:
 
         await self.do_removal(ctx, search, predicate)
 
-    @prune.command(name='emoji')
+    @prune.command(name="emoji")
     async def _emoji(self, ctx, search=100):
         """Removes all messages containing custom emoji."""
-        custom_emoji = re.compile(r'<:(\w+):(\d+)>')
+        custom_emoji = re.compile(r"<:(\w+):(\d+)>")
 
         def predicate(m):
             return custom_emoji.search(m.content)
@@ -482,7 +604,9 @@ class Moderation:
         """ Removes the role from a user. """
         role = discord.utils.get(ctx.guild.roles, name=rolename)
         await member.remove_roles(role)
-        await ctx.send(f"👌 I have removed **{member.name}** from the **{role.name}** role!")
+        await ctx.send(
+            f"👌 I have removed **{member.name}** from the **{role.name}** role!"
+        )
 
     @commands.command()
     @commands.guild_only()
@@ -492,10 +616,16 @@ class Moderation:
         rowcheck = await self.getserverstuff(ctx)
         await msgtodel.delete()
         await ctx.message.delete()
-        if rowcheck['embeds'] is 0 or not permissions.can_embed(ctx):
-            return await channel.send(f"```\n{msgtodel.author.name}#{msgtodel.author.discriminator}: {msgtodel.content}\n```")
-        embed = discord.Embed(colour=discord.Colour(0x5fa05e), description=f"{msgtodel.content}")
-        embed.set_author(name=f"{msgtodel.author.name}", icon_url=f"{msgtodel.author.avatar_url}")
+        if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
+            return await channel.send(
+                f"```\n{msgtodel.author.name}#{msgtodel.author.discriminator}: {msgtodel.content}\n```"
+            )
+        embed = discord.Embed(
+            colour=discord.Colour(0x5FA05E), description=f"{msgtodel.content}"
+        )
+        embed.set_author(
+            name=f"{msgtodel.author.name}", icon_url=f"{msgtodel.author.avatar_url}"
+        )
         await channel.send(embed=embed)
 
 
