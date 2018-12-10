@@ -4,8 +4,8 @@ import traceback
 import psutil
 import os
 import random
-import datetime
 
+from datetime import datetime
 from dhooks import Webhook
 from discord.ext.commands import errors
 from utils import default, lists
