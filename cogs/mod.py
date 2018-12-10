@@ -63,7 +63,7 @@ class Moderation:
                 query, ctx.guild.id, "Default", "Default", 0, 0, 0, 0, 0, 0
             )
             query = "SELECT * FROM idstore WHERE serverid = $1;"
-            row = await self.bot.db.fetchrow(query, ctx.guild.id)
+            storerow = await self.bot.db.fetchrow(query, ctx.guild.id)
         return storerow
 
     async def getautomod(self, ctx):

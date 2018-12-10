@@ -2,7 +2,6 @@ import random
 import discord
 import json
 import requests
-import io
 
 from random import randint
 from discord.ext import commands
@@ -383,9 +382,9 @@ class Fun:
                 bar = ".........."
                 heart = "🖤"
             name1 = user.name.replace(" ", "")
-            name1 = name1[: int(len(name1) / 2) :]
+            name1 = name1[: int(len(name1) / 2):]
             name2 = user2.name.replace(" ", "")
-            name2 = name2[int(len(name2) / 2) : :]
+            name2 = name2[int(len(name2) / 2)::]
             if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
                 return await ctx.send(
                     f"```\n{user.name} x {user2.name}\n\n{n}% {bar} {heart}\n\nShipname: {str(name1 + name2).lower()}\n```"

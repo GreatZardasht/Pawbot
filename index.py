@@ -2,7 +2,6 @@ import os
 import asyncio
 import asyncpg
 
-from discord.ext.commands import HelpFormatter
 from data import Bot
 from utils import default
 

@@ -40,14 +40,13 @@ class AdminPanel:
                 query, ctx.guild.id, "Default", "Default", 0, 0, 0, 0, 0, 0
             )
             query = "SELECT * FROM idstore WHERE serverid = $1;"
-            row = await self.bot.db.fetchrow(query, ctx.guild.id)
+            storerow = await self.bot.db.fetchrow(query, ctx.guild.id)
         return storerow
 
     @commands.command(aliases=["adminpanel", "botconfig"])
     @commands.guild_only()
     @permissions.has_permissions(Admininstartor=True)
     async def conf(self, ctx):
-        rowcheck = await self.getserverstuff(ctx)
         automodrowcheck = await self.getautomod(ctx)
         storerow = await self.getstorestuff(ctx)
 

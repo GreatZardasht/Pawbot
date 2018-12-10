@@ -6,7 +6,7 @@ import asyncio
 import dhooks
 
 from collections import Counter
-from dhooks import Webhook, Embed
+from dhooks import Webhook
 from discord.ext import commands
 from datetime import datetime
 from utils import repo, default, permissions

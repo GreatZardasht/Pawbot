@@ -1,7 +1,5 @@
 import time
 import json
-import discord
-
 from collections import namedtuple
 
 

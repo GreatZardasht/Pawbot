@@ -13,13 +13,13 @@ search = sfapi.search
 
 
 class ResultNotFound(Exception):
-    """Used if ResultNotFound is triggered by e* API."""
+    "Used if ResultNotFound is triggered by e* API."
 
     pass
 
 
 class InvalidHTTPResponse(Exception):
-    """Used if non-200 HTTP Response got from server."""
+    "Used if non-200 HTTP Response got from server."
 
     pass
 
@@ -56,7 +56,7 @@ class NSFW:
     @commands.is_nsfw()
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def lewdneko(self, ctx):
-        """ Posts a lewd neko """
+        " Posts a lewd neko "
         rowcheck = await self.getserverstuff(ctx)
         if rowcheck["nsfw"] is 0:
             return await ctx.send(";w; NSFW is disabled in the config...")
@@ -66,7 +66,7 @@ class NSFW:
     @commands.is_nsfw()
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def lewdfeet(self, ctx):
-        """ Posts a lewd foot image or gif """
+        " Posts a lewd foot image or gif "
         rowcheck = await self.getserverstuff(ctx)
         if rowcheck["nsfw"] is 0:
             return await ctx.send(";w; NSFW is disabled in the config...")
@@ -79,7 +79,7 @@ class NSFW:
     @commands.is_nsfw()
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def lewdkemo(self, ctx):
-        """ Posts a lewd kemonomimi character """
+        " Posts a lewd kemonomimi character "
         rowcheck = await self.getserverstuff(ctx)
         if rowcheck["nsfw"] is 0:
             return await ctx.send(";w; NSFW is disabled in the config...")
@@ -92,7 +92,7 @@ class NSFW:
     @commands.is_nsfw()
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def lewdanal(self, ctx):
-        """ Posts a lewd anal gif/picture """
+        " Posts a lewd anal gif/picture "
         rowcheck = await self.getserverstuff(ctx)
         if rowcheck["nsfw"] is 0:
             return await ctx.send(";w; NSFW is disabled in the config...")
@@ -101,7 +101,7 @@ class NSFW:
     @commands.command()
     @commands.is_nsfw()
     async def e621(self, ctx, *args):
-        """Searches e621 with given queries."""
+        "Searches e621 with given queries."
         rowcheck = await self.getserverstuff(ctx)
         if rowcheck["nsfw"] is 0:
             return await ctx.send(";w; NSFW is disabled in the config...")
@@ -112,15 +112,15 @@ class NSFW:
         args = str(args)
         netloc = "e621"
         print("------")
-        print("Got command with args: " + args)
+        print("Got command with args: args")
         if "order:score_asc" in args:
             await ctx.send("I'm not going to fall into that one, silly~")
             return
         if "score:" in args:
-            apilink = "https://e621.net/post/index.json?tags=" + args + "&limit=320"
+            apilink = "https://e621.net/post/index.json?tags=args&limit=320"
         else:
             apilink = (
-                "https://e621.net/post/index.json?tags=" + args + " score:>25&limit=320"
+                "https://e621.net/post/index.json?tags=args score:>25&limit=320"
             )
         try:
             await processapi(apilink)
@@ -134,35 +134,22 @@ class NSFW:
             return
         msgtoedit = await ctx.channel.get_message(msgtoedit.id)
         msgtosend = (
-            """Post link: `https://"""
-            + netloc
-            + """.net/post/show/"""
-            + processapi.imgid
-            + """/`\r\nArtist: `"""
-            + processapi.imgartist
-            + """`\r\nSource: `"""
-            + processapi.imgsource
-            + """`\r\nRating: """
-            + processapi.imgrating
-            + """\r\nTags: `"""
-            + processapi.imgtags
-            + """` ...and more\r\nImage link: """
-            + processapi.file_link
+            f"Post link: `https://{netloc}.net/post/show/{processapi.imgid}/`\r\nArtist: `{processapi.imgartist}`\r\nSource: `{processapi.imgsource}`\r\nRating: {processapi.imgrating}\r\nTags: `{processapi.imgtags}` ...and more\r\nImage link: {processapi.file_link}"
         )
         await msgtoedit.edit(content=msgtosend)
 
     @commands.command()
     @commands.is_nsfw()
     async def show(self, ctx, arg):
-        """Show a post from e621/e926 with given post ID"""
+        "Show a post from e621/e926 with given post ID"
         rowcheck = await self.getserverstuff(ctx)
         if rowcheck["nsfw"] is 0:
             return await ctx.send(";w; NSFW is disabled in the config...")
         msgtoedit = await ctx.send("Searching...")
         print("------")
         arg = str(arg)
-        print("Got command with arg: " + arg)
-        apilink = "https://e621.net/post/show.json?id=" + arg
+        print("Got command with arg: arg")
+        apilink = "https://e621.net/post/show.json?id={arg}"
         try:
             await processshowapi(apilink)
         except ResultNotFound:
@@ -175,23 +162,14 @@ class NSFW:
             return
         msgtoedit = await ctx.channel.get_message(msgtoedit.id)
         msgtosend = (
-            """Artist: """
-            + processshowapi.imgartist
-            + """\r\nSource: `"""
-            + processshowapi.imgsource
-            + """`\r\nRating: """
-            + processshowapi.imgrating
-            + """\r\nTags: `"""
-            + processshowapi.imgtags
-            + """` ...and more\r\nImage link: """
-            + processshowapi.file_link
+            "Artist: {processshowapi.imgartist}\r\nSource: `{processshowapi.imgsource}`\r\nRating: {processshowapi.imgrating}\r\nTags: `{processshowapi.imgtags}` ...and more\r\nImage link: {processshowapi.file_link}"
         )
         await msgtoedit.edit(content=msgtosend)
 
     @commands.command()
     @commands.is_nsfw()
     async def sofurry(self, ctx, *args):
-        """Searches SoFurry with given queries."""
+        "Searches SoFurry with given queries."
         rowcheck = await self.getserverstuff(ctx)
         if rowcheck["nsfw"] is 0:
             return await ctx.send(";w; NSFW is disabled in the config...")
@@ -202,7 +180,7 @@ class NSFW:
         args = " ".join(args)
         args = str(args)
         print("------")
-        print("Got command with args: " + args)
+        print("Got command with args: args")
         try:
             await search(args, maxlevel)
         except ResultNotFound:
@@ -214,7 +192,7 @@ class NSFW:
             )
             return
         msgtoedit = await ctx.channel.get_message(msgtoedit.id)
-        msgtosend = """Title: {}\r\nArtist: {}\r\nTags: `{}`\r\nRating: {}\r\nImage link: {}""".format(
+        msgtosend = "Title: {}\r\nArtist: {}\r\nTags: `{}`\r\nRating: {}\r\nImage link: {}".format(
             search.title,
             search.artistName,
             search.tags,

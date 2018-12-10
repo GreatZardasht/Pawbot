@@ -1,6 +1,4 @@
 import random
-import os
-import asyncio
 import aiohttp
 
 
@@ -22,12 +20,7 @@ def shuffle(arr):
 
 
 async def search(queries, maxlevel):
-    apilink = (
-        "https://api2.sofurry.com/browse/search?search="
-        + queries
-        + "&format=json&filter=artwork&maxlevel="
-        + maxlevel
-    )
+    apilink = f"https://api2.sofurry.com/browse/search?search={queries}&format=json&filter=artwork&maxlevel={maxlevel}"
     print("Requesting json from API")
     async with aiohttp.ClientSession() as session:
         async with session.get(apilink) as r:
