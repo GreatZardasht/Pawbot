@@ -19,7 +19,7 @@ def shuffle(arr):
     return arr
 
 
-headers = {"User-Agent": "SearchBot/1.0 (by Error- on e621)"}
+headers = {"User-Agent": "SearchBot/1.0 (by lyricalpaws on e621)"}
 
 
 async def processapi(apilink):
