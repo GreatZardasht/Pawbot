@@ -27,6 +27,38 @@ class Events:
         self.config = default.get("config.json")
         self.process = psutil.Process(os.getpid())
 
+    async def getserverstuff(self, member):
+        query = "SELECT * FROM adminpanel WHERE serverid = $1;"
+        row = await self.bot.db.fetchrow(query, member.guild.id)
+        if row is None:
+            query = "INSERT INTO adminpanel VALUES ($1, $2, $3, $4, $5, $6, $7);"
+            await self.bot.db.execute(query, member.guild.id, 0, 0, 1, 0, 0, 0)
+            query = "SELECT * FROM adminpanel WHERE serverid = $1;"
+            row = await self.bot.db.fetchrow(query, member.guild.id)
+        return row
+
+    async def getautomod(self, member):
+        query = "SELECT * FROM automod WHERE serverid = $1;"
+        row = await self.bot.db.fetchrow(query, member.guild.id)
+        if row is None:
+            query = "INSERT INTO automod VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);"
+            await self.bot.db.execute(query, member.guild.id, 0, 0, 0, 0, 10, 10, 0, 0)
+            query = "SELECT * FROM automod WHERE serverid = $1;"
+            row = await self.bot.db.fetchrow(query, member.guild.id)
+        return row
+
+    async def getstorestuff(self, member):
+        storequery = "SELECT * FROM idstore WHERE serverid = $1;"
+        storerow = await self.bot.db.fetchrow(storequery, member.guild.id)
+        if storerow is None:
+            query = "INSERT INTO idstore VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);"
+            await self.bot.db.execute(
+                query, member.guild.id, "Default", "Default", 0, 0, 0, 0, 0, 0
+            )
+            query = "SELECT * FROM idstore WHERE serverid = $1;"
+            storerow = await self.bot.db.fetchrow(query, member.guild.id)
+        return storerow
+
     async def on_command_error(self, ctx, err):
         if isinstance(err, (errors.BadArgument, errors.MissingRequiredArgument)):
             await send_cmd_help(ctx)
@@ -129,6 +161,57 @@ class Events:
         )
         await webhook.execute(embeds=embed, username=guild.name, avatar_url=guildicon)
         await webhook.close()
+
+    async def on_member_join(self, member):
+        adminpanelcheck = await self.getserverstuff(member)
+        serverstorecheck = await self.getstorestuff(member)
+        automodcheck = await self.getautomod(member)
+        if adminpanelcheck["automod"] is 1:
+            if automodcheck["lockdown"] is 1:
+                await member.send(
+                    f"Sorry but **{member.guild.name}** is currently on lockdown, try again later! >.<"
+                )
+                return await member.kick(reason="[Automod] Lockdown Enabled")
+            if automodcheck["autorole"] is 1:
+                try:
+                    autorolerole = member.guild.get_role(
+                        serverstorecheck["autorolerole"]
+                    )
+                    await member.add_roles(autorolerole)
+                except discord.Forbidden:
+                    pass
+        if adminpanelcheck["joins"] is 1:
+            try:
+                welcomechannel = member.guild.get_channel(serverstorecheck["joinchan"])
+                welcomemsg = (
+                    serverstorecheck["joinmsg"]
+                    .replace("%member%", f"{member.name}#{member.discriminator}")
+                    .replace(
+                        "Default",
+                        f"Please welcome **{member.name}#{member.discriminator}!**",
+                    )
+                )
+                await welcomechannel.send(welcomemsg)
+            except discord.Forbidden:
+                pass
+
+    async def on_member_remove(self, member):
+        adminpanelcheck = await self.getserverstuff(member)
+        serverstorecheck = await self.getstorestuff(member)
+        if adminpanelcheck["leaves"] is 1:
+            try:
+                byechan = member.guild.get_channel(serverstorecheck["leavechan"])
+                byemsg = (
+                    serverstorecheck["leavemsg"]
+                    .replace("%member%", f"{member.name}#{member.discriminator}")
+                    .replace(
+                        "Default",
+                        f"Goodbye **{member.name}#{member.discriminator}** we'll miss you...",
+                    )
+                )
+                await byechan.send(byemsg)
+            except discord.Forbidden:
+                pass
 
 
 def setup(bot):
