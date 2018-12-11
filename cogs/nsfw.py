@@ -56,7 +56,7 @@ class NSFW:
     @commands.is_nsfw()
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def lewdneko(self, ctx):
-        " Posts a lewd neko "
+        """Posts a lewd neko"""
         rowcheck = await self.getserverstuff(ctx)
         if rowcheck["nsfw"] is 0:
             return await ctx.send(";w; NSFW is disabled in the config...")
@@ -66,7 +66,7 @@ class NSFW:
     @commands.is_nsfw()
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def lewdfeet(self, ctx):
-        " Posts a lewd foot image or gif "
+        """Posts a lewd foot image or gif"""
         rowcheck = await self.getserverstuff(ctx)
         if rowcheck["nsfw"] is 0:
             return await ctx.send(";w; NSFW is disabled in the config...")
@@ -79,7 +79,7 @@ class NSFW:
     @commands.is_nsfw()
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def lewdkemo(self, ctx):
-        " Posts a lewd kemonomimi character "
+        """Posts a lewd kemonomimi character"""
         rowcheck = await self.getserverstuff(ctx)
         if rowcheck["nsfw"] is 0:
             return await ctx.send(";w; NSFW is disabled in the config...")
@@ -92,7 +92,7 @@ class NSFW:
     @commands.is_nsfw()
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def lewdanal(self, ctx):
-        " Posts a lewd anal gif/picture "
+        """Posts a lewd anal gif/picture"""
         rowcheck = await self.getserverstuff(ctx)
         if rowcheck["nsfw"] is 0:
             return await ctx.send(";w; NSFW is disabled in the config...")
@@ -101,7 +101,7 @@ class NSFW:
     @commands.command()
     @commands.is_nsfw()
     async def e621(self, ctx, *args):
-        "Searches e621 with given queries."
+        """Searches e621 with given queries."""
         rowcheck = await self.getserverstuff(ctx)
         if rowcheck["nsfw"] is 0:
             return await ctx.send(";w; NSFW is disabled in the config...")
@@ -141,7 +141,7 @@ class NSFW:
     @commands.command()
     @commands.is_nsfw()
     async def show(self, ctx, arg):
-        "Show a post from e621/e926 with given post ID"
+        """Show a post from e621/e926 with given post ID"""
         rowcheck = await self.getserverstuff(ctx)
         if rowcheck["nsfw"] is 0:
             return await ctx.send(";w; NSFW is disabled in the config...")
@@ -169,7 +169,7 @@ class NSFW:
     @commands.command()
     @commands.is_nsfw()
     async def sofurry(self, ctx, *args):
-        "Searches SoFurry with given queries."
+        """Searches SoFurry with given queries."""
         rowcheck = await self.getserverstuff(ctx)
         if rowcheck["nsfw"] is 0:
             return await ctx.send(";w; NSFW is disabled in the config...")

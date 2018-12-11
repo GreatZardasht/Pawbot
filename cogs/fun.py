@@ -216,10 +216,10 @@ class Fun:
             await ctx.send("I'm not going to fall into that one, silly~")
             return
         if "score:" in args:
-            apilink = "https://e926.net/post/index.json?tags=" + args + "&limit=320"
+            apilink = f"https://e926.net/post/index.json?tags={args}&limit=320"
         else:
             apilink = (
-                "https://e926.net/post/index.json?tags=" + args + " score:>25&limit=320"
+                f"https://e926.net/post/index.json?tags={args}&score:>25&limit=320"
             )
         try:
             await eapi.processapi(apilink)
@@ -232,23 +232,7 @@ class Fun:
             )
             return
         msgtoedit = await ctx.channel.get_message(msgtoedit.id)
-        msgtosend = (
-            "Post link: `https://"
-            ""
-            + netloc
-            + """.net/post/show/"""
-            + eapi.processapi.imgid
-            + """/`\r\nArtist: `"""
-            + eapi.processapi.imgartist
-            + """`\r\nSource: `"""
-            + eapi.processapi.imgsource
-            + """`\r\nRating: """
-            + eapi.processapi.imgrating
-            + """\r\nTags: `"""
-            + eapi.processapi.imgtags
-            + """` ...and more\r\nImage link: """
-            + eapi.processapi.file_link
-        )
+        msgtosend = "Post link: `https://{netloc}.net/post/show/{eapi.processapi.imgid}/`\r\nArtist: `{eapi.processapi.imgartist}`\r\nSource: `{eapi.processapi.imgsource}`\r\nRating: {eapi.processapi.imgrating}\r\nTags: `{eapi.processapi.imgtags}` ...and more\r\nImage link: {eapi.processapi.file_link}"
         await msgtoedit.edit(content=msgtosend)
 
     @commands.command()
@@ -382,9 +366,9 @@ class Fun:
                 bar = ".........."
                 heart = "🖤"
             name1 = user.name.replace(" ", "")
-            name1 = name1[: int(len(name1) / 2):]
+            name1 = name1[: int(len(name1) / 2) :]
             name2 = user2.name.replace(" ", "")
-            name2 = name2[int(len(name2) / 2)::]
+            name2 = name2[int(len(name2) / 2) : :]
             if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
                 return await ctx.send(
                     f"```\n{user.name} x {user2.name}\n\n{n}% {bar} {heart}\n\nShipname: {str(name1 + name2).lower()}\n```"
@@ -416,20 +400,19 @@ class Fun:
 
     @commands.command()
     async def choose(self, ctx, *args):
-        """Choose one of a lot arguments (Split with |) """
+        """Choose one of a lot (Split with |) """
         args = " ".join(args)
         args = str(args)
         choices = args.split("|")
         if len(choices) < 2:
-            await ctx.send("You need to send at least 2 argument!")
-            return
+            return await ctx.send("You need to send at least 2 choices!")
         await ctx.send(random.choice(choices))
 
     @commands.command()
     async def jpeg(self, ctx, urltojpeg: str):
         """ Does what it says on the can """
         if "http" not in urltojpeg:
-            return ctx.send("Include a url you donk!")
+            return await ctx.send("Include a url you donk!")
         await self.randomimageapi(
             ctx,
             f"https://nekobot.xyz/api/imagegen?type=jpeg&url={urltojpeg}",
@@ -440,7 +423,7 @@ class Fun:
     async def deepfry(self, ctx, urltojpeg: str):
         """ Deepfries an image """
         if "http" not in urltojpeg:
-            return ctx.send("Include a url you donk!")
+            return await ctx.send("Include a url you donk!")
         await self.randomimageapi(
             ctx,
             f"https://nekobot.xyz/api/imagegen?type=deepfry&image={urltojpeg}",
@@ -451,7 +434,7 @@ class Fun:
     async def clyde(self, ctx, clydetext: str):
         """ Makes Clyde say something """
         if clydetext is None:
-            return ctx.send("Include some text you donk!")
+            return await ctx.send("Include some text you donk!")
         await self.randomimageapi(
             ctx,
             f"https://nekobot.xyz/api/imagegen?type=clyde&text={clydetext}",
@@ -462,9 +445,9 @@ class Fun:
     async def magik(self, ctx, intensity: str, imgtomagik: str):
         """ why don'T WE JUST RELAX AND TURn on THe rADIO? """
         if imgtomagik is None:
-            return ctx.send("Include some text you donk!")
+            return await ctx.send("Include some text you donk!")
         if intensity not in ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]:
-            return ctx.send("Include an intensity to magik (1-10)")
+            return await ctx.send("Include an intensity to magik (1-10)")
         await self.randomimageapi(
             ctx,
             f"https://nekobot.xyz/api/imagegen?type=magik&image={imgtomagik}&intensity={intensity}",
@@ -479,10 +462,9 @@ class Fun:
 
     @commands.command(aliases=["say"])
     async def echo(self, ctx, *, text: str):
-        """ Says what you want (removes @​everyone and @​here) """
-        removeeveryone = text.replace("@everyone", "everyone")
-        removehere = removeeveryone.replace("@here", "here")
-        await ctx.send(removehere)
+        """ Says what you want """
+        text = text.replace("@everyone", "@​everyone").replace("@here", "@​here")
+        await ctx.send(text)
 
 
 def setup(bot):
