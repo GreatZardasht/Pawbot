@@ -5,7 +5,10 @@ import discord
 import textwrap
 import io
 import json
+import requests
 
+from io import BytesIO
+from bs4 import BeautifulSoup
 from dhooks import Webhook
 from utils.chat_formatting import pagify
 from utils.formats import TabularData, Plural
@@ -450,6 +453,19 @@ class Admin:
     @commands.check(repo.is_owner)
     async def bshow(self, ctx):
         await ctx.send(f"``{self.bot.blacklist}``")
+
+    @commands.command()
+    @commands.check(repo.is_owner)
+    async def parsehtml(self, ctx, url: str):
+        url = url.replace("http://", "")
+        r = requests.get(f"http://{url}")
+        data = r.text
+        soup = BeautifulSoup(data, 'html.parser')
+        msgtosend = f"```\n{soup.prettify()}\n```"
+        if len(msgtosend) > 1900:
+            file = BytesIO(soup.prettify().encode('utf-8'))
+            return await ctx.send(content=f"Too big to send, here is the file!", file=discord.File(file, filename="parsedhtml.html"))
+        await ctx.send(msgtosend)
 
 
 def setup(bot):
