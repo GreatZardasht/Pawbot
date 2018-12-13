@@ -3,6 +3,7 @@ import discord
 import json
 import requests
 
+from random import randint as rint
 from random import randint
 from discord.ext import commands
 from utils import lists, http, default, eapi, sfapi, permissions
@@ -464,6 +465,37 @@ class Fun:
         """ Says what you want """
         text = text.replace("@everyone", "@​everyone").replace("@here", "@​here")
         await ctx.send(text)
+
+    @commands.command()
+    @commands.cooldown(1.0, 5.0, commands.BucketType.user)
+    async def snipe(self, ctx, channel: discord.TextChannel = None, index: int = 0):
+        """ Snipe deleted messages o3o """
+
+        channel = channel or ctx.channel
+
+        if index != 0:
+            index = index - 1
+
+        try:
+            sniped = self.bot.snipes[channel.id][index]
+        except ValueError:
+            return await ctx.send(
+                ":warning: | **No message to snipe or index must not be greater than 5 or lower than 1**",
+                delete_after=10,
+            )
+
+        embed = discord.Embed(
+            color=rint(0x000000, 0xFFFFFF),
+            timestamp=sniped.created_at,
+            title=f"{sniped.author} said",
+            description=sniped.clean_content,
+        )
+        embed.set_footer(
+            text=f"Sniped by {ctx.author} | Message created",
+            icon_url=ctx.author.avatar_url,
+        )
+        embed.set_thumbnail(url=sniped.author.avatar_url)
+        await ctx.send(embed=embed)
 
 
 def setup(bot):

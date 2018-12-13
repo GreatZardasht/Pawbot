@@ -14,6 +14,7 @@ class Bot(AutoShardedBot):
         self.db = kwargs.pop("db")
         self.counter = Counter()
         self.blacklist = [entry for entry in config.blacklist]
+        self.snipes = {}
 
     async def getserverstuff(self, message):
         query = "SELECT * FROM adminpanel WHERE serverid = $1;"

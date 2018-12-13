@@ -5,10 +5,19 @@ import psutil
 import os
 import random
 
+from collections import deque
 from datetime import datetime
 from dhooks import Webhook
 from discord.ext.commands import errors
 from utils import default, lists
+
+
+class SnipeHistory(deque):
+    def __init__(self):
+        super().__init__(maxlen=5)
+
+    def __repr__(self):
+        return "Pawbot Snipe History"
 
 
 async def send_cmd_help(ctx):
@@ -212,6 +221,16 @@ class Events:
                 await byechan.send(byemsg)
             except discord.Forbidden:
                 pass
+
+    async def on_message_delete(self, message):
+        try:
+            self.bot.snipes[message.channel.id].appendleft(message)
+        except:
+            self.bot.snipes[message.channel.id] = SnipeHistory()
+            self.bot.snipes[message.channel.id].appendleft(message)
+
+        adminpanelcheck = await self.getserverstuff(message)
+        serverstorecheck = await self.getstorestuff(message)
 
 
 def setup(bot):
