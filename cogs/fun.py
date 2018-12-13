@@ -209,7 +209,6 @@ class Fun:
         msgtoedit = await ctx.send("Searching...")
         args = " ".join(args)
         args = str(args)
-        netloc = "e926"
         print("------")
         print("Got command with args: " + args)
         if "order:score_asc" in args:
@@ -366,9 +365,9 @@ class Fun:
                 bar = ".........."
                 heart = "🖤"
             name1 = user.name.replace(" ", "")
-            name1 = name1[: int(len(name1) / 2) :]
+            name1 = name1[: int(len(name1) / 2):]
             name2 = user2.name.replace(" ", "")
-            name2 = name2[int(len(name2) / 2) : :]
+            name2 = name2[int(len(name2) / 2)::]
             if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
                 return await ctx.send(
                     f"```\n{user.name} x {user2.name}\n\n{n}% {bar} {heart}\n\nShipname: {str(name1 + name2).lower()}\n```"
