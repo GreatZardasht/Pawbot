@@ -31,10 +31,10 @@ async def run():
         "CREATE TABLE IF NOT EXISTS adminpanel(serverid bigint, joins int, leaves int, embeds int, nsfw int, automod int, modlog int);"
     )
     await db.execute(
-        "CREATE TABLE IF NOT EXISTS automod(serverid bigint, autorole int, adblock int, lockdown int, antispam int, msgcooldown int, msgamount int, antidupe int, actionlog int);"
+        "CREATE TABLE IF NOT EXISTS automod(serverid bigint, autorole int, adblock int, lockdown int, antispam int, owo int, uwu int, ignorerole int, actionlog int);"
     )
     await db.execute(
-        "CREATE TABLE IF NOT EXISTS idstore(serverid bigint, joinmsg varchar, leavemsg varchar, joinchan bigint, leavechan bigint, modlogchan bigint, ignorerole bigint, autorolerole bigint, actionlogchan bigint);"
+        "CREATE TABLE IF NOT EXISTS idstore(serverid bigint, joinmsg varchar, leavemsg varchar, joinchan bigint, leavechan bigint, modlogchan bigint, ignorerolerole bigint, autorolerole bigint, actionlogchan bigint);"
     )
 
     bot = Bot(command_prefix=config.prefix, pm_help=True, help_attrs=help_attrs, db=db)

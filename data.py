@@ -1,7 +1,8 @@
 import asyncio
+import discord
 
 from collections import Counter
-from utils import permissions, default
+from utils import permissions, default, lists
 from discord.ext.commands import AutoShardedBot
 
 config = default.get("config.json")
@@ -12,39 +13,145 @@ class Bot(AutoShardedBot):
         super().__init__(*args, **kwargs)
         self.db = kwargs.pop("db")
         self.counter = Counter()
+        self.blacklist = [entry for entry in config.blacklist]
 
-    async def on_message(self, msg):
-        blacklist = default.get("blacklist.json")
+    async def getserverstuff(self, message):
+        query = "SELECT * FROM adminpanel WHERE serverid = $1;"
+        row = await self.db.fetchrow(query, message.guild.id)
+        if row is None:
+            query = "INSERT INTO adminpanel VALUES ($1, $2, $3, $4, $5, $6, $7);"
+            await self.db.execute(query, message.guild.id, 0, 0, 1, 0, 0, 0)
+            query = "SELECT * FROM adminpanel WHERE serverid = $1;"
+            row = await self.db.fetchrow(query, message.guild.id)
+        return row
+
+    async def getautomod(self, message):
+        query = "SELECT * FROM automod WHERE serverid = $1;"
+        row = await self.db.fetchrow(query, message.guild.id)
+        if row is None:
+            query = "INSERT INTO automod VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);"
+            await self.db.execute(query, message.guild.id, 0, 0, 0, 0, 10, 10, 0, 0)
+            query = "SELECT * FROM automod WHERE serverid = $1;"
+            row = await self.db.fetchrow(query, message.guild.id)
+        return row
+
+    async def getstorestuff(self, message):
+        storequery = "SELECT * FROM idstore WHERE serverid = $1;"
+        storerow = await self.db.fetchrow(storequery, message.guild.id)
+        if storerow is None:
+            query = "INSERT INTO idstore VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);"
+            await self.db.execute(
+                query, message.guild.id, "Default", "Default", 0, 0, 0, 0, 0, 0
+            )
+            query = "SELECT * FROM idstore WHERE serverid = $1;"
+            storerow = await self.db.fetchrow(query, message.guild.id)
+        return storerow
+
+    async def on_message(self, message):
         uplink = default.get("uplink.json")
+        adminpanelcheck = await self.getserverstuff(message)
 
-        if msg.guild is None:
-            if (
-                not self.is_ready()
-                or msg.author.bot
-                or not permissions.can_send(msg)
-                or msg.author.id in blacklist.blacklist
-            ):
-                return
-            return await self.process_commands(msg)
         if (
             not self.is_ready()
-            or msg.author.bot
-            or not permissions.can_send(msg)
-            or msg.author.id in blacklist.blacklist
-            or msg.guild.id in blacklist.blacklist
+            or message.author.bot
+            or not permissions.can_send(message)
+            or message.author.id in self.blacklist
         ):
             return
-        if msg.channel.id == uplink.uplinkchan:
+        if message.channel.id == uplink.uplinkchan:
             downlinkchannel = self.get_channel(uplink.downlinkchan)
             await downlinkchannel.send(
-                f"{msg.author.name}#{msg.author.discriminator}: {msg.content}"
+                f"{message.author.name}#{message.author.discriminator}: {message.content}"
             )
-        if msg.channel.id == uplink.downlinkchan:
+        if message.channel.id == uplink.downlinkchan:
             uplinkchannel = self.get_channel(uplink.uplinkchan)
             await uplinkchannel.send(
-                f"{msg.author.name}#{msg.author.discriminator}: {msg.content}"
+                f"{message.author.name}#{message.author.discriminator}: {message.content}"
             )
-        await self.process_commands(msg)
-        self.counter[f"{msg.author.id}.{msg.guild.id}.msgs"] += 1
-        await asyncio.sleep(5)
-        self.counter[f"{msg.author.id}.{msg.guild.id}.msgs"] -= 1
+        if adminpanelcheck["automod"] is 1:
+            automodcheck = await self.getautomod(message)
+            serverstorecheck = await self.getstorestuff(message)
+            if automodcheck["adblock"] is 1:
+                for entry in lists.discordAds:
+                    if entry in message.content:
+                        if automodcheck["ignorerole"] is 1:
+                            ignorerole = message.guild.get_role(
+                                serverstorecheck["ignorerolerole"]
+                            )
+                            if ignorerole not in message.author.roles:
+                                try:
+                                    await message.delete()
+                                    if (
+                                        self.counter[
+                                            f"{message.author.id}.{message.guild.id}.adblockpinged"
+                                        ]
+                                        is 1
+                                    ):
+                                        break
+                                    else:
+                                        await message.channel.send(
+                                            f"{message.author.mention}, ads aren't allowed here!"
+                                        )
+                                    self.counter[
+                                        f"{message.author.id}.{message.guild.id}.adblockpinged"
+                                    ] += 1
+                                    await asyncio.sleep(5)
+                                    self.counter[
+                                        f"{message.author.id}.{message.guild.id}.adblockpinged"
+                                    ] -= 1
+                                    break
+                                except discord.Forbidden:
+                                    pass
+                        else:
+                            try:
+                                await message.delete()
+                                if (
+                                    self.counter[
+                                        f"{message.author.id}.{message.guild.id}.adblockpinged"
+                                    ]
+                                    is 1
+                                ):
+                                    break
+                                else:
+                                    await message.channel.send(
+                                        f"{message.author.mention}, ads aren't allowed here!"
+                                    )
+                                self.counter[
+                                    f"{message.author.id}.{message.guild.id}.adblockpinged"
+                                ] += 1
+                                await asyncio.sleep(5)
+                                self.counter[
+                                    f"{message.author.id}.{message.guild.id}.adblockpinged"
+                                ] -= 1
+                                break
+                            except discord.Forbidden:
+                                pass
+            if automodcheck["antispam"] is 1:
+                if automodcheck["ignorerole"] is 1:
+                    ignorerole = message.guild.get_role(
+                        serverstorecheck["ignorerolerole"]
+                    )
+                    if ignorerole not in message.author.roles:
+                        if (
+                            self.counter[
+                                f"{message.author.id}.{message.guild.id}.lastmsg"
+                            ]
+                            == f"{message.content}"
+                        ):
+                            try:
+                                await message.delete()
+                            except discord.Forbidden:
+                                pass
+                else:
+                    if (
+                        self.counter[f"{message.author.id}.{message.guild.id}.lastmsg"]
+                        == f"{message.content}"
+                    ):
+                        try:
+                            await message.delete()
+                        except discord.Forbidden:
+                            pass
+                self.counter[
+                    f"{message.author.id}.{message.guild.id}.lastmsg"
+                ] = f"{message.content}"
+        await self.process_commands(message)
