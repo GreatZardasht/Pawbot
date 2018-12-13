@@ -45,7 +45,7 @@ class AdminPanel:
 
     @commands.command(aliases=["adminpanel", "botconfig"])
     @commands.guild_only()
-    @permissions.has_permissions(Admininstartor=True)
+    @permissions.has_permissions(manage_guild=True)
     async def conf(self, ctx):
         automodrowcheck = await self.getautomod(ctx)
         storerow = await self.getstorestuff(ctx)
@@ -124,13 +124,13 @@ class AdminPanel:
                 embed.add_field(
                     name="Antispam", value="<:disabled:513831606855794709>", inline=True
                 )
-            if automodrowcheck["antidupe"] is 1:
+            if automodrowcheck["ignorerole"] is 1:
                 embed.add_field(
-                    name="Antidupe", value="<:enabled:513831607355047964>", inline=True
+                    name="Ignore Role", value="<:enabled:513831607355047964>", inline=True
                 )
             else:
                 embed.add_field(
-                    name="Antidupe", value="<:disabled:513831606855794709>", inline=True
+                    name="Ignore Role", value="<:disabled:513831606855794709>", inline=True
                 )
             if automodrowcheck["actionlog"] is 1:
                 embed.add_field(
@@ -193,30 +193,14 @@ class AdminPanel:
                     embed.add_field(
                         name="Auto Role-Role", value=f"{autorole.mention}", inline=False
                     )
-            if storerow["ignorerole"] is not None:
-                ignorerole = ctx.guild.get_role(storerow["ignorerole"])
+            if automodrowcheck['ignorerole'] is 1:
+                ignorerole = ctx.guild.get_role(storerow["ignorerolerole"])
                 if ignorerole is None:
                     pass
                 else:
                     embed.add_field(
                         name="Ignore Role", value=f"{ignorerole.mention}", inline=False
                     )
-            if automodrowcheck["antispam"] is 1:
-                if (
-                    automodrowcheck["msgcooldown"] is not None
-                    and automodrowcheck["msgamount"] is not None
-                ):
-                    if (
-                        automodrowcheck["msgcooldown"] is None
-                        or automodrowcheck["msgamount"] is None
-                    ):
-                        pass
-                    else:
-                        embed.add_field(
-                            name="Msg Amount/Msg Cooldown time",
-                            value=f"{automodrowcheck['msgamount']}/{automodrowcheck['msgcooldown']}",
-                            inline=False,
-                        )
         try:
             await ctx.send(embed=embed)
         except discord.Forbidden:
@@ -227,7 +211,7 @@ class AdminPanel:
 
     @commands.group()
     @commands.guild_only()
-    @permissions.has_permissions(Administrator=True)
+    @permissions.has_permissions(manage_guild=True)
     async def enable(self, ctx):
         """ Enables different modules """
         if ctx.invoked_subcommand is None:
@@ -613,7 +597,7 @@ class AdminPanel:
         await ctx.send(embed=embed)
 
     @enable.command(name="antispam")
-    async def enable_antispam(self, ctx, msgamount: int, msgcooldown: int):
+    async def enable_antispam(self, ctx):
         """ Enables antispam on the server """
         rowcheck = await self.getserverstuff(ctx)
         if rowcheck["automod"] is 0 or None:
@@ -626,68 +610,96 @@ class AdminPanel:
                     "INSERT INTO automod VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);"
                 )
                 await self.bot.db.execute(
-                    thequery, ctx.guild.id, 0, 0, 0, 1, msgcooldown, msgamount, 0, 0
+                    thequery, ctx.guild.id, 0, 0, 1, 0, 10, 10, 0, 0
                 )
             thequery = "UPDATE automod SET antispam=1 WHERE serverid=$1;"
             await self.bot.db.execute(thequery, ctx.guild.id)
-            thequery = "UPDATE automod SET msgcooldown=$2 WHERE serverid=$1;"
-            await self.bot.db.execute(thequery, ctx.guild.id, msgcooldown)
-            thequery = "UPDATE automod SET msgamount=$2 WHERE serverid=$1;"
-            await self.bot.db.execute(thequery, ctx.guild.id, msgamount)
-            return await ctx.send(
-                f"I have successfully enabled **Antispam** with the message limit of: **{msgamount}** and cooldown of: **{msgcooldown}**"
-            )
+            return await ctx.send("I have successfully enabled **Antispam**")
         thequery = "SELECT antispam FROM automod WHERE serverid = $1;"
         therow = await self.bot.db.fetchrow(thequery, ctx.guild.id)
         if therow is None:
             thequery = (
                 "INSERT INTO automod VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);"
             )
-            await self.bot.db.execute(
-                thequery, ctx.guild.id, 0, 0, 0, 1, msgcooldown, msgamount, 0, 0
-            )
+            await self.bot.db.execute(thequery, ctx.guild.id, 0, 0, 1, 0, 10, 10, 0, 0)
         thequery = "UPDATE automod SET antispam=1 WHERE serverid=$1;"
         await self.bot.db.execute(thequery, ctx.guild.id)
-        thequery = "UPDATE automod SET msgcooldown=$2 WHERE serverid=$1;"
-        await self.bot.db.execute(thequery, ctx.guild.id, msgcooldown)
-        thequery = "UPDATE automod SET msgamount=$2 WHERE serverid=$1;"
-        await self.bot.db.execute(thequery, ctx.guild.id, msgamount)
         embed = discord.Embed(
-            title="Antispam",
-            description=f"<:enabled:513831607355047964>\n\nLimit: {msgamount}\nCooldown: {msgcooldown}",
+            title="Antispam", description=f"<:enabled:513831607355047964>"
         )
         await ctx.send(embed=embed)
 
-    @enable.command(name="antidupe")
-    async def enable_antidupe(self, ctx):
-        """ Enables antidupe on the server """
+    @enable.command(name="ignorerole")
+    async def enable_ignorerole(self, ctx, ignoreRole: discord.Role):
+        """ Enables perms bypass on the server """
         rowcheck = await self.getserverstuff(ctx)
         if rowcheck["automod"] is 0 or None:
             return await ctx.send("Automod must be enabled first! ><")
         if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
-            thequery = "SELECT antidupe FROM automod WHERE serverid = $1;"
+            thequery = "SELECT ignorerole FROM automod WHERE serverid = $1;"
             therow = await self.bot.db.fetchrow(thequery, ctx.guild.id)
             if therow is None:
                 thequery = (
                     "INSERT INTO automod VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);"
                 )
                 await self.bot.db.execute(
-                    thequery, ctx.guild.id, 0, 0, 0, 0, 10, 10, 1, 0
+                    thequery, ctx.guild.id, 1, 0, 0, 0, 10, 10, 0, 0
                 )
-            thequery = "UPDATE automod SET antidupe=1 WHERE serverid=$1;"
+            thequery = "SELECT * FROM idstore WHERE serverid = $1;"
+            therow = await self.bot.db.fetchrow(thequery, ctx.guild.id)
+            if therow is None:
+                thequery = (
+                    "INSERT INTO idstore VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);"
+                )
+                await self.bot.db.execute(
+                    thequery,
+                    ctx.guild.id,
+                    "Default",
+                    "Default",
+                    0,
+                    0,
+                    0,
+                    ignoreRole.id,
+                    0,
+                    0,
+                )
+            thequery = "UPDATE automod SET ignorerole=1 WHERE serverid=$1;"
             await self.bot.db.execute(thequery, ctx.guild.id)
-            return await ctx.send("I have successfully enabled **Antidupe**")
-        thequery = "SELECT antidupe FROM automod WHERE serverid = $1;"
+            thequery = "UPDATE idstore SET ignorerolerole=$2 WHERE serverid=$1;"
+            await self.bot.db.execute(thequery, ctx.guild.id, ignoreRole.id)
+            return await ctx.send("I have successfully enabled **Auto Role**")
+        thequery = "SELECT ignorerole FROM automod WHERE serverid = $1;"
         therow = await self.bot.db.fetchrow(thequery, ctx.guild.id)
         if therow is None:
             thequery = (
                 "INSERT INTO automod VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);"
             )
-            await self.bot.db.execute(thequery, ctx.guild.id, 0, 0, 0, 0, 10, 10, 1, 0)
-        thequery = "UPDATE automod SET antidupe=1 WHERE serverid=$1;"
+            await self.bot.db.execute(thequery, ctx.guild.id, 1, 0, 0, 0, 10, 10, 0, 0)
+        thequery = "SELECT * FROM idstore WHERE serverid = $1;"
+        therow = await self.bot.db.fetchrow(thequery, ctx.guild.id)
+        if therow is None:
+            thequery = (
+                "INSERT INTO idstore VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);"
+            )
+            await self.bot.db.execute(
+                thequery,
+                ctx.guild.id,
+                "Default",
+                "Default",
+                0,
+                0,
+                0,
+                ignoreRole.id,
+                0,
+                0,
+            )
+        thequery = "UPDATE automod SET ignorerole=1 WHERE serverid=$1;"
         await self.bot.db.execute(thequery, ctx.guild.id)
+        thequery = "UPDATE idstore SET ignorerolerole=$2 WHERE serverid=$1;"
+        await self.bot.db.execute(thequery, ctx.guild.id, ignoreRole.id)
         embed = discord.Embed(
-            title="Antidupe", description=f"<:enabled:513831607355047964>"
+            title="Perms Bypass Role",
+            description=f"<:enabled:513831607355047964>\n\nPerms Bypass Role: {ignoreRole.mention}",
         )
         await ctx.send(embed=embed)
 
@@ -767,7 +779,7 @@ class AdminPanel:
 
     @commands.group()
     @commands.guild_only()
-    @permissions.has_permissions(Administrator=True)
+    @permissions.has_permissions(manage_guild=True)
     async def disable(self, ctx):
         """ Disables different modules """
         if ctx.invoked_subcommand is None:
@@ -1058,14 +1070,14 @@ class AdminPanel:
         )
         await ctx.send(embed=embed)
 
-    @disable.command(name="antidupe")
-    async def disable_antidupe(self, ctx):
-        """ Disables antidupe on the server """
+    @disable.command(name="ignorerole")
+    async def disable_ignorerole(self, ctx):
+        """ Disables an Ignore Role on the server """
         rowcheck = await self.getserverstuff(ctx)
         if rowcheck["automod"] is 0 or None:
             return await ctx.send("Automod must be enabled first! ><")
         if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
-            thequery = "SELECT antidupe FROM automod WHERE serverid = $1;"
+            thequery = "SELECT ignorerole FROM automod WHERE serverid = $1;"
             therow = await self.bot.db.fetchrow(thequery, ctx.guild.id)
             if therow is None:
                 thequery = (
@@ -1074,20 +1086,20 @@ class AdminPanel:
                 await self.bot.db.execute(
                     thequery, ctx.guild.id, 0, 0, 0, 0, 10, 10, 0, 0
                 )
-            thequery = "UPDATE automod SET antidupe=0 WHERE serverid=$1;"
+            thequery = "UPDATE automod SET ignorerole=0 WHERE serverid=$1;"
             await self.bot.db.execute(thequery, ctx.guild.id)
-            return await ctx.send("I have successfully disabled **Antidupe**")
-        thequery = "SELECT antidupe FROM automod WHERE serverid = $1;"
+            return await ctx.send("I have successfully disabled **Ignore Roles**")
+        thequery = "SELECT ignorerole FROM automod WHERE serverid = $1;"
         therow = await self.bot.db.fetchrow(thequery, ctx.guild.id)
         if therow is None:
             thequery = (
                 "INSERT INTO automod VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);"
             )
             await self.bot.db.execute(thequery, ctx.guild.id, 0, 0, 0, 0, 10, 10, 0, 0)
-        thequery = "UPDATE automod SET antidupe=0 WHERE serverid=$1;"
+        thequery = "UPDATE automod SET ignorerole=0 WHERE serverid=$1;"
         await self.bot.db.execute(thequery, ctx.guild.id)
         embed = discord.Embed(
-            title="Antidupe", description=f"<:disabled:513831606855794709>"
+            title="Ignore Role", description=f"<:disabled:513831606855794709>"
         )
         await ctx.send(embed=embed)
 
