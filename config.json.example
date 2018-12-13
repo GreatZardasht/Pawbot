@@ -16,5 +16,6 @@
   "suggwebhook": "",
   "guildjoinwebhook": "",
   "guildleavewebhook": "",
-  "customlinkwebhook": ""
+  "customlinkwebhook": "",
+  "blacklist": ""
 }
