@@ -421,8 +421,9 @@ class Admin:
 
     @blacklist.command()
     @commands.check(repo.is_owner)
-    async def badd(self, ctx, user: discord.User, *, reason: str):
-        self.bot.blacklist.append(user.id)
+    async def badd(self, ctx, userid: int, *, reason: str):
+        self.bot.blacklist.append(userid)
+        user = self.bot.find_user(userid)
         try:
             await user.send(
                 f"**{ctx.author.name}#{ctx.author.discriminator}** blocked you from using the bot for: **{reason}**"
@@ -433,8 +434,9 @@ class Admin:
 
     @blacklist.command()
     @commands.check(repo.is_owner)
-    async def bremove(self, ctx, *, user: discord.User):
-        self.bot.blacklist.remove(user.id)
+    async def bremove(self, ctx, *, userid: int):
+        self.bot.blacklist.remove(userid)
+        user = self.bot.find_user(userid)
         try:
             await user.send(
                 f"**{user.name}#{user.discriminator}**, **{ctx.author.name}#{ctx.author.discriminator}** unblocked you from using the bot. Don't abuse the bot again or you will get blocked **permanently**."
