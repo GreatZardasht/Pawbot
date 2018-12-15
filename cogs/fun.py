@@ -3,7 +3,6 @@ import discord
 import json
 import requests
 
-from random import randint as rint
 from random import randint
 from discord.ext import commands
 from utils import lists, http, default, eapi, sfapi, permissions
@@ -485,7 +484,7 @@ class Fun:
             )
 
         embed = discord.Embed(
-            color=rint(0x000000, 0xFFFFFF),
+            color=randint(0x000000, 0xFFFFFF),
             timestamp=sniped.created_at,
             title=f"{sniped.author} said",
             description=sniped.clean_content,
