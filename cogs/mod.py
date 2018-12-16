@@ -109,13 +109,13 @@ class Moderation:
             "UPDATE modlogs SET moderator = $1 WHERE serverid = $2 AND casenumber = $3;"
         )
         await self.bot.db.execute(query, ctx.author.id, ctx.guild.id, case)
-        moderator = self.bot.get_user(row["moderator"])
+        moderator = ctx.author
         logchannel = await self.getmodlogstuff(ctx)
         logchannel = ctx.guild.get_channel(logchannel["modlogchan"])
         try:
             msgtoedit = await logchannel.get_message(row["caseid"])
             await msgtoedit.edit(
-                content=f"**{row['casetype']}** | Case {row['casenumber']}\n**User**: {target.name}#{target.discriminator} ({target.id}) ({target.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {moderator.name}#{moderator.discriminator}"
+                content=f"**{row['casetype']}** | Case {row['casenumber']}\n**User**: {target} ({target.id}) ({target.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {moderator}"
             )
         except discord.Forbidden:
             return await ctx.send("Something broke ;w;")
@@ -159,6 +159,16 @@ class Moderation:
                 "UPDATE warnings SET warnings = $1 WHERE serverid = $2 AND userid = $3;"
             )
             await self.bot.db.execute(query, amountgiven, ctx.guild.id, member.id)
+            if amountgiven is 3:
+                try:
+                    await member.kick()
+                except discord.Forbidden:
+                    pass
+            if amountgiven is 5:
+                try:
+                    await member.ban()
+                except discord.Forbidden:
+                    pass
             await ctx.send(
                 f"I added **{amount}** to {member.mention}'s warns! They now have **{amountgiven}**."
             )
@@ -206,7 +216,7 @@ class Moderation:
                 return
 
             logmsg = await logchannel.send(
-                f"**Kick** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}"
+                f"**Kick** | Case {casenum}\n**User**: {member} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}"
             )
             query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
             await self.bot.db.execute(
@@ -254,7 +264,7 @@ class Moderation:
                 return
 
             logmsg = await logchannel.send(
-                f"**Ban** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}"
+                f"**Ban** | Case {casenum}\n**User**: {member} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}"
             )
             query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
             await self.bot.db.execute(
@@ -289,7 +299,7 @@ class Moderation:
                 return
 
             logmsg = await logchannel.send(
-                f"**Hackban** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}"
+                f"**Hackban** | Case {casenum}\n**User**: {member} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}"
             )
             query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
             await self.bot.db.execute(
@@ -324,7 +334,7 @@ class Moderation:
                 return
 
             logmsg = await logchannel.send(
-                f"**Unban** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}"
+                f"**Unban** | Case {casenum}\n**User**: {member} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}"
             )
             query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
             await self.bot.db.execute(
@@ -369,7 +379,7 @@ class Moderation:
                 return
 
             logmsg = await logchannel.send(
-                f"**Mute** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}"
+                f"**Mute** | Case {casenum}\n**User**: {member} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}"
             )
             query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
             await self.bot.db.execute(
@@ -414,7 +424,7 @@ class Moderation:
                 return
 
             logmsg = await logchannel.send(
-                f"**Unmute** | Case {casenum}\n**User**: {member.name}#{member.discriminator} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}"
+                f"**Unmute** | Case {casenum}\n**User**: {member} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}"
             )
             query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
             await self.bot.db.execute(
@@ -497,6 +507,8 @@ class Moderation:
     async def do_removal(
         self, ctx, limit, predicate, *, before=None, after=None, message=True
     ):
+        thequery = "UPDATE automod SET actionlog=0 WHERE serverid=$1;"
+        await self.bot.db.execute(thequery, ctx.guild.id)
         if limit > 2000:
             return await ctx.send(f"Too many messages to search given ({limit}/2000)")
 
@@ -522,10 +534,13 @@ class Moderation:
             await ctx.send(
                 f'🚮 Successfully removed {deleted} message{"" if deleted == 1 else "s"}.'
             )
+        thequery = "UPDATE automod SET actionlog=1 WHERE serverid=$1;"
+        await self.bot.db.execute(thequery, ctx.guild.id)
 
     @prune.command()
     async def embeds(self, ctx, search=100):
         """Removes messages that have embeds in them."""
+
         await self.do_removal(ctx, search, lambda e: len(e.embeds))
 
     @prune.command()
