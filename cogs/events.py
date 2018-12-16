@@ -5,8 +5,8 @@ import psutil
 import os
 import random
 
-from collections import deque
 from datetime import datetime
+from collections import deque
 from dhooks import Webhook
 from discord.ext.commands import errors
 from utils import default, lists
@@ -35,6 +35,11 @@ class Events:
         self.bot = bot
         self.config = default.get("config.json")
         self.process = psutil.Process(os.getpid())
+
+    @staticmethod
+    def generatecase():
+        case = random.randint(11111, 99999)
+        return f"{int(case)}"
 
     async def getserverstuff(self, member):
         query = "SELECT * FROM adminpanel WHERE serverid = $1;"
@@ -66,6 +71,28 @@ class Events:
             )
             query = "SELECT * FROM idstore WHERE serverid = $1;"
             storerow = await self.bot.db.fetchrow(query, member.guild.id)
+        return storerow
+
+    async def getserverstuffalt(self, guild):
+        query = "SELECT * FROM adminpanel WHERE serverid = $1;"
+        row = await self.bot.db.fetchrow(query, guild.id)
+        if row is None:
+            query = "INSERT INTO adminpanel VALUES ($1, $2, $3, $4, $5, $6, $7);"
+            await self.bot.db.execute(query, guild.id, 0, 0, 1, 0, 0, 0)
+            query = "SELECT * FROM adminpanel WHERE serverid = $1;"
+            row = await self.bot.db.fetchrow(query, guild.id)
+        return row
+
+    async def getstorestuffalt(self, guild):
+        storequery = "SELECT * FROM idstore WHERE serverid = $1;"
+        storerow = await self.bot.db.fetchrow(storequery, guild.id)
+        if storerow is None:
+            query = "INSERT INTO idstore VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);"
+            await self.bot.db.execute(
+                query, guild.id, "Default", "Default", 0, 0, 0, 0, 0, 0
+            )
+            query = "SELECT * FROM idstore WHERE serverid = $1;"
+            storerow = await self.bot.db.fetchrow(query, guild.id)
         return storerow
 
     async def on_command_error(self, ctx, err):
@@ -223,14 +250,130 @@ class Events:
                 pass
 
     async def on_message_delete(self, message):
+        adminpanelcheck = await self.getserverstuff(message.author)
+        serverstorecheck = await self.getstorestuff(message.author)
+        automodcheck = await self.getautomod(message.author)
         try:
             self.bot.snipes[message.channel.id].appendleft(message)
-        except:
+        except KeyError:
             self.bot.snipes[message.channel.id] = SnipeHistory()
             self.bot.snipes[message.channel.id].appendleft(message)
+        if adminpanelcheck["automod"] is 1:
+            if automodcheck["actionlog"] is 1:
+                if message.author.bot:
+                    return
+                logchan = message.guild.get_channel(serverstorecheck["actionlogchan"])
+                now = datetime.utcnow()
+                now = now.strftime(" %c ")
+                messagecontent = message.content
+                if len(messagecontent) > 1500:
+                    messagecontent = "Too big xwx"
+                if adminpanelcheck["embeds"] is 0:
+                    try:
+                        return await logchan.send(
+                            f"```\nMessage Deleted\nUser: {message.author}\nMessage: {messagecontent}\n\nDone at: {now} (UTC)\n```"
+                        )
+                    except discord.Forbidden:
+                        pass
+                if not message.author.avatar_url:
+                    useravatar = "https://cdn.discordapp.com/attachments/443347566231289856/513380120451350541/2mt196.jpg"
+                else:
+                    useravatar = message.author.avatar_url
+                embed = discord.Embed(
+                    title="Message Deleted", colour=0xFF0000, description=messagecontent
+                )
+                embed.set_author(name=message.author, icon_url=useravatar)
+                embed.set_footer(text=f"Deleted at: {now}")
+                await logchan.send("", embed=embed)
 
-        adminpanelcheck = await self.getserverstuff(message)
-        serverstorecheck = await self.getstorestuff(message)
+    async def on_message_edit(self, before, after):
+        adminpanelcheck = await self.getserverstuff(before.author)
+        serverstorecheck = await self.getstorestuff(before.author)
+        automodcheck = await self.getautomod(before.author)
+        if adminpanelcheck["automod"] is 1:
+            if automodcheck["actionlog"] is 1:
+                if before.author.bot:
+                    return
+                logchan = before.guild.get_channel(serverstorecheck["actionlogchan"])
+                now = datetime.utcnow()
+                now = now.strftime(" %c ")
+                beforecontent = before.content
+                if len(beforecontent) > 600:
+                    beforecontent = "Too big xwx"
+                aftercontent = after.content
+                if len(aftercontent) > 600:
+                    aftercontent = "Too big xwx"
+                if adminpanelcheck["embeds"] is 0:
+                    try:
+                        return await logchan.send(
+                            f"```\nMessage Edited\nUser: {before.author}\nMessage Before: {beforecontent}\nMessage After: {aftercontent}\n\nDone at: {now} (UTC)\n```"
+                        )
+                    except discord.Forbidden:
+                        pass
+                if not before.author.avatar_url:
+                    useravatar = "https://cdn.discordapp.com/attachments/443347566231289856/513380120451350541/2mt196.jpg"
+                else:
+                    useravatar = before.author.avatar_url
+                embed = discord.Embed(title="Message Edited", colour=0xFFF000)
+                embed.set_author(name=before.author, icon_url=useravatar)
+                embed.add_field(name="Before", value=beforecontent)
+                embed.add_field(name="After", value=aftercontent)
+                embed.set_footer(text=f"Edited at: {now}")
+                await logchan.send("", embed=embed)
+
+    async def on_member_ban(self, guild, user):
+        adminpanelcheck = await self.getserverstuffalt(guild)
+        serverstorecheck = await self.getstorestuffalt(guild)
+        if adminpanelcheck["modlog"] is 1:
+            logchan = guild.get_channel(serverstorecheck["modlogchan"])
+            casenum = self.generatecase()
+            reason = (
+                f"Responsible moderator, please type `paw reason {casenum} <reason>`"
+            )
+            try:
+                logmsg = await logchan.send(
+                    f"**Ban** | Case {casenum}\n**User**: {user.name}#{user.discriminator} ({user.id}) ({user.mention})\n**Reason**: {reason}\n**Responsible Moderator**: unknown moderator"
+                )
+            except discord.Forbidden:
+                pass
+            query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
+            await self.bot.db.execute(
+                query,
+                guild.id,
+                logmsg.id,
+                int(casenum),
+                "Ban",
+                user.id,
+                460_383_314_973_556_756,
+                reason,
+            )
+
+    async def on_member_unban(self, guild, user):
+        adminpanelcheck = await self.getserverstuffalt(guild)
+        serverstorecheck = await self.getstorestuffalt(guild)
+        if adminpanelcheck["modlog"] is 1:
+            logchan = guild.get_channel(serverstorecheck["modlogchan"])
+            casenum = self.generatecase()
+            reason = (
+                f"Responsible moderator, please type `paw reason {casenum} <reason>`"
+            )
+            try:
+                logmsg = await logchan.send(
+                    f"**Unban** | Case {casenum}\n**User**: {user.name}#{user.discriminator} ({user.id}) ({user.mention})\n**Reason**: {reason}\n**Responsible Moderator**: unknown moderator"
+                )
+            except discord.Forbidden:
+                pass
+            query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
+            await self.bot.db.execute(
+                query,
+                guild.id,
+                logmsg.id,
+                int(casenum),
+                "Unban",
+                user.id,
+                460_383_314_973_556_756,
+                reason,
+            )
 
 
 def setup(bot):
