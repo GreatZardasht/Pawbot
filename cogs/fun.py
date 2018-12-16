@@ -469,7 +469,7 @@ class Fun:
     @commands.cooldown(1.0, 5.0, commands.BucketType.user)
     async def snipe(self, ctx, channel: discord.TextChannel = None, index: int = 0):
         """ Snipe deleted messages o3o """
-
+        rowcheck = await self.getserverstuff(ctx)
         channel = channel or ctx.channel
 
         if index != 0:
@@ -482,6 +482,8 @@ class Fun:
                 ":warning: | **No message to snipe or index must not be greater than 5 or lower than 1**",
                 delete_after=10,
             )
+        if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
+            return await ctx.send(f"```\n{sniped.author}: {sniped.clean_content}\n\nSniped by: {ctx.author}\n```")
 
         embed = discord.Embed(
             color=randint(0x000000, 0xFFFFFF),
