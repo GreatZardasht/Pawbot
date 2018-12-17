@@ -365,9 +365,9 @@ class Fun:
                 bar = ".........."
                 heart = "🖤"
             name1 = user.name.replace(" ", "")
-            name1 = name1[: int(len(name1) / 2):]
+            name1 = name1[: int(len(name1) / 2) :]
             name2 = user2.name.replace(" ", "")
-            name2 = name2[int(len(name2) / 2)::]
+            name2 = name2[int(len(name2) / 2) : :]
             if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
                 return await ctx.send(
                     f"```\n{user.name} x {user2.name}\n\n{n}% {bar} {heart}\n\nShipname: {str(name1 + name2).lower()}\n```"
@@ -491,7 +491,9 @@ class Fun:
                 delete_after=10,
             )
         if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
-            return await ctx.send(f"```\n{sniped.author}: {sniped.clean_content}\n\nSniped by: {ctx.author}\n```")
+            return await ctx.send(
+                f"```\n{sniped.author}: {sniped.clean_content}\n\nSniped by: {ctx.author}\n```"
+            )
 
         embed = discord.Embed(
             color=randint(0x000000, 0xFFFFFF),
@@ -510,7 +512,18 @@ class Fun:
     @commands.guild_only()
     async def markov(self, ctx):
         """Generates a Markov Chain"""
-        await ctx.send(" ".join(random.sample([m.clean_content for m in await ctx.channel.history(limit=150).flatten() if not m.author.bot], 10)))
+        await ctx.send(
+            " ".join(
+                random.sample(
+                    [
+                        m.clean_content
+                        for m in await ctx.channel.history(limit=150).flatten()
+                        if not m.author.bot
+                    ],
+                    10,
+                )
+            )
+        )
 
 
 def setup(bot):
