@@ -392,12 +392,14 @@ class Fun:
         await ctx.send(clapped_text)
 
     @commands.command()
+    @commands.guild_only()
     async def owo(self, ctx):
         """Sends a random owo face"""
         owo = random.choice(lists.owos)
         await ctx.send(f"{owo} whats this~?")
 
     @commands.command()
+    @commands.guild_only()
     async def choose(self, ctx, *args):
         """Choose one of a lot (Split with |) """
         args = " ".join(args)
@@ -408,6 +410,7 @@ class Fun:
         await ctx.send(random.choice(choices))
 
     @commands.command()
+    @commands.guild_only()
     async def jpeg(self, ctx, urltojpeg: str):
         """ Does what it says on the can """
         if "http" not in urltojpeg:
@@ -419,6 +422,7 @@ class Fun:
         )
 
     @commands.command()
+    @commands.guild_only()
     async def deepfry(self, ctx, urltojpeg: str):
         """ Deepfries an image """
         if "http" not in urltojpeg:
@@ -430,6 +434,7 @@ class Fun:
         )
 
     @commands.command()
+    @commands.guild_only()
     async def clyde(self, ctx, clydetext: str):
         """ Makes Clyde say something """
         if clydetext is None:
@@ -441,6 +446,7 @@ class Fun:
         )
 
     @commands.command()
+    @commands.guild_only()
     async def magik(self, ctx, intensity: str, imgtomagik: str):
         """ why don'T WE JUST RELAX AND TURn on THe rADIO? """
         if imgtomagik is None:
@@ -454,19 +460,21 @@ class Fun:
         )
 
     @commands.command(aliases=["ascii"])
+    @commands.guild_only()
     async def asciify(self, ctx, *, text: str):
         """ Turns any text given into ascii """
         texttoascii = text.replace(" ", "%20")
         await self.asciitext(ctx, f"http://artii.herokuapp.com/make?text={texttoascii}")
 
     @commands.command(aliases=["say"])
+    @commands.guild_only()
     async def echo(self, ctx, *, text: str):
         """ Says what you want """
         text = text.replace("@everyone", "@​everyone").replace("@here", "@​here")
         await ctx.send(text)
 
     @commands.command()
-    @commands.cooldown(1.0, 5.0, commands.BucketType.user)
+    @commands.guild_only()
     async def snipe(self, ctx, channel: discord.TextChannel = None, index: int = 0):
         """ Snipe deleted messages o3o """
         rowcheck = await self.getserverstuff(ctx)
@@ -477,7 +485,7 @@ class Fun:
 
         try:
             sniped = self.bot.snipes[channel.id][index]
-        except ValueError:
+        except KeyError:
             return await ctx.send(
                 ":warning: | **No message to snipe or index must not be greater than 5 or lower than 1**",
                 delete_after=10,
@@ -497,6 +505,12 @@ class Fun:
         )
         embed.set_thumbnail(url=sniped.author.avatar_url)
         await ctx.send(embed=embed)
+
+    @commands.command()
+    @commands.guild_only()
+    async def markov(self, ctx):
+        """Generates a Markov Chain"""
+        await ctx.send(" ".join(random.sample([m.clean_content for m in await ctx.channel.history(limit=150).flatten() if not m.author.bot], 10)))
 
 
 def setup(bot):
