@@ -543,9 +543,13 @@ class Information:
     @commands.command()
     async def nitro(self, ctx, *, emoji: commands.clean_content):
         """ Allows you to use nitro emoji """
-        nitromote = discord.utils.find(lambda e: e.name.lower() == emoji.lower(), self.bot.emojis)
+        nitromote = discord.utils.find(
+            lambda e: e.name.lower() == emoji.lower(), self.bot.emojis
+        )
         if nitromote is None:
-            return await ctx.send(f":warning: | **Sorry, no matches found for `{emoji.lower()}`**")
+            return await ctx.send(
+                f":warning: | **Sorry, no matches found for `{emoji.lower()}`**"
+            )
         await ctx.send()
 
     @commands.command()
@@ -557,7 +561,12 @@ class Information:
     @commands.command()
     async def python(self, ctx, *, code: commands.clean_content):
         """ Runs a piece of python code """
-        r = requests.post("http://coliru.stacked-crooked.com/compile", data=json.dumps({"cmd": "python3 main.cpp", "src": self.cleanup_code(code)}))
+        r = requests.post(
+            "http://coliru.stacked-crooked.com/compile",
+            data=json.dumps(
+                {"cmd": "python3 main.cpp", "src": self.cleanup_code(code)}
+            ),
+        )
         await ctx.send(f"```py\n{r.text}\n```")
 
 
