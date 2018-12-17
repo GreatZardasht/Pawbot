@@ -3,7 +3,10 @@ import discord
 import psutil
 import os
 import asyncio
+import io
+import requests
 import dhooks
+import json
 
 from collections import Counter
 from dhooks import Webhook
@@ -18,6 +21,11 @@ class Information:
         self.config = default.get("config.json")
         self.process = psutil.Process(os.getpid())
         self.counter = Counter()
+
+    def cleanup_code(self, content):
+        if content.startswith("```") and content.endswith("```"):
+            return "\n".join(content.split("\n")[1:-1])
+        return content.strip("` \n")
 
     async def getserverstuff(self, ctx):
         query = "SELECT * FROM adminpanel WHERE serverid = $1;"
@@ -518,6 +526,39 @@ class Information:
         await asyncio.sleep(timetowait)
         await ctx.send(f"{ctx.author.mention} your reminder: `{reminder}` is complete!")
         self.counter[f"{ctx.author.id}.reminder"] -= 1
+
+    @commands.command()
+    async def jumbo(self, ctx, emoji: discord.PartialEmoji):
+        """ Makes your emoji  B I G """
+
+        def url_to_bytes(url):
+            data = requests.get(url)
+            content = io.BytesIO(data.content)
+            filename = url.rsplit("/", 1)[-1]
+            return {"content": content, "filename": filename}
+
+        file = url_to_bytes(emoji.url)
+        await ctx.send(file=discord.File(file["content"], file["filename"]))
+
+    @commands.command()
+    async def nitro(self, ctx, *, emoji: commands.clean_content):
+        """ Allows you to use nitro emoji """
+        nitromote = discord.utils.find(lambda e: e.name.lower() == emoji.lower(), self.bot.emojis)
+        if nitromote is None:
+            return await ctx.send(f":warning: | **Sorry, no matches found for `{emoji.lower()}`**")
+        await ctx.send()
+
+    @commands.command()
+    async def calc(self, ctx, *, calculation: str):
+        """ Performs a calculation """
+        r = requests.get(f"https://www.calcatraz.com/calculator/api?c={calculation}")
+        await ctx.send(r.text)
+
+    @commands.command()
+    async def python(self, ctx, *, code: commands.clean_content):
+        """ Runs a piece of python code """
+        r = requests.post("http://coliru.stacked-crooked.com/compile", data=json.dumps({"cmd": "python3 main.cpp", "src": self.cleanup_code(code)}))
+        await ctx.send(f"```py\n{r.text}\n```")
 
 
 def setup(bot):
