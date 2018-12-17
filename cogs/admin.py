@@ -10,7 +10,6 @@ import requests
 from io import BytesIO
 from bs4 import BeautifulSoup
 from dhooks import Webhook
-from utils.chat_formatting import pagify
 from utils.formats import TabularData, Plural
 from contextlib import redirect_stdout
 from copy import copy
