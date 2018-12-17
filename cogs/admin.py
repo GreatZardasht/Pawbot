@@ -305,24 +305,6 @@ class Admin:
         info.set_thumbnail(url=guild.icon_url)
         await ctx.send(embed=info)
 
-    @commands.command(alisases=["bsl"])
-    @commands.check(repo.is_owner)
-    async def botservers(self, ctx):
-        """ Lists servers """
-        guilds = sorted(list(self.bot.guilds), key=lambda s: s.name.lower())
-        msg = ""
-        for i, guild in enumerate(guilds, 1):
-            members = set(guild.members)
-            bots = filter(lambda m: m.bot, members)
-            bots = set(bots)
-            members = len(members) - len(bots)
-            msg += "`{}:` {}, `{}` `{} members, {} bots` \n".format(
-                i, guild.name, guild.id, members, len(bots)
-            )
-
-        for page in pagify(msg, ["\n"]):
-            await ctx.send(page)
-
     @commands.command(aliases=["webhooktest"])
     @commands.check(repo.is_owner)
     async def whtest(self, ctx, whlink: str, *, texttosend):
