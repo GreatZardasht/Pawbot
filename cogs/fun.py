@@ -247,52 +247,6 @@ class Fun:
         await ctx.send(f"⬇️ {t_lower}")
 
     @commands.command()
-    async def hug(self, ctx, user: discord.Member = None):
-        """ Hug a user! """
-        if user is None:
-            user = ctx.author
-
-        await ctx.send(f"💖 | **{ctx.author.name}** hugs **{user.name}**")
-
-    @commands.command()
-    async def cookie(self, ctx, user: discord.Member = None):
-        """ Hug a user! """
-        if user is None:
-            user = ctx.author
-
-        await ctx.send(f"🍪 | **{ctx.author.name}** gives **{user.name}** a cookie!")
-
-    @commands.command()
-    async def stab(self, ctx, user: discord.Member = None):
-        """ Ssstab a perssson! """
-        if user is None:
-            user = ctx.author
-
-        await ctx.send(
-            f"🔪 | **{ctx.author.name}** stabbed **{user.name}** in the hand (How rude)!"
-        )
-
-    @commands.command()
-    async def pat(self, ctx, user: discord.Member = None):
-        """ Headpats for all! """
-        if user is None:
-            user = ctx.author
-
-        await ctx.send(
-            f"<a:patkyutie:444890889513598986> | **{ctx.author.name}** pats **{user.name}** on the head!"
-        )
-
-    @commands.command()
-    async def nom(self, ctx, user: discord.Member = None):
-        """ Nom a user! """
-        if user is None:
-            user = ctx.author
-
-        await ctx.send(
-            f"<a:WanTriggered:437201280918618112> | **{ctx.author.name}** nommed **{user.name}**'s arm!"
-        )
-
-    @commands.command()
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def fact(self, ctx):
         """ sends a random fact """
@@ -524,6 +478,27 @@ class Fun:
                 )
             )
         )
+
+    @commands.command()
+    async def hug(self, ctx, user: discord.Member = None):
+        """ Hug a user! """
+        rowcheck = await self.getserverstuff(ctx)
+        endpoint = "url"
+        if user is None:
+            user = "themself"
+        try:
+            await ctx.message.delete()
+        except discord.Forbidden:
+            pass
+        try:
+            r = await http.get("https://nekos.life/api/v2/img/hug", res_method="json", no_cache=True)
+        except json.JSONDecodeError:
+            return await ctx.send("Couldn't find anything from the API")
+        if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
+            return await ctx.send(f"💖 | **{ctx.author.name}** hugs **{user.name}**")
+        embed = discord.Embed(colour=249_742, description=f"**{ctx.author.name}** hugs **{user.name}**")
+        embed.set_image(url=r[endpoint])
+        await ctx.send(embed=embed)
 
 
 def setup(bot):
