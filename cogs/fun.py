@@ -500,6 +500,54 @@ class Fun:
         embed.set_image(url=r[endpoint])
         await ctx.send(embed=embed)
 
+    @commands.command()
+    async def kiss(self, ctx, user: discord.Member = None):
+        """ Kiss a user! """
+        rowcheck = await self.getserverstuff(ctx)
+        endpoint = "url"
+        if user is None:
+            user = "themself"
+        try:
+            await ctx.message.delete()
+        except discord.Forbidden:
+            pass
+        try:
+            r = await http.get("https://nekos.life/api/v2/img/kiss", res_method="json", no_cache=True)
+        except json.JSONDecodeError:
+            return await ctx.send("Couldn't find anything from the API")
+        if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
+            return await ctx.send(f"💗 | **{ctx.author.name}** gives **{user.name}** a kiss~!")
+        embed = discord.Embed(colour=249_742, description=f"**{ctx.author.name}** gives **{user.name}** a kiss~!")
+        embed.set_image(url=r[endpoint])
+        await ctx.send(embed=embed)
+
+    @commands.command()
+    async def pat(self, ctx, user: discord.Member = None):
+        """ Pat a user! """
+        rowcheck = await self.getserverstuff(ctx)
+        endpoint = "url"
+        if user is None:
+            user = "themself"
+        try:
+            await ctx.message.delete()
+        except discord.Forbidden:
+            pass
+        try:
+            r = await http.get("https://nekos.life/api/v2/img/pat", res_method="json", no_cache=True)
+        except json.JSONDecodeError:
+            return await ctx.send("Couldn't find anything from the API")
+        if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
+            return await ctx.send(f"💗 | **{ctx.author.name}** pats **{user.name}** on the head")
+        embed = discord.Embed(colour=249_742, description=f"**{ctx.author.name}** pats **{user.name}** on the head")
+        embed.set_image(url=r[endpoint])
+        await ctx.send(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(Fun(bot))
+
+# feed <@user>
+# cuddle <@user>
+# poke <@user>
+# slap <@user>
+# tickle <@user>
