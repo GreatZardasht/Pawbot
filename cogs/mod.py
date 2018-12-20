@@ -89,6 +89,7 @@ class Moderation:
     @commands.command()
     @commands.guild_only()
     @permissions.has_permissions(kick_members=True)
+    @commands.cooldown(rate=2, per=3.5, type=commands.BucketType.user)
     async def reason(self, ctx, case: int = None, *, reason: str = None):
         """ Kicks a user from the current server. """
         rowcheck = await self.getserverstuff(ctx)
@@ -123,6 +124,7 @@ class Moderation:
 
     @commands.command()
     @commands.guild_only()
+    @commands.cooldown(rate=2, per=3.5, type=commands.BucketType.user)
     async def warns(self, ctx, member: discord.Member = None):
         """ Checks user warns """
         if member is None:
@@ -141,6 +143,7 @@ class Moderation:
     @commands.command()
     @commands.guild_only()
     @permissions.has_permissions(ban_members=True)
+    @commands.cooldown(rate=1, per=3.5, type=commands.BucketType.user)
     async def warn(self, ctx, member: discord.Member, amount: int = None):
         """ Gives a user a set amount of warnings """
         query = "SELECT warnings FROM warnings WHERE serverid = $1 AND userid = $2;"
@@ -176,6 +179,7 @@ class Moderation:
     @commands.command()
     @commands.guild_only()
     @permissions.has_permissions(ban_members=True)
+    @commands.cooldown(rate=1, per=3.5, type=commands.BucketType.user)
     async def unwarn(self, ctx, member: discord.Member, amount: int = None):
         """ Takes warnings from a user """
         query = "SELECT warnings FROM warnings WHERE serverid = $1 AND userid = $2;"
@@ -201,6 +205,7 @@ class Moderation:
     @commands.command()
     @commands.guild_only()
     @permissions.has_permissions(kick_members=True)
+    @commands.cooldown(rate=1, per=3.5, type=commands.BucketType.user)
     async def kick(self, ctx, member: discord.Member, *, reason: str = None):
         """ Kicks a user from the current server. """
         try:
@@ -235,6 +240,7 @@ class Moderation:
     @commands.command(aliases=["nick"])
     @commands.guild_only()
     @permissions.has_permissions(manage_nicknames=True)
+    @commands.cooldown(rate=1, per=3.5, type=commands.BucketType.user)
     async def nickname(self, ctx, member: discord.Member, *, name: str = None):
         """ Nicknames a user from the current server. """
         try:
@@ -249,6 +255,7 @@ class Moderation:
     @commands.command()
     @commands.guild_only()
     @permissions.has_permissions(ban_members=True)
+    @commands.cooldown(rate=1, per=3.5, type=commands.BucketType.user)
     async def ban(self, ctx, member: discord.Member, *, reason: str = None):
         """ Bans a user from the current server. """
         try:
@@ -283,6 +290,7 @@ class Moderation:
     @commands.command(aliases=["hackban"])
     @commands.guild_only()
     @permissions.has_permissions(ban_members=True)
+    @commands.cooldown(rate=1, per=3.5, type=commands.BucketType.user)
     async def idban(self, ctx, banmember: int, *, reason: str = None):
         """ Bans a user id from the current server. """
         try:
@@ -318,6 +326,7 @@ class Moderation:
     @commands.command()
     @commands.guild_only()
     @permissions.has_permissions(ban_members=True)
+    @commands.cooldown(rate=1, per=3.5, type=commands.BucketType.user)
     async def unban(self, ctx, banmember: int, *, reason: str = None):
         """ Unbans a user from the current server. """
         try:
@@ -353,6 +362,7 @@ class Moderation:
     @commands.command()
     @commands.guild_only()
     @permissions.has_permissions(manage_roles=True)
+    @commands.cooldown(rate=1, per=3.5, type=commands.BucketType.user)
     async def mute(self, ctx, member: discord.Member, *, reason: str = None):
         """ Mutes a user from the current server. """
         message = []
@@ -398,6 +408,7 @@ class Moderation:
     @commands.command()
     @commands.guild_only()
     @permissions.has_permissions(manage_roles=True)
+    @commands.cooldown(rate=1, per=3.5, type=commands.BucketType.user)
     async def unmute(self, ctx, member: discord.Member, *, reason: str = None):
         """ Unmutes a user from the current server. """
         message = []
@@ -495,6 +506,7 @@ class Moderation:
     @commands.group()
     @commands.guild_only()
     @permissions.has_permissions(manage_messages=True)
+    @commands.cooldown(rate=1, per=3.5, type=commands.BucketType.user)
     async def prune(self, ctx):
         """ Removes messages from the current server. """
 
@@ -606,6 +618,7 @@ class Moderation:
     @commands.command()
     @commands.guild_only()
     @permissions.has_permissions(manage_roles=True)
+    @commands.cooldown(rate=2, per=3.5, type=commands.BucketType.user)
     async def ra(self, ctx, member: discord.Member, *, rolename: str = None):
         """ Gives the role to the user. """
         role = discord.utils.get(ctx.guild.roles, name=rolename)
@@ -615,6 +628,7 @@ class Moderation:
     @commands.command()
     @commands.guild_only()
     @permissions.has_permissions(manage_roles=True)
+    @commands.cooldown(rate=2, per=3.5, type=commands.BucketType.user)
     async def rr(self, ctx, member: discord.Member, *, rolename: str = None):
         """ Removes the role from a user. """
         role = discord.utils.get(ctx.guild.roles, name=rolename)
@@ -625,6 +639,7 @@ class Moderation:
 
     @commands.command()
     @commands.guild_only()
+    @commands.cooldown(rate=2, per=3.5, type=commands.BucketType.user)
     async def move(self, ctx, msgid: int, channel: discord.TextChannel):
         """ Moves a message id to another channel. """
         msgtodel = await ctx.channel.get_message(msgid)

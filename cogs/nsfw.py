@@ -54,7 +54,8 @@ class NSFW:
 
     @commands.command()
     @commands.is_nsfw()
-    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
+    @commands.guild_only()
+    @commands.cooldown(rate=1, per=7.0, type=commands.BucketType.user)
     async def lewdneko(self, ctx):
         """Posts a lewd neko"""
         rowcheck = await self.getserverstuff(ctx)
@@ -64,7 +65,8 @@ class NSFW:
 
     @commands.command()
     @commands.is_nsfw()
-    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
+    @commands.guild_only()
+    @commands.cooldown(rate=1, per=7.0, type=commands.BucketType.user)
     async def lewdfeet(self, ctx):
         """Posts a lewd foot image or gif"""
         rowcheck = await self.getserverstuff(ctx)
@@ -77,7 +79,8 @@ class NSFW:
 
     @commands.command()
     @commands.is_nsfw()
-    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
+    @commands.guild_only()
+    @commands.cooldown(rate=1, per=7.0, type=commands.BucketType.user)
     async def lewdkemo(self, ctx):
         """Posts a lewd kemonomimi character"""
         rowcheck = await self.getserverstuff(ctx)
@@ -90,6 +93,8 @@ class NSFW:
 
     @commands.command()
     @commands.is_nsfw()
+    @commands.guild_only()
+    @commands.cooldown(rate=1, per=7.0, type=commands.BucketType.user)
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def lewdanal(self, ctx):
         """Posts a lewd anal gif/picture"""
@@ -100,6 +105,8 @@ class NSFW:
 
     @commands.command()
     @commands.is_nsfw()
+    @commands.guild_only()
+    @commands.cooldown(rate=1, per=7.0, type=commands.BucketType.user)
     async def e621(self, ctx, *args):
         """Searches e621 with given queries."""
         rowcheck = await self.getserverstuff(ctx)
@@ -140,6 +147,8 @@ class NSFW:
 
     @commands.command()
     @commands.is_nsfw()
+    @commands.guild_only()
+    @commands.cooldown(rate=1, per=7.0, type=commands.BucketType.user)
     async def show(self, ctx, arg):
         """Show a post from e621/e926 with given post ID"""
         rowcheck = await self.getserverstuff(ctx)
@@ -168,6 +177,8 @@ class NSFW:
 
     @commands.command()
     @commands.is_nsfw()
+    @commands.guild_only()
+    @commands.cooldown(rate=1, per=7.0, type=commands.BucketType.user)
     async def sofurry(self, ctx, *args):
         """Searches SoFurry with given queries."""
         rowcheck = await self.getserverstuff(ctx)

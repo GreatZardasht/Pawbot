@@ -40,6 +40,7 @@ class Fun:
         return row
 
     @commands.command(aliases=["8ball"])
+    @commands.guild_only()
     async def eightball(self, ctx, *, question: commands.clean_content):
         """ Consult 8ball to receive an answer """
         answer = random.choice(lists.ballresponse)
@@ -204,6 +205,7 @@ class Fun:
         await ctx.send(f"**{user.name}** is **{hot:.2f}%** hot {emoji}")
 
     @commands.command()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def e926(self, ctx, *args):
         """ Searches e926 with given tags. """
         msgtoedit = await ctx.send("Searching...")
@@ -365,10 +367,11 @@ class Fun:
 
     @commands.command()
     @commands.guild_only()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def jpeg(self, ctx, urltojpeg: str):
         """ Does what it says on the can """
         if "http" not in urltojpeg:
-            return await ctx.send("Include a url you donk!")
+            return await ctx.send("Include a url you dork!")
         await self.randomimageapi(
             ctx,
             f"https://nekobot.xyz/api/imagegen?type=jpeg&url={urltojpeg}",
@@ -377,10 +380,11 @@ class Fun:
 
     @commands.command()
     @commands.guild_only()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def deepfry(self, ctx, urltojpeg: str):
         """ Deepfries an image """
         if "http" not in urltojpeg:
-            return await ctx.send("Include a url you donk!")
+            return await ctx.send("Include a url you dork!")
         await self.randomimageapi(
             ctx,
             f"https://nekobot.xyz/api/imagegen?type=deepfry&image={urltojpeg}",
@@ -389,10 +393,11 @@ class Fun:
 
     @commands.command()
     @commands.guild_only()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def clyde(self, ctx, clydetext: str):
         """ Makes Clyde say something """
         if clydetext is None:
-            return await ctx.send("Include some text you donk!")
+            return await ctx.send("Include some text you dork!")
         await self.randomimageapi(
             ctx,
             f"https://nekobot.xyz/api/imagegen?type=clyde&text={clydetext}",
@@ -401,10 +406,11 @@ class Fun:
 
     @commands.command()
     @commands.guild_only()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def magik(self, ctx, intensity: str, imgtomagik: str):
         """ why don'T WE JUST RELAX AND TURn on THe rADIO? """
         if imgtomagik is None:
-            return await ctx.send("Include some text you donk!")
+            return await ctx.send("Include some text you dork!")
         if intensity not in ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]:
             return await ctx.send("Include an intensity to magik (1-10)")
         await self.randomimageapi(
@@ -415,6 +421,7 @@ class Fun:
 
     @commands.command(aliases=["ascii"])
     @commands.guild_only()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def asciify(self, ctx, *, text: str):
         """ Turns any text given into ascii """
         texttoascii = text.replace(" ", "%20")
@@ -480,6 +487,8 @@ class Fun:
         )
 
     @commands.command()
+    @commands.guild_only()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def hug(self, ctx, user: discord.Member = None):
         """ Hug a user! """
         rowcheck = await self.getserverstuff(ctx)
@@ -501,6 +510,8 @@ class Fun:
         await ctx.send(embed=embed)
 
     @commands.command()
+    @commands.guild_only()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def kiss(self, ctx, user: discord.Member = None):
         """ Kiss a user! """
         rowcheck = await self.getserverstuff(ctx)
@@ -522,6 +533,8 @@ class Fun:
         await ctx.send(embed=embed)
 
     @commands.command()
+    @commands.guild_only()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def pat(self, ctx, user: discord.Member = None):
         """ Pat a user! """
         rowcheck = await self.getserverstuff(ctx)
@@ -543,6 +556,8 @@ class Fun:
         await ctx.send(embed=embed)
 
     @commands.command()
+    @commands.guild_only()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def feed(self, ctx, user: discord.Member = None):
         """ Feed a user! """
         rowcheck = await self.getserverstuff(ctx)
@@ -564,6 +579,8 @@ class Fun:
         await ctx.send(embed=embed)
 
     @commands.command(aliases=["snuggle"])
+    @commands.guild_only()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def cuddle(self, ctx, user: discord.Member = None):
         """ Cuddle a user! """
         rowcheck = await self.getserverstuff(ctx)
@@ -585,6 +602,8 @@ class Fun:
         await ctx.send(embed=embed)
 
     @commands.command(aliases=["boop"])
+    @commands.guild_only()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def poke(self, ctx, user: discord.Member = None):
         """ Poke a user! """
         rowcheck = await self.getserverstuff(ctx)
@@ -606,6 +625,8 @@ class Fun:
         await ctx.send(embed=embed)
 
     @commands.command()
+    @commands.guild_only()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def slap(self, ctx, user: discord.Member = None):
         """ Slap a user! """
         rowcheck = await self.getserverstuff(ctx)
@@ -627,6 +648,8 @@ class Fun:
         await ctx.send(embed=embed)
 
     @commands.command()
+    @commands.guild_only()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def tickle(self, ctx, user: discord.Member = None):
         """ Tickle a user! """
         rowcheck = await self.getserverstuff(ctx)

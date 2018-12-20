@@ -57,6 +57,7 @@ class Information:
         return fmt.format(d=days, h=hours, m=minutes, s=seconds)
 
     @commands.command(aliases=["?"])
+    @commands.guild_only()
     async def help(self, ctx, option: str = None, *, command_or_module: str = None):
         """ Gives my commands! """
         bot = self.bot
@@ -215,6 +216,8 @@ class Information:
         )
 
     @commands.command(aliases=["supportserver", "feedbackserver"])
+    @commands.guild_only()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def botserver(self, ctx):
         """ Get an invite to our support server! """
         if (
@@ -265,6 +268,7 @@ class Information:
         await ctx.send(embed=embed)
 
     @commands.command()
+    @commands.guild_only()
     async def avatar(self, ctx, user: discord.Member = None):
         """ Get the avatar of you or someone else """
         rowcheck = await self.getserverstuff(ctx)
@@ -338,6 +342,7 @@ class Information:
             )
 
     @commands.command()
+    @commands.guild_only()
     async def user(self, ctx, user: discord.Member = None):
         """ Get user information """
         rowcheck = await self.getserverstuff(ctx)
@@ -408,6 +413,7 @@ class Information:
 
     @commands.command()
     @commands.guild_only()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def poll(self, ctx, time, *, question):
         """
         Creates a poll
@@ -434,6 +440,7 @@ class Information:
         )
 
     @commands.command()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def suggest(self, ctx, *, suggestion_txt: str):
         """ Send a suggestion to my owner or just tell him shes doing a bad job """
         webhook = Webhook(self.config.suggwebhook, is_async=True)
@@ -470,6 +477,7 @@ class Information:
                 )
 
     @commands.command()
+    @commands.cooldown(rate=1, per=500.0, type=commands.BucketType.user)
     async def customlink(self, ctx, invsuffix: str, invlink: str):
         """ Request a custom discord invite """
         webhook = Webhook(self.config.customlinkwebhook, is_async=True)
@@ -541,8 +549,9 @@ class Information:
         await ctx.send(file=discord.File(file["content"], file["filename"]))
 
     @commands.command()
+    @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def nitro(self, ctx, *, emoji: commands.clean_content):
-        """ Allows you to use nitro emoji """
+        """ Allows you to use nitro emojis """
         nitromote = discord.utils.find(
             lambda e: e.name.lower() == emoji.lower(), self.bot.emojis
         )
@@ -553,12 +562,14 @@ class Information:
         await ctx.send()
 
     @commands.command()
+    @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def calc(self, ctx, *, calculation: str):
         """ Performs a calculation """
         r = requests.get(f"https://www.calcatraz.com/calculator/api?c={calculation}")
         await ctx.send(r.text)
 
     @commands.command()
+    @commands.cooldown(rate=1, per=10.0, type=commands.BucketType.user)
     async def python(self, ctx, *, code: commands.clean_content):
         """ Runs a piece of python code """
         r = requests.post(
