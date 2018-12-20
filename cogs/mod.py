@@ -162,12 +162,12 @@ class Moderation:
                 "UPDATE warnings SET warnings = $1 WHERE serverid = $2 AND userid = $3;"
             )
             await self.bot.db.execute(query, amountgiven, ctx.guild.id, member.id)
-            if amountgiven is 3:
+            if amountgiven == 3:
                 try:
                     await member.kick()
                 except discord.Forbidden:
                     pass
-            if amountgiven is 5:
+            if amountgiven == 5:
                 try:
                     await member.ban()
                 except discord.Forbidden:
