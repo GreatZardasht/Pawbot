@@ -63,7 +63,7 @@ class Information:
         bot = self.bot
         server = self.bot.get_emoji(513_831_608_265_080_852)
         bottag = self.bot.get_emoji(513_831_608_265_080_852)
-        public_modules = ["adminpanel", "info", "encryption", "mod", "nsfw", "fun"]
+        public_modules = ["adminpanel", "info", "encryption", "mod", "nsfw", "misc"]
         paws = self.bot.get_emoji(513_831_608_265_080_852)
         user = ctx.author
         avy = user.avatar_url
@@ -143,9 +143,9 @@ class Information:
                     "uhhhh ``{}`` is not a valid command.".format(command_or_module)
                 )
         elif option == "m" or option == "module" or option == "Module":
-            if command_or_module.lower() == "fun":
-                cogname = "Fun"
-                embedcommandname = "Fun"
+            if command_or_module.lower() == "misc":
+                cogname = "Misc"
+                embedcommandname = "Misc"
                 extra = ""
             elif command_or_module.lower() == "info":
                 cogname = "Information"

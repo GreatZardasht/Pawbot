@@ -24,7 +24,7 @@ class InvalidHTTPResponse(Exception):
     pass
 
 
-class Fun:
+class Misc:
     def __init__(self, bot):
         self.bot = bot
         self.config = default.get("config.json")
@@ -672,4 +672,4 @@ class Fun:
 
 
 def setup(bot):
-    bot.add_cog(Fun(bot))
+    bot.add_cog(Misc(bot))
