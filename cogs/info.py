@@ -71,8 +71,8 @@ class Information:
         if not option:
             mods = "• " + "\n• ".join(public_modules)
             embed = discord.Embed(
-                title=f"{paws} Hewwo {ctx.author.name}, I'm owopup! {paws}",
-                description=f"`The fluffiest Discord Bot Around~`\nUse `{ctx.prefix}help m <module>` to get help on a set of commands or `{ctx.prefix}help c <cmd>` to get help on a specific command.\n\nAll of my modules are listed below:\n\n{mods}",
+                title=f"{paws} Hai {ctx.author.name}, am Pawbot!! {paws}",
+                description=f"`The cutest Discord Bot Around~`\nUse `{ctx.prefix}help m <module>` to get help on a set of commands or `{ctx.prefix}help c <cmd>` to get help on a specific command.\n\nAll of my modules are listed below:\n\n{mods}",
                 color=ctx.me.colour,
             )
             embed.set_thumbnail(url=self.bot.user.avatar_url_as(format="png"))
