@@ -2,6 +2,8 @@ import random
 import discord
 import json
 import requests
+import urllib
+import re
 
 from random import randint
 from discord.ext import commands
@@ -669,6 +671,22 @@ class Misc:
         embed = discord.Embed(colour=249_742, description=f"**{ctx.author.name}** tickles **{user.name}**!")
         embed.set_image(url=r[endpoint])
         await ctx.send(embed=embed)
+
+    @commands.command()
+    @commands.guild_only()
+    @commands.cooldown(rate=2, per=5.0, type=commands.BucketType.user)
+    async def yt(self, ctx, *, video: str = None):
+        """Search a YouTube video"""
+        if video is None:
+            return await ctx.send("You need to add text to search something.")
+        query_string = urllib.parse.urlencode({"search_query": video})
+        html_content = urllib.request.urlopen("http://www.youtube.com/results?" + query_string)
+        search_results = re.findall(r'href=\"/watch\?v=(.{11})', html_content.read().decode())
+        try:
+            results = search_results[0]
+        except IndexError:
+            return
+        await ctx.send(f"http://www.youtube.com/watch?v={results}")
 
 
 def setup(bot):
