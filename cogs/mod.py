@@ -256,34 +256,11 @@ class Moderation:
     @commands.guild_only()
     @permissions.has_permissions(ban_members=True)
     @commands.cooldown(rate=1, per=3.5, type=commands.BucketType.user)
-    async def ban(self, ctx, member: discord.Member, *, reason: str = None):
+    async def ban(self, ctx, member: discord.Member):
         """ Bans a user from the current server. """
         try:
             await ctx.guild.ban(member)
-            logchannel = await self.getmodlogstuff(ctx)
-            logchannel = ctx.guild.get_channel(logchannel["modlogchan"])
-            casenum = self.generatecase()
-            if reason is None:
-                reason = f"Responsible moderator, please type `paw reason {casenum} <reason>`"
-
-            rowcheck = await self.getserverstuff(ctx)
-            if rowcheck["modlog"] is 0 or None:
-                return
-
-            logmsg = await logchannel.send(
-                f"**Ban** | Case {casenum}\n**User**: {member} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}"
-            )
-            query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
-            await self.bot.db.execute(
-                query,
-                ctx.guild.id,
-                logmsg.id,
-                int(casenum),
-                "Ban",
-                member.id,
-                ctx.author.id,
-                reason,
-            )
+            await ctx.message.delete()
         except discord.Forbidden as e:
             await ctx.send(e)
 
@@ -291,35 +268,11 @@ class Moderation:
     @commands.guild_only()
     @permissions.has_permissions(ban_members=True)
     @commands.cooldown(rate=1, per=3.5, type=commands.BucketType.user)
-    async def idban(self, ctx, banmember: int, *, reason: str = None):
+    async def idban(self, ctx, banmember: int):
         """ Bans a user id from the current server. """
         try:
             await ctx.guild.ban(discord.Object(id=banmember))
-            member = self.bot.get_user(banmember)
-            logchannel = await self.getmodlogstuff(ctx)
-            logchannel = ctx.guild.get_channel(logchannel["modlogchan"])
-            casenum = self.generatecase()
-            if reason is None:
-                reason = f"Responsible moderator, please type `paw reason {casenum} <reason>`"
-
-            rowcheck = await self.getserverstuff(ctx)
-            if rowcheck["modlog"] is 0 or None:
-                return
-
-            logmsg = await logchannel.send(
-                f"**Hackban** | Case {casenum}\n**User**: {member} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}"
-            )
-            query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
-            await self.bot.db.execute(
-                query,
-                ctx.guild.id,
-                logmsg.id,
-                int(casenum),
-                "Hackban",
-                member.id,
-                ctx.author.id,
-                reason,
-            )
+            await ctx.message.delete()
         except discord.Forbidden as e:
             await ctx.send(e)
 
@@ -331,31 +284,7 @@ class Moderation:
         """ Unbans a user from the current server. """
         try:
             await ctx.guild.unban(discord.Object(id=banmember))
-            member = self.bot.get_user(banmember)
-            logchannel = await self.getmodlogstuff(ctx)
-            logchannel = ctx.guild.get_channel(logchannel["modlogchan"])
-            casenum = self.generatecase()
-            if reason is None:
-                reason = f"Responsible moderator, please type `paw reason {casenum} <reason>`"
-
-            rowcheck = await self.getserverstuff(ctx)
-            if rowcheck["modlog"] is 0 or None:
-                return
-
-            logmsg = await logchannel.send(
-                f"**Unban** | Case {casenum}\n**User**: {member} ({member.id}) ({member.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {ctx.author.name}#{ctx.author.discriminator}"
-            )
-            query = "INSERT INTO modlogs VALUES ($1, $2, $3, $4, $5, $6, $7);"
-            await self.bot.db.execute(
-                query,
-                ctx.guild.id,
-                logmsg.id,
-                int(casenum),
-                "Unban",
-                member.id,
-                ctx.author.id,
-                reason,
-            )
+            await ctx.message.delete()
         except discord.Forbidden as e:
             await ctx.send(e)
 
@@ -365,6 +294,7 @@ class Moderation:
     @commands.cooldown(rate=1, per=3.5, type=commands.BucketType.user)
     async def mute(self, ctx, member: discord.Member, *, reason: str = None):
         """ Mutes a user from the current server. """
+        await ctx.message.delete()
         message = []
         for role in ctx.guild.roles:
             if role.name == "Muted":
@@ -411,6 +341,7 @@ class Moderation:
     @commands.cooldown(rate=1, per=3.5, type=commands.BucketType.user)
     async def unmute(self, ctx, member: discord.Member, *, reason: str = None):
         """ Unmutes a user from the current server. """
+        await ctx.message.delete()
         message = []
         for role in ctx.guild.roles:
             if role.name == "Muted":
@@ -519,35 +450,63 @@ class Moderation:
     async def do_removal(
         self, ctx, limit, predicate, *, before=None, after=None, message=True
     ):
-        thequery = "UPDATE automod SET actionlog=0 WHERE serverid=$1;"
-        await self.bot.db.execute(thequery, ctx.guild.id)
-        if limit > 2000:
-            return await ctx.send(f"Too many messages to search given ({limit}/2000)")
+        checker = await self.getautomod(ctx)
+        if checker['actionlog'] is 1:
+            thequery = "UPDATE automod SET actionlog=0 WHERE serverid=$1;"
+            await self.bot.db.execute(thequery, ctx.guild.id)
+            if limit > 2000:
+                return await ctx.send(f"Too many messages to search given ({limit}/2000)")
 
-        if before is None:
-            before = ctx.message
+            if before is None:
+                before = ctx.message
+            else:
+                before = discord.Object(id=before)
+
+            if after is not None:
+                after = discord.Object(id=after)
+
+            try:
+                deleted = await ctx.channel.purge(
+                    limit=limit, before=before, after=after, check=predicate
+                )
+            except discord.Forbidden:
+                return await ctx.send("I do not have permissions to delete messages.")
+            except discord.HTTPException as e:
+                return await ctx.send(f"Error: {e} (try a smaller search?)")
+
+            deleted = len(deleted)
+            if message is True:
+                await ctx.send(
+                    f'🚮 Successfully removed {deleted} message{"" if deleted == 1 else "s"}.'
+                )
+            thequery = "UPDATE automod SET actionlog=1 WHERE serverid=$1;"
+            await self.bot.db.execute(thequery, ctx.guild.id)
         else:
-            before = discord.Object(id=before)
+            if limit > 2000:
+                return await ctx.send(f"Too many messages to search given ({limit}/2000)")
 
-        if after is not None:
-            after = discord.Object(id=after)
+            if before is None:
+                before = ctx.message
+            else:
+                before = discord.Object(id=before)
 
-        try:
-            deleted = await ctx.channel.purge(
-                limit=limit, before=before, after=after, check=predicate
-            )
-        except discord.Forbidden:
-            return await ctx.send("I do not have permissions to delete messages.")
-        except discord.HTTPException as e:
-            return await ctx.send(f"Error: {e} (try a smaller search?)")
+            if after is not None:
+                after = discord.Object(id=after)
 
-        deleted = len(deleted)
-        if message is True:
-            await ctx.send(
-                f'🚮 Successfully removed {deleted} message{"" if deleted == 1 else "s"}.'
-            )
-        thequery = "UPDATE automod SET actionlog=1 WHERE serverid=$1;"
-        await self.bot.db.execute(thequery, ctx.guild.id)
+            try:
+                deleted = await ctx.channel.purge(
+                    limit=limit, before=before, after=after, check=predicate
+                )
+            except discord.Forbidden:
+                return await ctx.send("I do not have permissions to delete messages.")
+            except discord.HTTPException as e:
+                return await ctx.send(f"Error: {e} (try a smaller search?)")
+
+            deleted = len(deleted)
+            if message is True:
+                await ctx.send(
+                    f'🚮 Successfully removed {deleted} message{"" if deleted == 1 else "s"}.'
+                )
 
     @prune.command()
     async def embeds(self, ctx, search=100):
