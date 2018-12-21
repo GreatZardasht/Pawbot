@@ -598,7 +598,7 @@ class Misc:
         except json.JSONDecodeError:
             return await ctx.send("I couldn't contact the api ;-;")
         if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
-            return await ctx.send(f"🍲 | **{ctx.author.name}** cuddles **{user.name}** tightly!")
+            return await ctx.send(f"😍 | **{ctx.author.name}** cuddles **{user.name}** tightly!")
         embed = discord.Embed(colour=249_742, description=f"**{ctx.author.name}** cuddles **{user.name}** tightly!")
         embed.set_image(url=r[endpoint])
         await ctx.send(embed=embed)
