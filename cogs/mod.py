@@ -451,11 +451,13 @@ class Moderation:
         self, ctx, limit, predicate, *, before=None, after=None, message=True
     ):
         checker = await self.getautomod(ctx)
-        if checker['actionlog'] is 1:
+        if checker["actionlog"] is 1:
             thequery = "UPDATE automod SET actionlog=0 WHERE serverid=$1;"
             await self.bot.db.execute(thequery, ctx.guild.id)
             if limit > 2000:
-                return await ctx.send(f"Too many messages to search given ({limit}/2000)")
+                return await ctx.send(
+                    f"Too many messages to search given ({limit}/2000)"
+                )
 
             if before is None:
                 before = ctx.message
@@ -483,7 +485,9 @@ class Moderation:
             await self.bot.db.execute(thequery, ctx.guild.id)
         else:
             if limit > 2000:
-                return await ctx.send(f"Too many messages to search given ({limit}/2000)")
+                return await ctx.send(
+                    f"Too many messages to search given ({limit}/2000)"
+                )
 
             if before is None:
                 before = ctx.message

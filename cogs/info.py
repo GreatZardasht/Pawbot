@@ -61,10 +61,10 @@ class Information:
     async def help(self, ctx, option: str = None, *, command_or_module: str = None):
         """ Gives my commands! """
         bot = self.bot
-        server = self.bot.get_emoji(513_831_608_265_080_852)
-        bottag = self.bot.get_emoji(513_831_608_265_080_852)
+        server = self.bot.get_emoji(525_475_458_175_729_697)
+        bottag = "\U0001f916"
         public_modules = ["adminpanel", "info", "encryption", "mod", "nsfw", "misc"]
-        paws = self.bot.get_emoji(513_831_608_265_080_852)
+        paws = "\U0001f43e"
         user = ctx.author
         avy = user.avatar_url
 
@@ -73,19 +73,22 @@ class Information:
             embed = discord.Embed(
                 title=f"{paws} Hai {ctx.author.name}, am Pawbot!! {paws}",
                 description=f"`The cutest Discord Bot Around~`\nUse `{ctx.prefix}help m <module>` to get help on a set of commands or `{ctx.prefix}help c <cmd>` to get help on a specific command.\n\nAll of my modules are listed below:\n\n{mods}",
-                color=ctx.me.colour,
+                color=249_742,
             )
             embed.set_thumbnail(url=self.bot.user.avatar_url_as(format="png"))
             embed.add_field(
                 name="Important Links",
-                value=f"{bottag} [Bot Invite](https://discordapp.com/oauth2/authorize?client_id=365255872181567489&scope=bot&permissions=470150214)\n{server} [Support Guild Invite](https://discord.gg/c4vWDdd)",
+                value=f"{bottag} [Bot Invite](https://discordapp.com/oauth2/authorize?client_id=460383314973556756&scope=bot&permissions=469888118)\n{server} [Support Guild Invite](https://discord.gg/s4bSSCG)",
                 inline=True,
             )
             embed.set_footer(text=f"Requested by {ctx.author}", icon_url=avy)
             try:
                 await ctx.send(embed=embed)
             except discord.Forbidden:
-                await ctx.send(";w; i can't send embeds")
+                try:
+                    ctx.author.send(embed=embed)
+                except discord.Forbidden:
+                    await ctx.send(";w; I can't send embeds or DM you..")
 
         if (
             option == "c"
@@ -195,7 +198,7 @@ class Information:
             pass
         else:
             await ctx.send(
-                "The valid options are\nCommand: `owo help command|c|Command|cmd`\nModule: `owo help m|module|Module`"
+                f"The valid options are\nCommand: `paw help c`\nModule: `paw help m`"
             )
 
     @commands.command()

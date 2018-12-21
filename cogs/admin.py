@@ -442,11 +442,14 @@ class Admin:
     async def parsehtml(self, ctx, url: str):
         r = requests.get(f"{url}")
         data = r.text
-        soup = BeautifulSoup(data, 'html.parser')
+        soup = BeautifulSoup(data, "html.parser")
         msgtosend = f"```html\n{soup.prettify()}\n```"
         if len(msgtosend) > 1900:
-            file = BytesIO(msgtosend.encode('utf-8'))
-            return await ctx.send(content=f"Too big to send, here is the file!", file=discord.File(file, filename="parsedhtml.html"))
+            file = BytesIO(msgtosend.encode("utf-8"))
+            return await ctx.send(
+                content=f"Too big to send, here is the file!",
+                file=discord.File(file, filename="parsedhtml.html"),
+            )
         await ctx.send(msgtosend)
 
 

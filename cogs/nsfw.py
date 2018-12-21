@@ -126,9 +126,7 @@ class NSFW:
         if "score:" in args:
             apilink = "https://e621.net/post/index.json?tags=args&limit=320"
         else:
-            apilink = (
-                "https://e621.net/post/index.json?tags=args score:>25&limit=320"
-            )
+            apilink = "https://e621.net/post/index.json?tags=args score:>25&limit=320"
         try:
             await processapi(apilink)
         except ResultNotFound:
@@ -140,9 +138,7 @@ class NSFW:
             )
             return
         msgtoedit = await ctx.channel.get_message(msgtoedit.id)
-        msgtosend = (
-            f"Post link: `https://{netloc}.net/post/show/{processapi.imgid}/`\r\nArtist: `{processapi.imgartist}`\r\nSource: `{processapi.imgsource}`\r\nRating: {processapi.imgrating}\r\nTags: `{processapi.imgtags}` ...and more\r\nImage link: {processapi.file_link}"
-        )
+        msgtosend = f"Post link: `https://{netloc}.net/post/show/{processapi.imgid}/`\r\nArtist: `{processapi.imgartist}`\r\nSource: `{processapi.imgsource}`\r\nRating: {processapi.imgrating}\r\nTags: `{processapi.imgtags}` ...and more\r\nImage link: {processapi.file_link}"
         await msgtoedit.edit(content=msgtosend)
 
     @commands.command()
@@ -170,9 +166,7 @@ class NSFW:
             )
             return
         msgtoedit = await ctx.channel.get_message(msgtoedit.id)
-        msgtosend = (
-            "Artist: {processshowapi.imgartist}\r\nSource: `{processshowapi.imgsource}`\r\nRating: {processshowapi.imgrating}\r\nTags: `{processshowapi.imgtags}` ...and more\r\nImage link: {processshowapi.file_link}"
-        )
+        msgtosend = "Artist: {processshowapi.imgartist}\r\nSource: `{processshowapi.imgsource}`\r\nRating: {processshowapi.imgrating}\r\nTags: `{processshowapi.imgtags}` ...and more\r\nImage link: {processshowapi.file_link}"
         await msgtoedit.edit(content=msgtosend)
 
     @commands.command()

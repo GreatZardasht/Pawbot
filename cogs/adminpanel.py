@@ -126,11 +126,15 @@ class AdminPanel:
                 )
             if automodrowcheck["ignorerole"] is 1:
                 embed.add_field(
-                    name="Ignore Role", value="<:enabled:513831607355047964>", inline=True
+                    name="Ignore Role",
+                    value="<:enabled:513831607355047964>",
+                    inline=True,
                 )
             else:
                 embed.add_field(
-                    name="Ignore Role", value="<:disabled:513831606855794709>", inline=True
+                    name="Ignore Role",
+                    value="<:disabled:513831606855794709>",
+                    inline=True,
                 )
             if automodrowcheck["actionlog"] is 1:
                 embed.add_field(
@@ -193,7 +197,7 @@ class AdminPanel:
                     embed.add_field(
                         name="Auto Role-Role", value=f"{autorole.mention}", inline=False
                     )
-            if automodrowcheck['ignorerole'] is 1:
+            if automodrowcheck["ignorerole"] is 1:
                 ignorerole = ctx.guild.get_role(storerow["ignorerolerole"])
                 if ignorerole is None:
                     pass

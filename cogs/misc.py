@@ -502,12 +502,16 @@ class Misc:
         except discord.Forbidden:
             pass
         try:
-            r = await http.get("https://nekos.life/api/v2/img/hug", res_method="json", no_cache=True)
+            r = await http.get(
+                "https://nekos.life/api/v2/img/hug", res_method="json", no_cache=True
+            )
         except json.JSONDecodeError:
             return await ctx.send("I couldn't contact the api ;-;")
         if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
             return await ctx.send(f"💖 | **{ctx.author.name}** hugs **{user.name}**")
-        embed = discord.Embed(colour=249_742, description=f"**{ctx.author.name}** hugs **{user.name}**")
+        embed = discord.Embed(
+            colour=249_742, description=f"**{ctx.author.name}** hugs **{user.name}**"
+        )
         embed.set_image(url=r[endpoint])
         await ctx.send(embed=embed)
 
@@ -525,12 +529,19 @@ class Misc:
         except discord.Forbidden:
             pass
         try:
-            r = await http.get("https://nekos.life/api/v2/img/kiss", res_method="json", no_cache=True)
+            r = await http.get(
+                "https://nekos.life/api/v2/img/kiss", res_method="json", no_cache=True
+            )
         except json.JSONDecodeError:
             return await ctx.send("I couldn't contact the api ;-;")
         if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
-            return await ctx.send(f"💗 | **{ctx.author.name}** gives **{user.name}** a kiss~!")
-        embed = discord.Embed(colour=249_742, description=f"**{ctx.author.name}** gives **{user.name}** a kiss~!")
+            return await ctx.send(
+                f"💗 | **{ctx.author.name}** gives **{user.name}** a kiss~!"
+            )
+        embed = discord.Embed(
+            colour=249_742,
+            description=f"**{ctx.author.name}** gives **{user.name}** a kiss~!",
+        )
         embed.set_image(url=r[endpoint])
         await ctx.send(embed=embed)
 
@@ -548,12 +559,19 @@ class Misc:
         except discord.Forbidden:
             pass
         try:
-            r = await http.get("https://nekos.life/api/v2/img/pat", res_method="json", no_cache=True)
+            r = await http.get(
+                "https://nekos.life/api/v2/img/pat", res_method="json", no_cache=True
+            )
         except json.JSONDecodeError:
             return await ctx.send("I couldn't contact the api ;-;")
         if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
-            return await ctx.send(f"💗 | **{ctx.author.name}** pats **{user.name}** on the head")
-        embed = discord.Embed(colour=249_742, description=f"**{ctx.author.name}** pats **{user.name}** on the head")
+            return await ctx.send(
+                f"💗 | **{ctx.author.name}** pats **{user.name}** on the head"
+            )
+        embed = discord.Embed(
+            colour=249_742,
+            description=f"**{ctx.author.name}** pats **{user.name}** on the head",
+        )
         embed.set_image(url=r[endpoint])
         await ctx.send(embed=embed)
 
@@ -571,12 +589,19 @@ class Misc:
         except discord.Forbidden:
             pass
         try:
-            r = await http.get("https://nekos.life/api/v2/img/feed", res_method="json", no_cache=True)
+            r = await http.get(
+                "https://nekos.life/api/v2/img/feed", res_method="json", no_cache=True
+            )
         except json.JSONDecodeError:
             return await ctx.send("I couldn't contact the api ;-;")
         if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
-            return await ctx.send(f"🍲 | **{ctx.author.name}** feeds **{user.name}** sum nums")
-        embed = discord.Embed(colour=249_742, description=f"**{ctx.author.name}** feeds **{user.name}** sum nums")
+            return await ctx.send(
+                f"🍲 | **{ctx.author.name}** feeds **{user.name}** sum nums"
+            )
+        embed = discord.Embed(
+            colour=249_742,
+            description=f"**{ctx.author.name}** feeds **{user.name}** sum nums",
+        )
         embed.set_image(url=r[endpoint])
         await ctx.send(embed=embed)
 
@@ -594,12 +619,19 @@ class Misc:
         except discord.Forbidden:
             pass
         try:
-            r = await http.get("https://nekos.life/api/v2/img/cuddle", res_method="json", no_cache=True)
+            r = await http.get(
+                "https://nekos.life/api/v2/img/cuddle", res_method="json", no_cache=True
+            )
         except json.JSONDecodeError:
             return await ctx.send("I couldn't contact the api ;-;")
         if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
-            return await ctx.send(f"😍 | **{ctx.author.name}** cuddles **{user.name}** tightly!")
-        embed = discord.Embed(colour=249_742, description=f"**{ctx.author.name}** cuddles **{user.name}** tightly!")
+            return await ctx.send(
+                f"😍 | **{ctx.author.name}** cuddles **{user.name}** tightly!"
+            )
+        embed = discord.Embed(
+            colour=249_742,
+            description=f"**{ctx.author.name}** cuddles **{user.name}** tightly!",
+        )
         embed.set_image(url=r[endpoint])
         await ctx.send(embed=embed)
 
@@ -617,12 +649,19 @@ class Misc:
         except discord.Forbidden:
             pass
         try:
-            r = await http.get("https://nekos.life/api/v2/img/poke", res_method="json", no_cache=True)
+            r = await http.get(
+                "https://nekos.life/api/v2/img/poke", res_method="json", no_cache=True
+            )
         except json.JSONDecodeError:
             return await ctx.send("I couldn't contact the api ;-;")
         if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
-            return await ctx.send(f"🧡 | Boop! **{ctx.author.name}** pokes **{user.name}** on the nose!")
-        embed = discord.Embed(colour=249_742, description=f"Boop! **{ctx.author.name}** pokes **{user.name}** on the nose!")
+            return await ctx.send(
+                f"🧡 | Boop! **{ctx.author.name}** pokes **{user.name}** on the nose!"
+            )
+        embed = discord.Embed(
+            colour=249_742,
+            description=f"Boop! **{ctx.author.name}** pokes **{user.name}** on the nose!",
+        )
         embed.set_image(url=r[endpoint])
         await ctx.send(embed=embed)
 
@@ -640,12 +679,19 @@ class Misc:
         except discord.Forbidden:
             pass
         try:
-            r = await http.get("https://nekos.life/api/v2/img/slap", res_method="json", no_cache=True)
+            r = await http.get(
+                "https://nekos.life/api/v2/img/slap", res_method="json", no_cache=True
+            )
         except json.JSONDecodeError:
             return await ctx.send("I couldn't contact the api ;-;")
         if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
-            return await ctx.send(f"😢 | **{ctx.author.name}** slaps **{user.name}**! Yowch!")
-        embed = discord.Embed(colour=249_742, description=f"**{ctx.author.name}** slaps **{user.name}**! Yowch!")
+            return await ctx.send(
+                f"😢 | **{ctx.author.name}** slaps **{user.name}**! Yowch!"
+            )
+        embed = discord.Embed(
+            colour=249_742,
+            description=f"**{ctx.author.name}** slaps **{user.name}**! Yowch!",
+        )
         embed.set_image(url=r[endpoint])
         await ctx.send(embed=embed)
 
@@ -663,12 +709,17 @@ class Misc:
         except discord.Forbidden:
             pass
         try:
-            r = await http.get("https://nekos.life/api/v2/img/tickle", res_method="json", no_cache=True)
+            r = await http.get(
+                "https://nekos.life/api/v2/img/tickle", res_method="json", no_cache=True
+            )
         except json.JSONDecodeError:
             return await ctx.send("I couldn't contact the api ;-;")
         if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
             return await ctx.send(f"😘 | **{ctx.author.name}** tickles **{user.name}**!")
-        embed = discord.Embed(colour=249_742, description=f"**{ctx.author.name}** tickles **{user.name}**!")
+        embed = discord.Embed(
+            colour=249_742,
+            description=f"**{ctx.author.name}** tickles **{user.name}**!",
+        )
         embed.set_image(url=r[endpoint])
         await ctx.send(embed=embed)
 
@@ -680,8 +731,12 @@ class Misc:
         if video is None:
             return await ctx.send("You need to add text to search something.")
         query_string = urllib.parse.urlencode({"search_query": video})
-        html_content = urllib.request.urlopen("http://www.youtube.com/results?" + query_string)
-        search_results = re.findall(r'href=\"/watch\?v=(.{11})', html_content.read().decode())
+        html_content = urllib.request.urlopen(
+            "http://www.youtube.com/results?" + query_string
+        )
+        search_results = re.findall(
+            r"href=\"/watch\?v=(.{11})", html_content.read().decode()
+        )
         try:
             results = search_results[0]
         except IndexError:
