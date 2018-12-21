@@ -2,8 +2,6 @@ import random
 import discord
 import json
 import requests
-import urllib
-import re
 
 from random import randint
 from discord.ext import commands
@@ -730,17 +728,8 @@ class Misc:
         """Search a YouTube video"""
         if video is None:
             return await ctx.send("You need to add text to search something.")
-        query_string = urllib.parse.urlencode({"search_query": video})
-        html_content = urllib.request.urlopen(
-            "http://www.youtube.com/results?" + query_string
-        )
-        search_results = re.findall(
-            r"href=\"/watch\?v=(.{11})", html_content.read().decode()
-        )
-        try:
-            results = search_results[0]
-        except IndexError:
-            return
+        results = await http.get(f"https://www.googleapis.com/youtube/v3/search?part=snippet&q={video}&maxResults=1&type=video&key={self.config.ytkey}", res_method="json", no_cache=True)
+        results = results["items"][0]["id"]["videoId"]
         await ctx.send(f"http://www.youtube.com/watch?v={results}")
 
 

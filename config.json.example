@@ -6,9 +6,8 @@
   "contributors": [],
   "friends": [],
   "beta": [],
-  "prefix": [""],
-  "guildBlacklist": [],
-  "userBlacklist": [],
+  "blacklist": [],
+  "prefix": [],
   "database": "",
   "dbname": "",
   "dbpass": "",
@@ -17,5 +16,5 @@
   "guildjoinwebhook": "",
   "guildleavewebhook": "",
   "customlinkwebhook": "",
-  "blacklist": ""
+  "ytkey": ""
 }
