@@ -25,6 +25,41 @@ class Admin:
         self._last_result = None
         self.sessions = set()
 
+    async def do_removal(
+        self, ctx, limit, predicate, *, before=None, after=None, message=True
+    ):
+        if limit > 2000:
+            return await ctx.send(
+                f"Too many messages to search given ({limit}/2000)"
+            )
+
+        if before is None:
+            before = ctx.message
+        else:
+            before = discord.Object(id=before)
+
+        if after is not None:
+            after = discord.Object(id=after)
+
+        try:
+            deleted = await ctx.channel.purge(
+                limit=limit, before=before, after=after, check=predicate
+            )
+        except discord.Forbidden:
+            return await ctx.send("I do not have permissions to delete messages.")
+        except discord.HTTPException as e:
+            return await ctx.send(f"Error: {e} (try a smaller search?)")
+
+        deleted = len(deleted)
+        if message is True:
+            try:
+                await ctx.message.delete()
+            except discord.Forbidden:
+                pass
+            await ctx.send(
+                f'🚮 Successfully cleaned up my messages.', delete_after=5
+            )
+
     @staticmethod
     def cleanup_code(content):
         """Automatically removes code blocks from the code."""
@@ -451,6 +486,15 @@ class Admin:
                 file=discord.File(file, filename="parsedhtml.html"),
             )
         await ctx.send(msgtosend)
+
+    @commands.command()
+    @commands.check(repo.is_owner)
+    async def cleanmyself(self, ctx, search=100):
+
+        def predicate(m):
+            return m.author == ctx.me
+
+        await self.do_removal(ctx, search, predicate)
 
 
 def setup(bot):
