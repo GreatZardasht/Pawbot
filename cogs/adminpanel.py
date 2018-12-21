@@ -83,7 +83,7 @@ class AdminPanel:
         else:
             modlogcheck = "<:disabled:513831606855794709>"
 
-        embed = discord.Embed(colour=discord.Colour(0xDEE05A))
+        embed = discord.Embed(colour=discord.Colour(249_742))
         embed.add_field(name="Embeds", value=embedscheck, inline=True)
         embed.add_field(name="Join Messages", value=joincheck, inline=True)
         embed.add_field(name="Leave Messages", value=leavecheck, inline=True)
