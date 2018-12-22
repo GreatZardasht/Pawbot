@@ -728,7 +728,11 @@ class Misc:
         """Search a YouTube video"""
         if video is None:
             return await ctx.send("You need to add text to search something.")
-        results = await http.get(f"https://www.googleapis.com/youtube/v3/search?part=snippet&q={video}&maxResults=1&type=video&key={self.config.ytkey}", res_method="json", no_cache=True)
+        results = await http.get(
+            f"https://www.googleapis.com/youtube/v3/search?part=snippet&q={video}&maxResults=1&type=video&key={self.config.ytkey}",
+            res_method="json",
+            no_cache=True,
+        )
         results = results["items"][0]["id"]["videoId"]
         await ctx.send(f"http://www.youtube.com/watch?v={results}")
 

@@ -483,7 +483,8 @@ class Moderation:
                 except discord.Forbidden:
                     pass
                 await ctx.send(
-                    f'🚮 Successfully removed {deleted} message{"" if deleted == 1 else "s"}.', delete_after=5
+                    f'🚮 Successfully removed {deleted} message{"" if deleted == 1 else "s"}.',
+                    delete_after=5,
                 )
             thequery = "UPDATE automod SET actionlog=1 WHERE serverid=$1;"
             await self.bot.db.execute(thequery, ctx.guild.id)
@@ -517,7 +518,8 @@ class Moderation:
                 except discord.Forbidden:
                     pass
                 await ctx.send(
-                    f'🚮 Successfully removed {deleted} message{"" if deleted == 1 else "s"}.', delete_after=5
+                    f'🚮 Successfully removed {deleted} message{"" if deleted == 1 else "s"}.',
+                    delete_after=5,
                 )
 
     @prune.command()
