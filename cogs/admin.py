@@ -526,6 +526,7 @@ class Admin:
         await self.bot.loop.run_in_executor(None, run_shell, command)
         command = "git push origin master"
         await self.bot.loop.run_in_executor(None, run_shell, command)
+        await ctx.send("Successfully pushed changes to master!")
 
 
 def setup(bot):
