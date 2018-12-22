@@ -7,6 +7,7 @@ import io
 import json
 import requests
 import shlex
+import asyncio
 
 from subprocess import Popen, PIPE
 from io import BytesIO
@@ -31,9 +32,7 @@ class Admin:
         self, ctx, limit, predicate, *, before=None, after=None, message=True
     ):
         if limit > 2000:
-            return await ctx.send(
-                f"Too many messages to search given ({limit}/2000)"
-            )
+            return await ctx.send(f"Too many messages to search given ({limit}/2000)")
 
         if before is None:
             before = ctx.message
@@ -58,9 +57,7 @@ class Admin:
                 await ctx.message.delete()
             except discord.Forbidden:
                 pass
-            await ctx.send(
-                f'🚮 Successfully cleaned up my messages.', delete_after=5
-            )
+            await ctx.send(f"🚮 Successfully cleaned up my messages.", delete_after=5)
 
     @staticmethod
     def cleanup_code(content):
@@ -492,7 +489,6 @@ class Admin:
     @commands.command()
     @commands.check(repo.is_owner)
     async def cleanmyself(self, ctx, search=100):
-
         def predicate(m):
             return m.author == ctx.me
 
@@ -502,9 +498,11 @@ class Admin:
     @commands.check(repo.is_owner)
     async def shell(self, ctx: commands.Context, *, command: str) -> None:
         """ Run a shell command. """
+
         def run_shell(command):
             with Popen(command, stdout=PIPE, stderr=PIPE, shell=True) as proc:
                 return [std.decode("utf-8") for std in proc.communicate()]
+
         command = self.cleanup_code(command)
         argv = shlex.split(command)
         stdout, stderr = await self.bot.loop.run_in_executor(None, run_shell, argv)
@@ -517,13 +515,38 @@ class Admin:
     @commands.check(repo.is_owner)
     async def gitpush(self, ctx: commands.Context, *, committext: str) -> None:
         """ Push changes to github. """
+
         def run_shell(command):
             with Popen(command, stdout=PIPE, stderr=PIPE, shell=True) as proc:
                 return [std.decode("utf-8") for std in proc.communicate()]
+
         await self.bot.loop.run_in_executor(None, run_shell, "git add --all")
-        await self.bot.loop.run_in_executor(None, run_shell, f"git commit -m \"{committext}\"")
+        await self.bot.loop.run_in_executor(
+            None, run_shell, f'git commit -m "{committext}"'
+        )
         await self.bot.loop.run_in_executor(None, run_shell, "git push origin master")
         await ctx.send("Successfully pushed changes to master!")
+
+    @commands.command(hidden=True, aliases=["pull"])
+    @commands.check(repo.is_owner)
+    async def update(self, ctx, silently: bool = False):
+        """ Gets latest commits and applies them from git """
+
+        def run_shell(command):
+            with Popen(command, stdout=PIPE, stderr=PIPE, shell=True) as proc:
+                return [std.decode("utf-8") for std in proc.communicate()]
+
+        if silently:
+            pull = await self.bot.loop.run_in_executor(
+                None, run_shell, "git pull origin master -q"
+            )
+        else:
+            pull = await self.bot.loop.run_in_executor(
+                None, run_shell, "git pull origin master"
+            )
+            msg = await ctx.send(f"```css\n{pull}```")
+            await asyncio.sleep(6)
+            await msg.edit(content="Pull Complete")
 
 
 def setup(bot):
