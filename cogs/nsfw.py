@@ -211,11 +211,6 @@ class NSFW:
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def urban(self, ctx, *, search: str):
         """ Find the 'best' definition to your words """
-        if not ctx.channel.is_nsfw():
-            return await ctx.send("Due to changes in the discord TOS, urban is a nsfw command now. Please use it in a nsfw channel.")
-        if not permissions.can_embed(ctx):
-            return await ctx.send("I cannot send embeds here ;-;")
-
         url = await http.get(f'http://api.urbandictionary.com/v0/define?term={search}', res_method="json")
 
         if url is None:
@@ -231,6 +226,16 @@ class NSFW:
                 definition = definition[:1000]
                 definition = definition.rsplit(' ', 1)[0]
                 definition += '...'
+
+        embed = discord.Embed(colour=0xC29FAF, description=f"**{result['word']}**\n*by: {result['author']}*")
+        embed.add_field(name='Definition', value=definition, inline=False)
+        embed.add_field(name='Example', value=result['example'], inline=False)
+        embed.set_footer(text=f"👍 {result['thumbs_up']} | 👎 {result['thumbs_down']}")
+
+        try:
+            await ctx.send(embed=embed)
+        except discord.Forbidden:
+            await ctx.send("I found something, but have no access to post it... [Embed permissions]")
 
 
 def setup(bot):

@@ -498,7 +498,8 @@ class Admin:
 
         await self.do_removal(ctx, search, predicate)
 
-    @commands.command(hidden=True)
+    @commands.command()
+    @commands.check(repo.is_owner)
     async def shell(self, ctx: commands.Context, *, command: str) -> None:
         """Run a shell command."""
         def run_shell(command):
@@ -511,6 +512,20 @@ class Admin:
             await ctx.send(f"```\n{stdout}\n```")
         if stderr:
             await ctx.send(f"```\n{stderr}\n```")
+
+    @commands.command()
+    @commands.check(repo.is_owner)
+    async def gitpush(self, ctx: commands.Context, *, committext: str) -> None:
+        """Run a shell command."""
+        def run_shell(command):
+            with Popen(command, stdout=PIPE, stderr=PIPE, shell=True) as proc:
+                return [std.decode("utf-8") for std in proc.communicate()]
+        command = "git add --all"
+        await self.bot.loop.run_in_executor(None, run_shell, command)
+        command = f"git commit -m \"{committext}\""
+        await self.bot.loop.run_in_executor(None, run_shell, command)
+        command = "git push origin master"
+        await self.bot.loop.run_in_executor(None, run_shell, command)
 
 
 def setup(bot):
