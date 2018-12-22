@@ -206,6 +206,32 @@ class NSFW:
         )
         await msgtoedit.edit(content=msgtosend)
 
+    @commands.command()
+    @commands.is_nsfw()
+    @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
+    async def urban(self, ctx, *, search: str):
+        """ Find the 'best' definition to your words """
+        if not ctx.channel.is_nsfw():
+            return await ctx.send("Due to changes in the discord TOS, urban is a nsfw command now. Please use it in a nsfw channel.")
+        if not permissions.can_embed(ctx):
+            return await ctx.send("I cannot send embeds here ;-;")
+
+        url = await http.get(f'http://api.urbandictionary.com/v0/define?term={search}', res_method="json")
+
+        if url is None:
+            return await ctx.send("I think the API broke...")
+
+        count = len(url['list'])
+        if count == 0:
+            return await ctx.send("Couldn't find your search in the dictionary...")
+        result = url['list'][random.randint(0, count - 1)]
+
+        definition = result['definition']
+        if len(definition) >= 1000:
+                definition = definition[:1000]
+                definition = definition.rsplit(' ', 1)[0]
+                definition += '...'
+
 
 def setup(bot):
     bot.add_cog(NSFW(bot))

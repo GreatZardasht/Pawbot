@@ -6,7 +6,9 @@ import textwrap
 import io
 import json
 import requests
+import shlex
 
+from subprocess import Popen, PIPE
 from io import BytesIO
 from bs4 import BeautifulSoup
 from dhooks import Webhook
@@ -495,6 +497,20 @@ class Admin:
             return m.author == ctx.me
 
         await self.do_removal(ctx, search, predicate)
+
+    @commands.command(hidden=True)
+    async def shell(self, ctx: commands.Context, *, command: str) -> None:
+        """Run a shell command."""
+        def run_shell(command):
+            with Popen(command, stdout=PIPE, stderr=PIPE, shell=True) as proc:
+                return [std.decode("utf-8") for std in proc.communicate()]
+        command = self.cleanup_code(command)
+        argv = shlex.split(command)
+        stdout, stderr = await self.bot.loop.run_in_executor(None, run_shell, argv)
+        if stdout:
+            await ctx.send(f"```\n{stdout}\n```")
+        if stderr:
+            await ctx.send(f"```\n{stderr}\n```")
 
 
 def setup(bot):
