@@ -20,3 +20,5 @@ Thanks to
 
 ## Important Note on running
 If you have any issues when running the code, feel free to contact me @ Paws#0001 on Discord, or open an issue on the repo. Use my discord for more urgent issues.
+
+Hope you enjoy :D
