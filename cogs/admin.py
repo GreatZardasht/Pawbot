@@ -544,7 +544,7 @@ class Admin:
             pull = await self.bot.loop.run_in_executor(
                 None, run_shell, "git pull origin master"
             )
-            msg = await ctx.send(f"```css\n{pull}```")
+            msg = await ctx.send(f"```css\n{pull}\n```")
             await asyncio.sleep(6)
             await msg.edit(content="Pull Complete")
 
