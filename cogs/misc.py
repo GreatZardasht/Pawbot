@@ -736,6 +736,22 @@ class Misc:
         results = results["items"][0]["id"]["videoId"]
         await ctx.send(f"http://www.youtube.com/watch?v={results}")
 
+    @commands.command(aliases=["inspire"])
+    @commands.guild_only()
+    @commands.cooldown(rate=2, per=5.0, type=commands.BucketType.user)
+    async def inspireme(self, ctx):
+        """ Fetch a random "inspirational message" from the bot. """
+        rowcheck = await self.getserverstuff(ctx)
+
+        page = await http.get(
+            "http://inspirobot.me/api?generate=true", res_method="text", no_cache=True
+        )
+        if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
+            return await ctx.send(page)
+        embed = discord.Embed(colour=249_742)
+        embed.set_image(url=page)
+        await ctx.send(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(Misc(bot))
