@@ -3,6 +3,7 @@ import discord
 import json
 import requests
 
+from io import BytesIO
 from random import randint
 from discord.ext import commands
 from utils import lists, http, default, eapi, sfapi, permissions
@@ -751,6 +752,16 @@ class Misc:
         embed = discord.Embed(colour=249_742)
         embed.set_image(url=page)
         await ctx.send(embed=embed)
+
+    @commands.command()
+    @commands.guild_only()
+    @commands.cooldown(rate=2, per=5.0, type=commands.BucketType.user)
+    async def spoiler(self, ctx, *, spoilertext: str):
+        file = BytesIO(spoilertext.encode("utf-8"))
+        await ctx.send(
+            content=f"**{ctx.author}** has made a spoiler!",
+            file=discord.File(file, filename="spoiler.txt"),
+        )
 
 
 def setup(bot):
