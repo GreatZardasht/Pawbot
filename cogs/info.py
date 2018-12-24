@@ -7,6 +7,7 @@ import io
 import requests
 import dhooks
 import json
+import unicodedata
 
 from collections import Counter
 from dhooks import Webhook
@@ -582,6 +583,23 @@ class Information:
             ),
         )
         await ctx.send(f"```py\n{r.text}\n```")
+
+    @commands.command()
+    @commands.guild_only()
+    @commands.cooldown(rate=2, per=5.0, type=commands.BucketType.user)
+    async def charinfo(self, ctx, *, characters: str):
+        """ Shows you information about a number of characters. """
+
+        def to_string(c):
+            digit = f'{ord(c):x}'
+            name = unicodedata.name(c, 'Name not found.')
+            return f'`\\U{digit:>08}`: {name} - {c} \N{EM DASH} <http://www.fileformat.info/info/unicode/char/{digit}>'
+        msg = '\n'.join(map(to_string, characters))
+        if len(msg) > 2000:
+            return await ctx.send('Output too long to display.')
+        await ctx.send(msg)
+
+
 
 
 def setup(bot):
