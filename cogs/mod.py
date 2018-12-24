@@ -434,7 +434,7 @@ class Moderation:
             file=discord.File(data, filename=default.timetext(f"DiscriminatorSearch")),
         )
 
-    @commands.group()
+    @commands.group(aliases=["purge"])
     @commands.guild_only()
     @permissions.has_permissions(manage_messages=True)
     @commands.cooldown(rate=1, per=3.5, type=commands.BucketType.user)
