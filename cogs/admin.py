@@ -235,7 +235,7 @@ class Admin:
         except discord.HTTPException as err:
             await ctx.send(err)
 
-    @commands.command(pass_context=True, name="eval")
+    @commands.command(pass_context=True, name="owneval")
     @commands.check(repo.is_owner)
     async def _eval(self, ctx, *, body: str):
         """Evaluates a code"""
