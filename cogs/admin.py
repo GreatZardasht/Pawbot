@@ -28,6 +28,21 @@ class Admin:
         self._last_result = None
         self.sessions = set()
 
+    async def say_permissions(self, ctx, member, channel):
+        permissions = channel.permissions_for(member)
+        e = discord.Embed(colour=member.colour)
+        allowed, denied = [], []
+        for name, value in permissions:
+            name = name.replace('_', ' ').replace('guild', 'server').title()
+            if value:
+                allowed.append(name)
+            else:
+                denied.append(name)
+
+        e.add_field(name='Allowed', value='\n'.join(allowed))
+        e.add_field(name='Denied', value='\n'.join(denied))
+        await ctx.send(embed=e)
+
     async def do_removal(
         self, ctx, limit, predicate, *, before=None, after=None, message=True
     ):
@@ -547,6 +562,15 @@ class Admin:
             msg = await ctx.send(f"```css\n{pull}\n```")
             await asyncio.sleep(6)
             await msg.edit(content="Pull Complete")
+
+    @commands.command()
+    @commands.guild_only()
+    @commands.check(repo.is_owner)
+    async def botpermissions(self, ctx, *, channel: discord.TextChannel = None):
+        """ Shows the bot's permissions in a specific channel. """
+        channel = channel or ctx.channel
+        member = ctx.guild.me
+        await self.say_permissions(ctx, member, channel)
 
 
 def setup(bot):
