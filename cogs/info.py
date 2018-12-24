@@ -563,7 +563,7 @@ class Information:
             return await ctx.send(
                 f":warning: | **Sorry, no matches found for `{emoji.lower()}`**"
             )
-        await ctx.send()
+        await ctx.send(f"{nitromote}")
 
     @commands.command()
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
@@ -572,9 +572,9 @@ class Information:
         r = requests.get(f"https://www.calcatraz.com/calculator/api?c={calculation}")
         await ctx.send(r.text)
 
-    @commands.command()
+    @commands.command(name="eval")
     @commands.cooldown(rate=1, per=10.0, type=commands.BucketType.user)
-    async def python(self, ctx, *, code: commands.clean_content):
+    async def _eval(self, ctx, *, code: commands.clean_content):
         """ Runs a piece of python code """
         r = requests.post(
             "http://coliru.stacked-crooked.com/compile",
@@ -582,7 +582,9 @@ class Information:
                 {"cmd": "python3 main.cpp", "src": self.cleanup_code(code)}
             ),
         )
-        await ctx.send(f"```py\n{r.text}\n```")
+        emoji = self.bot.get_emoji(508388437661843483)
+        await ctx.message.add_reaction(emoji)
+        await ctx.send(f"```py\n{r.text}\n```\n(This is **not** an open eval, everything is sandboxed)")
 
     @commands.command()
     @commands.guild_only()
