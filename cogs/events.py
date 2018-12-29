@@ -112,7 +112,7 @@ class Events:
                 "There was an error in processing the command, our staff team have been notified, and will be in contact soon."
             )
             await logchannel.send(
-                f"`ERROR`\n{error}\nRoot Server: {ctx.guild.name} ({ctx.guild.id})\nRoot Channel: {ctx.channel.name} ({ctx.channel.id})\nRoot User: {ctx.author.name}#{ctx.author.discriminator} ({ctx.author.id})"
+                f"`[WARN]` `Command Error`\n{error}\nRoot Server: {ctx.guild.name} ({ctx.guild.id})\nRoot Channel: {ctx.channel.name} ({ctx.channel.id})\nRoot User: {ctx.author.name}#{ctx.author.discriminator} ({ctx.author.id})"
             )
 
         elif isinstance(err, errors.CheckFailure):
@@ -374,6 +374,11 @@ class Events:
                 460_383_314_973_556_756,
                 reason,
             )
+
+    async def on_command(self, ctx):
+        logchan = self.bot.get_channel(508420200815656966)
+        now = datetime.utcnow()
+        cmdmsg = await logchan.send(f'`[INFO]` `Command Run`\n```\nCommand: {ctx.command}\nUser: {ctx.author} ({ctx.author.id})\nChannel: {ctx.channel} ({ctx.channel.id})\n\nPerformed at: {now.strftime("%c")}```')
 
 
 def setup(bot):
