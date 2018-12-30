@@ -47,6 +47,7 @@ class AdminPanel:
     @commands.guild_only()
     @permissions.has_permissions(manage_guild=True)
     async def conf(self, ctx):
+        """ Displays current information on the config """
         automodrowcheck = await self.getautomod(ctx)
         storerow = await self.getstorestuff(ctx)
 
@@ -224,7 +225,7 @@ class AdminPanel:
             for page in _help:
                 await ctx.send(page)
 
-    @enable.command(name="embeds")
+    @enable.command(name="embeds", hidden=True)
     async def enable_embeds(self, ctx):
         """ Enables embeds on the server """
         rowcheck = await self.getserverstuff(ctx)
@@ -249,7 +250,7 @@ class AdminPanel:
         )
         await ctx.send(embed=embed)
 
-    @enable.command(name="joins")
+    @enable.command(name="joins", hidden=True)
     async def enable_joinmsg(
         self, ctx, joinschannel: discord.TextChannel, *, setjoinmsg: str = None
     ):
@@ -307,7 +308,7 @@ class AdminPanel:
         )
         await ctx.send(embed=embed)
 
-    @enable.command(name="leaves")
+    @enable.command(name="leaves", hidden=True)
     async def enable_leavemsg(
         self, ctx, leaveschannel: discord.TextChannel, *, setleavemsg: str = None
     ):
@@ -365,7 +366,7 @@ class AdminPanel:
         )
         await ctx.send(embed=embed)
 
-    @enable.command(name="nsfw")
+    @enable.command(name="nsfw", hidden=True)
     async def enable_nsfw(self, ctx):
         """ Enables NSFW on the server """
         rowcheck = await self.getserverstuff(ctx)
@@ -388,7 +389,7 @@ class AdminPanel:
         embed = discord.Embed(title="NSFW", description="<:enabled:513831607355047964>")
         await ctx.send(embed=embed)
 
-    @enable.command(name="automod")
+    @enable.command(name="automod", hidden=True)
     async def enable_automod(self, ctx):
         """ Enables Automoderator on the server """
         rowcheck = await self.getserverstuff(ctx)
@@ -414,7 +415,7 @@ class AdminPanel:
         )
         await ctx.send(embed=embed)
 
-    @enable.command(name="modlog")
+    @enable.command(name="modlog", hidden=True)
     async def enable_modlog(self, ctx, modlogchan: discord.TextChannel):
         """ Enables Moderation Logging on the server """
         rowcheck = await self.getserverstuff(ctx)
@@ -460,7 +461,7 @@ class AdminPanel:
         )
         await ctx.send(embed=embed)
 
-    @enable.command(name="autorole")
+    @enable.command(name="autorole", hidden=True)
     async def enable_autorole(self, ctx, autoRoleRole: discord.Role):
         """ Enables Auto Role on the server """
         rowcheck = await self.getserverstuff(ctx)
@@ -534,7 +535,7 @@ class AdminPanel:
         )
         await ctx.send(embed=embed)
 
-    @enable.command(name="adblock")
+    @enable.command(name="adblock", hidden=True)
     async def enable_adblock(self, ctx):
         """ Enables adblock on the server """
         rowcheck = await self.getserverstuff(ctx)
@@ -567,7 +568,7 @@ class AdminPanel:
         )
         await ctx.send(embed=embed)
 
-    @enable.command(name="lockdown")
+    @enable.command(name="lockdown", hidden=True)
     async def enable_lockdown(self, ctx):
         """ Enables lockdown on the server """
         rowcheck = await self.getserverstuff(ctx)
@@ -600,7 +601,7 @@ class AdminPanel:
         )
         await ctx.send(embed=embed)
 
-    @enable.command(name="antispam")
+    @enable.command(name="antispam", hidden=True)
     async def enable_antispam(self, ctx):
         """ Enables antispam on the server """
         rowcheck = await self.getserverstuff(ctx)
@@ -633,7 +634,7 @@ class AdminPanel:
         )
         await ctx.send(embed=embed)
 
-    @enable.command(name="ignorerole")
+    @enable.command(name="ignorerole", hidden=True)
     async def enable_ignorerole(self, ctx, ignoreRole: discord.Role):
         """ Enables perms bypass on the server """
         rowcheck = await self.getserverstuff(ctx)
@@ -707,7 +708,7 @@ class AdminPanel:
         )
         await ctx.send(embed=embed)
 
-    @enable.command(name="actionlog")
+    @enable.command(name="actionlog", hidden=True)
     async def enable_actionlog(self, ctx, actionLogChan: discord.TextChannel):
         """ Enables Action Logging on the server """
         rowcheck = await self.getserverstuff(ctx)
@@ -792,7 +793,7 @@ class AdminPanel:
             for page in _help:
                 await ctx.send(page)
 
-    @disable.command(name="embeds")
+    @disable.command(name="embeds", hidden=True)
     async def disable_embeds(self, ctx):
         """ Disables embeds on the server """
         rowcheck = await self.getserverstuff(ctx)
@@ -817,7 +818,7 @@ class AdminPanel:
         )
         await ctx.send(embed=embed)
 
-    @disable.command(name="joins")
+    @disable.command(name="joins", hidden=True)
     async def disable_joins(self, ctx):
         """ Disables join messages on the server """
         rowcheck = await self.getserverstuff(ctx)
@@ -842,7 +843,7 @@ class AdminPanel:
         )
         await ctx.send(embed=embed)
 
-    @disable.command(name="leaves")
+    @disable.command(name="leaves", hidden=True)
     async def disable_leaves(self, ctx):
         """ Disables leave messages on the server """
         rowcheck = await self.getserverstuff(ctx)
@@ -867,7 +868,7 @@ class AdminPanel:
         )
         await ctx.send(embed=embed)
 
-    @disable.command(name="nsfw")
+    @disable.command(name="nsfw", hidden=True)
     async def disable_nsfw(self, ctx):
         """ Disables NSFW on the server """
         rowcheck = await self.getserverstuff(ctx)
@@ -892,7 +893,7 @@ class AdminPanel:
         )
         await ctx.send(embed=embed)
 
-    @disable.command(name="automod")
+    @disable.command(name="automod", hidden=True)
     async def disable_automod(self, ctx):
         """ Disables automoderator on the server """
         rowcheck = await self.getserverstuff(ctx)
@@ -917,7 +918,7 @@ class AdminPanel:
         )
         await ctx.send(embed=embed)
 
-    @disable.command(name="modlog")
+    @disable.command(name="modlog", hidden=True)
     async def disable_modlog(self, ctx):
         """ Disables Moderation Logging on the server """
         rowcheck = await self.getserverstuff(ctx)
@@ -942,7 +943,7 @@ class AdminPanel:
         )
         await ctx.send(embed=embed)
 
-    @disable.command(name="autorole")
+    @disable.command(name="autorole", hidden=True)
     async def disable_autorole(self, ctx):
         """ Disables autorole on the server """
         rowcheck = await self.getserverstuff(ctx)
@@ -975,7 +976,7 @@ class AdminPanel:
         )
         await ctx.send(embed=embed)
 
-    @disable.command(name="adblock")
+    @disable.command(name="adblock", hidden=True)
     async def disable_adblock(self, ctx):
         """ Disables adblock on the server """
         rowcheck = await self.getserverstuff(ctx)
@@ -1008,7 +1009,7 @@ class AdminPanel:
         )
         await ctx.send(embed=embed)
 
-    @disable.command(name="lockdown")
+    @disable.command(name="lockdown", hidden=True)
     async def disable_lockdown(self, ctx):
         """ Disables Lockdown on the server """
         rowcheck = await self.getserverstuff(ctx)
@@ -1041,7 +1042,7 @@ class AdminPanel:
         )
         await ctx.send(embed=embed)
 
-    @disable.command(name="antispam")
+    @disable.command(name="antispam", hidden=True)
     async def disable_antispam(self, ctx):
         """ Disables antispam on the server """
         rowcheck = await self.getserverstuff(ctx)
@@ -1074,7 +1075,7 @@ class AdminPanel:
         )
         await ctx.send(embed=embed)
 
-    @disable.command(name="ignorerole")
+    @disable.command(name="ignorerole", hidden=True)
     async def disable_ignorerole(self, ctx):
         """ Disables an Ignore Role on the server """
         rowcheck = await self.getserverstuff(ctx)
@@ -1107,7 +1108,7 @@ class AdminPanel:
         )
         await ctx.send(embed=embed)
 
-    @disable.command(name="actionlog")
+    @disable.command(name="actionlog", hidden=True)
     async def disable_actionlog(self, ctx):
         """ Disables actionlog on the server """
         rowcheck = await self.getserverstuff(ctx)
