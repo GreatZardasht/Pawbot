@@ -351,7 +351,7 @@ class Information:
 
         if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
             return await ctx.send(
-                f"Name: `{user.name}#{user.discriminator}`\nNick: `{nick}`\nUID: `{user.id}`\nStatus: {usrstatus}\nGame: `{usrgame}`\nCreated On: `{default.date(user.created_at)}`\nRoles:\n```\n{usrroles}\n```"
+                f"Name: `{user.name}#{user.discriminator}`\nNick: `{nick}`\nUID: `{user.id}`\nStatus: {usrstatus}\nGame: `{usrgame}`\nIs a bot? `{user.bot}`\nCreated On: `{default.date(user.created_at)}`\nRoles:\n```\n{usrroles}\n```"
             )
 
         embed.set_thumbnail(url=user.avatar_url)
@@ -361,7 +361,8 @@ class Information:
             inline=True,
         )
         embed.add_field(name="Status", value=usrstatus, inline=True)
-        embed.add_field(name="Game", value=usrgame, inline=False)
+        embed.add_field(name="Game", value=usrgame, inline=True)
+        embed.add_field(name="Is bot?", value=user.bot, inline=True)
         embed.add_field(name="Roles", value=usrroles, inline=False)
         embed.add_field(
             name="Created On", value=default.date(user.created_at), inline=True
