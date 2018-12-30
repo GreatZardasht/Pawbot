@@ -8,6 +8,7 @@ import json
 import requests
 import shlex
 import asyncio
+import gc
 
 from subprocess import Popen, PIPE
 from io import BytesIO
@@ -33,14 +34,14 @@ class Admin:
         e = discord.Embed(colour=member.colour)
         allowed, denied = [], []
         for name, value in permissions:
-            name = name.replace('_', ' ').replace('guild', 'server').title()
+            name = name.replace("_", " ").replace("guild", "server").title()
             if value:
                 allowed.append(name)
             else:
                 denied.append(name)
 
-        e.add_field(name='Allowed', value='\n'.join(allowed))
-        e.add_field(name='Denied', value='\n'.join(denied))
+        e.add_field(name="Allowed", value="\n".join(allowed))
+        e.add_field(name="Denied", value="\n".join(denied))
         await ctx.send(embed=e)
 
     async def do_removal(
@@ -90,7 +91,7 @@ class Admin:
             return f"```py\n{e.__class__.__name__}: {e}\n```"
         return f'```py\n{e.text}{"^":>{e.offset}}\n{e.__class__.__name__}: {e}```'
 
-    @commands.command()
+    @commands.command(hidden=True)
     async def amiadmin(self, ctx):
         """ Are you admin? """
         if ctx.author.id in self.config.owners:
@@ -102,18 +103,20 @@ class Admin:
         else:
             await ctx.send(f"No, heck off **{ctx.author.name}**.")
 
-    @commands.command(aliases=["re"])
+    @commands.command(aliases=["re"], hidden=True)
     @commands.check(repo.is_owner)
     async def reload(self, ctx, name: str):
         """ Reloads an extension. """
+        await ctx.message.add_reaction("a:loading:528744937794043934")
         try:
             self.bot.unload_extension(f"cogs.{name}")
             self.bot.load_extension(f"cogs.{name}")
         except FileNotFoundError as e:
             return await ctx.send(f"```\n{e}```")
-        await ctx.send(f"Reloaded extension **{name}.py**")
+        await ctx.message.remove_reaction("a:loading:528744937794043934", member=ctx.me)
+        await ctx.message.add_reaction(":done:513831607262511124")
 
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.check(repo.is_owner)
     async def reboot(self, ctx):
         """ Reboot the bot """
@@ -121,29 +124,33 @@ class Admin:
         time.sleep(1)
         await self.bot.logout()
 
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.check(repo.is_owner)
     async def load(self, ctx, name: str):
         """ Loads an extension. """
+        await ctx.message.add_reaction("a:loading:528744937794043934")
         try:
             self.bot.load_extension(f"cogs.{name}")
         except FileNotFoundError as e:
             await ctx.send(f"```diff\n- {e}```")
             return
-        await ctx.send(f"Loaded extension **{name}.py**")
+        await ctx.message.remove_reaction("a:loading:528744937794043934", member=ctx.me)
+        await ctx.message.add_reaction(":done:513831607262511124")
 
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.check(repo.is_owner)
     async def unload(self, ctx, name: str):
         """ Unloads an extension. """
+        await ctx.message.add_reaction("a:loading:528744937794043934")
         try:
             self.bot.unload_extension(f"cogs.{name}")
         except FileNotFoundError as e:
             await ctx.send(f"```diff\n- {e}```")
             return
-        await ctx.send(f"Unloaded extension **{name}.py**")
+        await ctx.message.remove_reaction("a:loading:528744937794043934", member=ctx.me)
+        await ctx.message.add_reaction(":done:513831607262511124")
 
-    @commands.group()
+    @commands.group(hidden=True)
     @commands.check(repo.is_owner)
     async def change(self, ctx):
         if ctx.invoked_subcommand is None:
@@ -152,7 +159,7 @@ class Admin:
             for page in _help:
                 await ctx.send(page)
 
-    @change.command(name="playing")
+    @change.command(name="playing", hidden=True)
     @commands.check(repo.is_owner)
     async def change_playing(self, ctx, *, playing: str):
         """ Change playing status. """
@@ -168,7 +175,7 @@ class Admin:
         except Exception as e:
             await ctx.send(e)
 
-    @change.command(name="username")
+    @change.command(name="username", hidden=True)
     @commands.check(repo.is_owner)
     async def change_username(self, ctx, *, name: str):
         """ Change username. """
@@ -178,7 +185,7 @@ class Admin:
         except discord.HTTPException as err:
             await ctx.send(err)
 
-    @change.command(name="nickname")
+    @change.command(name="nickname", hidden=True)
     @commands.check(repo.is_owner)
     async def change_nickname(self, ctx, *, name: str = None):
         """ Change nickname. """
@@ -191,7 +198,7 @@ class Admin:
         except Exception as err:
             await ctx.send(err)
 
-    @change.command(name="avatar")
+    @change.command(name="avatar", hidden=True)
     @commands.check(repo.is_owner)
     async def change_avatar(self, ctx, url: str = None):
         """ Change avatar. """
@@ -211,7 +218,7 @@ class Admin:
         except discord.HTTPException as err:
             await ctx.send(err)
 
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.check(repo.is_owner)
     async def steal(self, ctx, emojiname, url: str = None):
         """Steals emojis"""
@@ -235,7 +242,7 @@ class Admin:
         except discord.HTTPException as err:
             await ctx.send(err)
 
-    @commands.command(pass_context=True, name="compile")
+    @commands.command(pass_context=True, name="compile", hidden=True)
     @commands.check(repo.is_owner)
     async def _compile(self, ctx, *, body: str):
         """Evaluates a code"""
@@ -291,14 +298,14 @@ class Admin:
                     f"Inputted code:\n```py\n{body}\n```\n\nOutputted Code:\n```py\n{value}{ret}\n```\n*Evalled in {dt:.2f}ms*"
                 )
 
-    @commands.group(aliases=["as"])
+    @commands.group(aliases=["as"], hidden=True)
     @commands.check(repo.is_owner)
     async def sudo(self, ctx):
         """ Run a cmd under an altered context """
         if ctx.invoked_subcommand is None:
             await ctx.send("...")
 
-    @sudo.command(aliases=["user"])
+    @sudo.command(aliases=["user"], hidden=True)
     @commands.check(repo.is_owner)
     async def sudo_user(
         self, ctx, who: Union[discord.Member, discord.User], *, command: str
@@ -309,8 +316,9 @@ class Admin:
         msg.content = ctx.prefix + command
         new_ctx = await self.bot.get_context(msg)
         await self.bot.invoke(new_ctx)
+        await ctx.message.add_reaction(":done:513831607262511124")
 
-    @sudo.command(aliases=["channel"])
+    @sudo.command(aliases=["channel"], hidden=True)
     @commands.check(repo.is_owner)
     async def sudo_channel(self, ctx, chid: int, *, command: str):
         """ Run a command in a different channel. """
@@ -319,15 +327,16 @@ class Admin:
         cmd.content = ctx.prefix + command
         new_ctx = await self.bot.get_context(cmd)
         await self.bot.invoke(new_ctx)
+        await ctx.message.add_reaction(":done:513831607262511124")
 
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.check(repo.is_owner)
     async def cogs(self, ctx):
         """ Gives all loaded cogs """
         mod = ", ".join(list(self.bot.cogs))
         await ctx.send(f"The current modules are:\n```\n{mod}\n```")
 
-    @commands.command(aliases=["gsi"])
+    @commands.command(aliases=["gsi"], hidden=True)
     @commands.check(repo.is_owner)
     async def getserverinfo(self, ctx, *, guild_id: int):
         """ Makes me get the information from a guild id """
@@ -353,19 +362,26 @@ class Admin:
         info.set_thumbnail(url=guild.icon_url)
         await ctx.send(embed=info)
 
-    @commands.command(aliases=["webhooktest"])
+    @commands.command(aliases=["webhooktest"], hidden=True)
     @commands.check(repo.is_owner)
     async def whtest(self, ctx, whlink: str, *, texttosend):
         """ Messages a webhook """
+        await ctx.message.add_reaction("a:loading:528744937794043934")
         try:
-            await ctx.message.delete()
             hook = Webhook(whlink, is_async=True)
             await hook.send(texttosend)
             await hook.close()
+            await ctx.message.remove_reaction(
+                "a:loading:528744937794043934", member=ctx.me
+            )
+            await ctx.message.add_reaction(":done:513831607262511124")
         except ValueError:
-            return await ctx.send("I couldn't send the message..")
+            await ctx.message.remove_reaction(
+                "a:loading:528744937794043934", member=ctx.me
+            )
+            await ctx.message.add_reaction(":notdone:528747883571445801")
 
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.check(repo.is_owner)
     async def sql(self, ctx, *, query: str):
         """Run some SQL."""
@@ -402,7 +418,7 @@ class Admin:
         else:
             await ctx.send(fmt)
 
-    @commands.group(aliases=["ul"])
+    @commands.group(aliases=["ul"], hidden=True)
     @commands.check(repo.is_owner)
     async def uplink(self, ctx):
         """ Relay messages between current and target channel """
@@ -412,7 +428,7 @@ class Admin:
             for page in _help:
                 await ctx.send(page)
 
-    @uplink.command(name="-o")
+    @uplink.command(name="-o", hidden=True)
     @commands.check(repo.is_owner)
     async def uplink_open(self, ctx, uplinkchannelid: int):
         """ Open the connection """
@@ -429,7 +445,7 @@ class Admin:
             )
             await ctx.send("Connected.")
 
-    @uplink.command(name="-c")
+    @uplink.command(name="-c", hidden=True)
     @commands.check(repo.is_owner)
     async def uplink_close(self, ctx):
         """ Close the connection """
@@ -444,12 +460,12 @@ class Admin:
             await msguplinkchan.send("The connection was closed.")
             await ctx.send("Disconnected")
 
-    @commands.group()
+    @commands.group(hidden=True)
     @commands.check(repo.is_owner)
     async def blacklist(self, ctx):
         await ctx.send("Arguments: `BADD` / `BREMOVE` / `BDISCARD` / `BSHOW`")
 
-    @blacklist.command()
+    @blacklist.command(hidden=True)
     @commands.check(repo.is_owner)
     async def badd(self, ctx, userid: int, *, reason: str):
         self.bot.blacklist.append(userid)
@@ -462,7 +478,7 @@ class Admin:
             await ctx.send(":warning: | **Unable to send DMs to specified user.**")
         await ctx.send(":ok_hand:")
 
-    @blacklist.command()
+    @blacklist.command(hidden=True)
     @commands.check(repo.is_owner)
     async def bremove(self, ctx, *, userid: int):
         self.bot.blacklist.remove(userid)
@@ -475,18 +491,18 @@ class Admin:
             await ctx.send(":warning: | **Unable to send DMs to specified user.**")
         await ctx.send(":ok_hand:")
 
-    @blacklist.command()
+    @blacklist.command(hidden=True)
     @commands.check(repo.is_owner)
     async def bdiscard(self, ctx):
         self.bot.blacklist = []
         await ctx.send(":ok_hand:")
 
-    @blacklist.command()
+    @blacklist.command(hidden=True)
     @commands.check(repo.is_owner)
     async def bshow(self, ctx):
         await ctx.send(f"``{self.bot.blacklist}``")
 
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.check(repo.is_owner)
     async def parsehtml(self, ctx, url: str):
         r = requests.get(f"{url}")
@@ -501,15 +517,19 @@ class Admin:
             )
         await ctx.send(msgtosend)
 
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.check(repo.is_owner)
-    async def cleanmyself(self, ctx, search=100):
+    async def cleanup(self, ctx, search=100):
+        await ctx.message.add_reaction("a:loading:528744937794043934")
+
         def predicate(m):
             return m.author == ctx.me
 
         await self.do_removal(ctx, search, predicate)
+        await ctx.message.remove_reaction("a:loading:528744937794043934", member=ctx.me)
+        await ctx.message.add_reaction(":done:513831607262511124")
 
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.check(repo.is_owner)
     async def shell(self, ctx: commands.Context, *, command: str) -> None:
         """ Run a shell command. """
@@ -526,10 +546,11 @@ class Admin:
         if stderr:
             await ctx.send(f"```\n{stderr}\n```")
 
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.check(repo.is_owner)
     async def gitpush(self, ctx: commands.Context, *, committext: str) -> None:
         """ Push changes to github. """
+        await ctx.message.add_reaction("a:loading:528744937794043934")
 
         def run_shell(command):
             with Popen(command, stdout=PIPE, stderr=PIPE, shell=True) as proc:
@@ -540,12 +561,14 @@ class Admin:
             None, run_shell, f'git commit -m "{committext}"'
         )
         await self.bot.loop.run_in_executor(None, run_shell, "git push origin master")
-        await ctx.send("Successfully pushed changes to master!")
+        await ctx.message.remove_reaction("a:loading:528744937794043934", member=ctx.me)
+        await ctx.message.add_reaction(":done:513831607262511124")
 
     @commands.command(hidden=True, aliases=["pull"])
     @commands.check(repo.is_owner)
     async def update(self, ctx, silently: bool = False):
         """ Gets latest commits and applies them from git """
+        await ctx.message.add_reaction("a:loading:528744937794043934")
 
         def run_shell(command):
             with Popen(command, stdout=PIPE, stderr=PIPE, shell=True) as proc:
@@ -555,15 +578,21 @@ class Admin:
             pull = await self.bot.loop.run_in_executor(
                 None, run_shell, "git pull origin master -q"
             )
+            await ctx.message.remove_reaction(
+                "a:loading:528744937794043934", member=ctx.me
+            )
+            await ctx.message.add_reaction(":done:513831607262511124")
         else:
             pull = await self.bot.loop.run_in_executor(
                 None, run_shell, "git pull origin master"
             )
-            msg = await ctx.send(f"```css\n{pull}\n```")
-            await asyncio.sleep(6)
-            await msg.edit(content="Pull Complete")
+            msg = await ctx.send(f"```css\n{pull}\n```", delete_after=6)
+            await ctx.message.remove_reaction(
+                "a:loading:528744937794043934", member=ctx.me
+            )
+            await ctx.message.add_reaction(":done:513831607262511124")
 
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.guild_only()
     @commands.check(repo.is_owner)
     async def botpermissions(self, ctx, *, channel: discord.TextChannel = None):
@@ -571,6 +600,14 @@ class Admin:
         channel = channel or ctx.channel
         member = ctx.guild.me
         await self.say_permissions(ctx, member, channel)
+
+    @commands.command(pass_context=True, hidden=True)
+    async def speedup(self, ctx):
+        await ctx.message.add_reaction("a:loading:528744937794043934")
+        gc.collect()
+        del gc.garbage[:]
+        await ctx.message.remove_reaction("a:loading:528744937794043934", member=ctx.me)
+        await ctx.message.add_reaction(":done:513831607262511124")
 
 
 def setup(bot):
