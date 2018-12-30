@@ -111,7 +111,16 @@ class Admin:
         try:
             self.bot.unload_extension(f"cogs.{name}")
             self.bot.load_extension(f"cogs.{name}")
-        except ModuleNotFoundError:
+        except ModuleNotFoundError as e:
+            logchannel = self.bot.get_channel(508_420_200_815_656_966)
+            await logchannel.send(f"`[WARN]` `Command Error`\n```py\n{e}\n```")
+            await ctx.message.remove_reaction(
+                "a:loading:528744937794043934", member=ctx.me
+            )
+            return await ctx.message.add_reaction(":notdone:528747883571445801")
+        except SyntaxError as e:
+            logchannel = self.bot.get_channel(508_420_200_815_656_966)
+            await logchannel.send(f"`[WARN]` `Command Error`\n```py\n{e}\n```")
             await ctx.message.remove_reaction(
                 "a:loading:528744937794043934", member=ctx.me
             )
@@ -134,7 +143,16 @@ class Admin:
         await ctx.message.add_reaction("a:loading:528744937794043934")
         try:
             self.bot.load_extension(f"cogs.{name}")
-        except ModuleNotFoundError:
+        except ModuleNotFoundError as e:
+            logchannel = self.bot.get_channel(508_420_200_815_656_966)
+            await logchannel.send(f"`[WARN]` `Command Error`\n```py\n{e}\n```")
+            await ctx.message.remove_reaction(
+                "a:loading:528744937794043934", member=ctx.me
+            )
+            return await ctx.message.add_reaction(":notdone:528747883571445801")
+        except SyntaxError as e:
+            logchannel = self.bot.get_channel(508_420_200_815_656_966)
+            await logchannel.send(f"`[WARN]` `Command Error`\n```py\n{e}\n```")
             await ctx.message.remove_reaction(
                 "a:loading:528744937794043934", member=ctx.me
             )
@@ -149,7 +167,16 @@ class Admin:
         await ctx.message.add_reaction("a:loading:528744937794043934")
         try:
             self.bot.unload_extension(f"cogs.{name}")
-        except ModuleNotFoundError:
+        except ModuleNotFoundError as e:
+            logchannel = self.bot.get_channel(508_420_200_815_656_966)
+            await logchannel.send(f"`[WARN]` `Command Error`\n```py\n{e}\n```")
+            await ctx.message.remove_reaction(
+                "a:loading:528744937794043934", member=ctx.me
+            )
+            return await ctx.message.add_reaction(":notdone:528747883571445801")
+        except SyntaxError as e:
+            logchannel = self.bot.get_channel(508_420_200_815_656_966)
+            await logchannel.send(f"`[WARN]` `Command Error`\n```py\n{e}\n```")
             await ctx.message.remove_reaction(
                 "a:loading:528744937794043934", member=ctx.me
             )
