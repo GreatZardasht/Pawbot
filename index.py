@@ -36,6 +36,9 @@ async def run():
     await db.execute(
         "CREATE TABLE IF NOT EXISTS idstore(serverid bigint, joinmsg varchar, leavemsg varchar, joinchan bigint, leavechan bigint, modlogchan bigint, ignorerolerole bigint, autorolerole bigint, actionlogchan bigint);"
     )
+    await db.execute(
+        "CREATE TABLE IF NOT EXISTS tags(serverid bigint, tagname varchar, tagtext varchar);"
+    )
 
     bot = Bot(command_prefix=config.prefix, pm_help=True, help_attrs=help_attrs, db=db)
     bot.remove_command("help")
