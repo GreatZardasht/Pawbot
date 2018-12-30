@@ -117,16 +117,15 @@ class NSFW:
         msgtoedit = await ctx.send("Searching...")
         args = " ".join(args)
         args = str(args)
-        netloc = "e621"
         print("------")
         print("Got command with args: args")
         if "order:score_asc" in args:
             await ctx.send("I'm not going to fall into that one, silly~")
             return
         if "score:" in args:
-            apilink = "https://e621.net/post/index.json?tags=args&limit=320"
+            apilink = f"https://e621.net/post/index.json?tags={args}&limit=320"
         else:
-            apilink = "https://e621.net/post/index.json?tags=args score:>25&limit=320"
+            apilink = f"https://e621.net/post/index.json?tags={args}&score:>25&limit=320"
         try:
             await processapi(apilink)
         except ResultNotFound:
@@ -138,7 +137,7 @@ class NSFW:
             )
             return
         msgtoedit = await ctx.channel.get_message(msgtoedit.id)
-        msgtosend = f"Post link: `https://{netloc}.net/post/show/{processapi.imgid}/`\r\nArtist: `{processapi.imgartist}`\r\nSource: `{processapi.imgsource}`\r\nRating: {processapi.imgrating}\r\nTags: `{processapi.imgtags}` ...and more\r\nImage link: {processapi.file_link}"
+        msgtosend = f"Post link: `https://e621.net/post/show/{processapi.imgid}/`\r\nArtist: `{processapi.imgartist}`\r\nSource: `{processapi.imgsource}`\r\nRating: `{processapi.imgrating}`\r\nTags: `{processapi.imgtags}` ...and more\r\nImage link: {processapi.file_link}"
         await msgtoedit.edit(content=msgtosend)
 
     @commands.command()
@@ -166,7 +165,7 @@ class NSFW:
             )
             return
         msgtoedit = await ctx.channel.get_message(msgtoedit.id)
-        msgtosend = "Artist: {processshowapi.imgartist}\r\nSource: `{processshowapi.imgsource}`\r\nRating: {processshowapi.imgrating}\r\nTags: `{processshowapi.imgtags}` ...and more\r\nImage link: {processshowapi.file_link}"
+        msgtosend = f"Artist: `{processshowapi.imgartist}`\r\nSource: `{processshowapi.imgsource}`\r\nRating: `{processshowapi.imgrating}`\r\nTags: `{processshowapi.imgtags}` ...and more\r\nImage link: {processshowapi.file_link}"
         await msgtoedit.edit(content=msgtosend)
 
     @commands.command()
@@ -197,7 +196,7 @@ class NSFW:
             )
             return
         msgtoedit = await ctx.channel.get_message(msgtoedit.id)
-        msgtosend = "Title: {}\r\nArtist: {}\r\nTags: `{}`\r\nRating: {}\r\nImage link: {}".format(
+        msgtosend = "Title: `{}`\r\nArtist: `{}`\r\nTags: `{}`\r\nRating: `{}`\r\nImage link: {}".format(
             search.title,
             search.artistName,
             search.tags,
