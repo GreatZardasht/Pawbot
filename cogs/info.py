@@ -8,12 +8,14 @@ import requests
 import dhooks
 import json
 import unicodedata
+import inspect
+import random
 
 from collections import Counter
 from dhooks import Webhook
 from discord.ext import commands
 from datetime import datetime
-from utils import repo, default, permissions
+from utils import repo, default, permissions, pawgenator
 
 
 class Information:
@@ -57,150 +59,107 @@ class Information:
 
         return fmt.format(d=days, h=hours, m=minutes, s=seconds)
 
-    @commands.command(aliases=["?"])
-    @commands.guild_only()
-    async def help(self, ctx, option: str = None, *, command_or_module: str = None):
-        """ Gives my commands! """
-        bot = self.bot
-        server = self.bot.get_emoji(525_475_458_175_729_697)
-        bottag = "\U0001f916"
-        public_modules = ["adminpanel", "info", "encryption", "mod", "nsfw", "misc"]
-        paws = "\U0001f43e"
-        user = ctx.author
-        avy = user.avatar_url
+    async def category_gen(self, ctx):
+        categories = {}
 
-        if not option:
-            mods = "• " + "\n• ".join(public_modules)
-            embed = discord.Embed(
-                title=f"{paws} Hai {ctx.author.name}, am Pawbot!! {paws}",
-                description=f"`The cutest Discord Bot Around~`\nUse `{ctx.prefix}help m <module>` to get help on a set of commands or `{ctx.prefix}help c <cmd>` to get help on a specific command.\n\nAll of my modules are listed below:\n\n{mods}",
-                color=249_742,
-            )
-            embed.set_thumbnail(url=self.bot.user.avatar_url_as(format="png"))
-            embed.add_field(
-                name="Important Links",
-                value=f"{bottag} [Bot Invite](https://discordapp.com/oauth2/authorize?client_id=460383314973556756&scope=bot&permissions=469888118)\n{server} [Support Guild Invite](https://discord.gg/s4bSSCG)",
-                inline=True,
-            )
-            embed.set_footer(text=f"Requested by {ctx.author}", icon_url=avy)
+        for command in set(ctx.bot.walk_commands()):
             try:
-                await ctx.send(embed=embed)
-            except discord.Forbidden:
-                try:
-                    ctx.author.send(embed=embed)
-                except discord.Forbidden:
-                    await ctx.send(";w; I can't send embeds or DM you..")
+                if command.category not in categories:
+                    categories.update({command.category: []})
+            except AttributeError:
+                cog = command.cog_name or "Bot"
+                if command.cog_name not in categories:
+                    categories.update({cog: []})
 
-        if (
-            option == "c"
-            or option == "command"
-            or option == "Command"
-            or option == "cmd"
-        ):
-            if not command_or_module:
-                return await ctx.send(
-                    "You gotta specify a command to get help for y'know. :P"
-                )
-            try:
-                cmd = bot.get_command(command_or_module)
-                if cmd.cog_name == "Admin" and ctx.author.id not in repo.owners:
-                    return await ctx.send(
-                        "Woah there, this command is for my owners only."
-                    )
+        for command in set(ctx.bot.walk_commands()):
+            if not command.hidden:
                 try:
-                    one = (
-                        "\n```fix\nSubcommands\n"
-                        + "\n".join(
-                            [
-                                f"│├{x.name} - {x.help}"
-                                for x in bot.all_commands[command_or_module].commands
-                            ]
-                        )
-                        + "```"
-                    )
+                    if command.category:
+                        categories[command.category].append(command)
                 except AttributeError:
-                    one = ""
+                    cog = command.cog_name or "Bot"
+                    categories[cog].append(command)
 
-                uwu = " ".join(cmd.clean_params)
-                uwu = uwu
+        return categories
 
-                one = one
-                if cmd.root_parent:
-                    cmd_name = str(cmd.root_parent) + " " + str(cmd.name)
-                else:
-                    cmd_name = cmd.name
-                if not cmd.aliases == []:
-                    aliases = f"Aliases: ``" + ", ".join(cmd.aliases) + "``"
-                else:
-                    aliases = ""
+    async def commandMapper(self, ctx):
+        pages = []
 
-                info = discord.Embed(color=ctx.me.colour)
-                info.title = f"{paws} Help for {cmd} {paws}"
-                info.description = f"Usage: `{ctx.prefix}{cmd_name} {uwu}`\nCommand Description: `{cmd.help}`\n{aliases}{one}".replace(
-                    bot.user.mention, f"@{bot.user.name}"
+        for category, commands in (await self.category_gen(ctx)).items():
+            if not commands:
+                continue
+            cog = ctx.bot.get_cog(category)
+            if cog:
+                category = f"**<:cog:472833323937300480> {category}**"
+            commands = ", ".join([c.qualified_name for c in commands])
+            embed = (
+                discord.Embed(
+                    color=random.randint(0x000000, 0xFFFFFF),
+                    title=f"{ctx.bot.user.display_name} Commands",
+                    description=f"{category}",
                 )
-                info.set_thumbnail(url=self.bot.user.avatar_url_as(format="png"))
-                info.set_footer(text=f"Requested by {ctx.author}", icon_url=avy)
-                await ctx.send(embed=info)
-            except ValueError:
-                await ctx.send(
-                    "uhhhh ``{}`` is not a valid command.".format(command_or_module)
+                .set_footer(
+                    text=f"Type {ctx.prefix}help <command> for more help".replace(
+                        ctx.me.mention, "@Pawbot "
+                    ),
+                    icon_url=ctx.author.avatar_url,
                 )
-        elif option == "m" or option == "module" or option == "Module":
-            if command_or_module.lower() == "misc":
-                cogname = "Misc"
-                embedcommandname = "Misc"
-                extra = ""
-            elif command_or_module.lower() == "info":
-                cogname = "Information"
-                embedcommandname = "Info"
-                extra = ""
-            elif command_or_module.lower() == "mod":
-                cogname = "Moderation"
-                embedcommandname = "Mod"
-                extra = "**These Commands Require Perms**\n\n"
-            elif command_or_module.lower() == "encryption":
-                cogname = "Encryption"
-                embedcommandname = "Encryption"
-                extra = ""
-            elif command_or_module.lower() == "nsfw":
-                cogname = "NSFW"
-                embedcommandname = "NSFW"
-                extra = "**These can only be used in an NSFW channel**\n\n"
-            elif command_or_module.lower() == "adminpanel":
-                cogname = "AdminPanel"
-                embedcommandname = "Admin Panel"
-                extra = "**Server admins only**\n\n"
-            else:
-                return await ctx.send(
-                    "Uhhh, i couldn't find a module called `{}`".format(
-                        command_or_module
-                    )
-                )
-
-            cogname = "\n".join(
-                [f"`{cmd.name}` - {cmd.help}" for cmd in bot.get_cog_commands(cogname)]
+                .add_field(name="**Commands:**", value=f"``{commands}``")
             )
-            embed = discord.Embed(
-                title=f"{paws} {embedcommandname} {paws}",
-                description=extra + cogname,
-                color=ctx.me.colour,
-            )
-            embed.set_thumbnail(url=self.bot.user.avatar_url_as(format="png"))
-            embed.set_footer(text=f"Requested by {ctx.author}", icon_url=avy)
-            try:
-                await ctx.send(embed=embed)
-            except discord.Forbidden:
-                try:
-                    await ctx.author.send(embed=embed)
-                except discord.Forbidden:
-                    await ctx.send("I can't send embeds or dm you ;-;")
-        elif not option:
-            pass
-        else:
+            pages.append(embed)
+        await pawgenator.pagenator(
+            extras=sorted(pages, key=lambda d: d.description)
+        ).paginate(ctx)
+
+    async def cogMapper(self, ctx, entity, cogname: str):
+        try:
             await ctx.send(
-                f"The valid options are\nCommand: `paw help c`\nModule: `paw help m`"
+                embed=discord.Embed(
+                    color=random.randint(0x000000, 0xFFFFFF),
+                    title=f"{ctx.bot.user.display_name} Commands",
+                    description=f"**<:cog:472833323937300480> {cogname}**",
+                )
+                .add_field(
+                    name="**Commands:**",
+                    value=f"``{', '.join([c.qualified_name for c in set(ctx.bot.walk_commands()) if c.cog_name == cogname])}``",
+                )
+                .set_footer(
+                    text=f"Type {ctx.prefix}help <command> for more help".replace(
+                        ctx.me.mention, "@Pawbot "
+                    ),
+                    icon_url=ctx.author.avatar_url,
+                )
             )
+        except BaseException:
+            await ctx.send(
+                f":x: | **Command or category not found. Use {ctx.prefix}help**",
+                delete_after=10,
+            )
+
+    @commands.command(aliases=["?"])
+    async def help(self, ctx, *, command: str = None):
+        """View Bot Help Menu"""
+        if not command:
+            await self.commandMapper(ctx)
+        else:
+            entity = self.bot.get_cog(command) or self.bot.get_command(command)
+            if entity is None:
+                return await ctx.send(
+                    f":x: | **Command or category not found. Use {ctx.prefix}help**",
+                    delete_after=10,
+                )
+            elif isinstance(entity, commands.Command):
+                await pawgenator.pagenator(
+                    title=f"Command: {entity.name}",
+                    entries=[
+                        f"**:bulb: Command Help**\n```ini\n[{entity.help}]```",
+                        f"**:video_game: Command Signature**\n```ini\n{entity.signature}```",
+                    ],
+                    length=1,
+                    colour=random.randint(0x000000, 0xFFFFFF),
+                ).paginate(ctx)
+            else:
+                await self.cogMapper(ctx, entity, command)
 
     @commands.command()
     async def ping(self, ctx):
@@ -582,9 +541,11 @@ class Information:
                 {"cmd": "python3 main.cpp", "src": self.cleanup_code(code)}
             ),
         )
-        emoji = self.bot.get_emoji(508388437661843483)
+        emoji = self.bot.get_emoji(508_388_437_661_843_483)
         await ctx.message.add_reaction(emoji)
-        await ctx.send(f"```py\n{r.text}\n```\n(This is **not** an open eval, everything is sandboxed)")
+        await ctx.send(
+            f"```py\n{r.text}\n```\n(This is **not** an open eval, everything is sandboxed)"
+        )
 
     @commands.command()
     @commands.guild_only()
@@ -593,15 +554,30 @@ class Information:
         """ Shows you information about a number of characters. """
 
         def to_string(c):
-            digit = f'{ord(c):x}'
-            name = unicodedata.name(c, 'Name not found.')
-            return f'`\\U{digit:>08}`: {name} - {c} \N{EM DASH} <http://www.fileformat.info/info/unicode/char/{digit}>'
-        msg = '\n'.join(map(to_string, characters))
+            digit = f"{ord(c):x}"
+            name = unicodedata.name(c, "Name not found.")
+            return f"`\\U{digit:>08}`: {name} - {c} \N{EM DASH} <http://www.fileformat.info/info/unicode/char/{digit}>"
+
+        msg = "\n".join(map(to_string, characters))
         if len(msg) > 2000:
-            return await ctx.send('Output too long to display.')
+            return await ctx.send("Output too long to display.")
         await ctx.send(msg)
 
-
+    @commands.command()
+    @commands.guild_only()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
+    async def osu(self, ctx, osuplayer, hex: str = 170_041):
+        embed = discord.Embed(color=random.randint(0x000000, 0xFFFFFF))
+        embed.set_image(
+            url="http://lemmmy.pw/osusig/sig.php?colour=hex{0}&uname={1}&pp=1&countryrank&removeavmargin&flagshadow&flagstroke&darktriangles&onlineindicator=undefined&xpbar&xpbarhex".format(
+                hex, osuplayer
+            )
+        )
+        embed.set_footer(
+            text="Powered by lemmmy.pw",
+            icon_url="https://raw.githubusercontent.com/F4stZ4p/resources-for-discord-bot/master/osusmall.ico",
+        )
+        await ctx.send(embed=embed)
 
 
 def setup(bot):
