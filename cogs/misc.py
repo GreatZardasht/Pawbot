@@ -161,6 +161,7 @@ class Misc:
         )
 
     @commands.command(aliases=["flip", "coin"])
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def coinflip(self, ctx):
         """ Coinflip! """
         coinsides = ["Heads", "Tails"]
@@ -169,12 +170,14 @@ class Misc:
         )
 
     @commands.command()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def reverse(self, ctx, *, text: str):
         """ !poow ,ffuts esreveR """
         t_rev = text[::-1].replace("@", "@\u200B").replace("&", "&\u200B")
         await ctx.send(f"🔁 {t_rev}")
 
     @commands.command()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def rate(self, ctx, *, thing: commands.clean_content):
         """ Rates what you desire """
         numbers = random.randint(0, 100)
@@ -186,6 +189,7 @@ class Misc:
         await ctx.send(f"I'd rate {thing} a **{numbers}.{decimals} / 100**")
 
     @commands.command(aliases=["howhot", "hot"])
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def hotcalc(self, ctx, user: discord.Member = None):
         """ Returns a random percent for how hot is a discord user """
         if user is None:
@@ -238,12 +242,14 @@ class Misc:
         await msgtoedit.edit(content=msgtosend)
 
     @commands.command()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def yell(self, ctx, *, text: str):
         """ AAAAAAAAA! """
         t_upper = text.upper().replace("@", "@\u200B").replace("&", "&\u200B")
         await ctx.send(f"⬆️ {t_upper}")
 
     @commands.command()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def whisper(self, ctx, *, text: str):
         """ Shh Be quiet.. """
         t_lower = text.lower().replace("@", "@\u200B").replace("&", "&\u200B")
@@ -256,12 +262,14 @@ class Misc:
         await self.factapi(ctx, "https://nekos.life/api/v2/fact", "fact")
 
     @commands.command()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def bamboozle(self, ctx):
         """ You just got bamboozled! """
         await ctx.send(f"**{ctx.author.name}** just got heckin' bamboozled!")
 
     @commands.command()
     @commands.guild_only()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def ship(self, ctx, user: discord.User, *, user2: discord.User = None):
         """Checks the shiprate for 2 users"""
         rowcheck = await self.getserverstuff(ctx)
@@ -338,6 +346,7 @@ class Misc:
 
     @commands.command(aliases=["👏"])
     @commands.guild_only()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def emojify(self, ctx, emote, *, text_to_clap: str):
         """ 👏bottom👏text👏 """
         clapped_text = (
@@ -350,6 +359,7 @@ class Misc:
 
     @commands.command()
     @commands.guild_only()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def owo(self, ctx):
         """Sends a random owo face"""
         owo = random.choice(lists.owos)
@@ -357,6 +367,7 @@ class Misc:
 
     @commands.command()
     @commands.guild_only()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def choose(self, ctx, *args):
         """Choose one of a lot (Split with |) """
         args = " ".join(args)
@@ -787,6 +798,8 @@ class Misc:
 
     @commands.command()
     @commands.guild_only()
+    @permissions.has_permissions(manage_messages=True)
+    @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def addtag(self, ctx, tagname: str, *, tagtext: str):
         query = "SELECT * FROM tags WHERE serverid=$1 AND tagname=$2;"
         query = await self.bot.db.fetchrow(query, ctx.guild.id, tagname)
@@ -798,6 +811,8 @@ class Misc:
 
     @commands.command()
     @commands.guild_only()
+    @permissions.has_permissions(manage_messages=True)
+    @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def deltag(self, ctx, tagname: str):
         query = "SELECT * FROM tags WHERE serverid=$1 AND tagname=$2;"
         query = await self.bot.db.fetchrow(query, ctx.guild.id, tagname)
