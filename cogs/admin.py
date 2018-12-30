@@ -111,8 +111,11 @@ class Admin:
         try:
             self.bot.unload_extension(f"cogs.{name}")
             self.bot.load_extension(f"cogs.{name}")
-        except FileNotFoundError as e:
-            return await ctx.send(f"```\n{e}```")
+        except ModuleNotFoundError:
+            await ctx.message.remove_reaction(
+                "a:loading:528744937794043934", member=ctx.me
+            )
+            return await ctx.message.add_reaction(":notdone:528747883571445801")
         await ctx.message.remove_reaction("a:loading:528744937794043934", member=ctx.me)
         await ctx.message.add_reaction(":done:513831607262511124")
 
@@ -131,9 +134,11 @@ class Admin:
         await ctx.message.add_reaction("a:loading:528744937794043934")
         try:
             self.bot.load_extension(f"cogs.{name}")
-        except FileNotFoundError as e:
-            await ctx.send(f"```diff\n- {e}```")
-            return
+        except ModuleNotFoundError:
+            await ctx.message.remove_reaction(
+                "a:loading:528744937794043934", member=ctx.me
+            )
+            return await ctx.message.add_reaction(":notdone:528747883571445801")
         await ctx.message.remove_reaction("a:loading:528744937794043934", member=ctx.me)
         await ctx.message.add_reaction(":done:513831607262511124")
 
@@ -144,9 +149,11 @@ class Admin:
         await ctx.message.add_reaction("a:loading:528744937794043934")
         try:
             self.bot.unload_extension(f"cogs.{name}")
-        except FileNotFoundError as e:
-            await ctx.send(f"```diff\n- {e}```")
-            return
+        except ModuleNotFoundError:
+            await ctx.message.remove_reaction(
+                "a:loading:528744937794043934", member=ctx.me
+            )
+            return await ctx.message.add_reaction(":notdone:528747883571445801")
         await ctx.message.remove_reaction("a:loading:528744937794043934", member=ctx.me)
         await ctx.message.add_reaction(":done:513831607262511124")
 
@@ -590,6 +597,12 @@ class Admin:
             await ctx.message.remove_reaction(
                 "a:loading:528744937794043934", member=ctx.me
             )
+            for cog in self.bot.cogs:
+                try:
+                    self.bot.unload_extension(cog)
+                    self.bot.load_extension(cog)
+                except ModuleNotFoundError:
+                    pass
             await ctx.message.add_reaction(":done:513831607262511124")
 
     @commands.command(hidden=True)
@@ -601,7 +614,9 @@ class Admin:
         member = ctx.guild.me
         await self.say_permissions(ctx, member, channel)
 
-    @commands.command(pass_context=True, hidden=True)
+    @commands.command(hidden=True)
+    @commands.guild_only()
+    @commands.check(repo.is_owner)
     async def speedup(self, ctx):
         await ctx.message.add_reaction("a:loading:528744937794043934")
         gc.collect()
