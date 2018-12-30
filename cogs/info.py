@@ -567,11 +567,11 @@ class Information:
     @commands.command()
     @commands.guild_only()
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
-    async def osu(self, ctx, osuplayer, hex: str = 170_041):
+    async def osu(self, ctx, osuplayer, usrhex: str = 170_041):
         embed = discord.Embed(color=random.randint(0x000000, 0xFFFFFF))
         embed.set_image(
             url="http://lemmmy.pw/osusig/sig.php?colour=hex{0}&uname={1}&pp=1&countryrank&removeavmargin&flagshadow&flagstroke&darktriangles&onlineindicator=undefined&xpbar&xpbarhex".format(
-                hex, osuplayer
+                usrhex, osuplayer
             )
         )
         embed.set_footer(
