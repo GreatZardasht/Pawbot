@@ -148,7 +148,7 @@ class Information:
                     f":x: | **Command or category not found. Use {ctx.prefix}help**",
                     delete_after=10,
                 )
-            elif isinstance(entity, commands.Command):
+            if isinstance(entity, commands.Command):
                 await pawgenator.pagenator(
                     title=f"Command: {entity.name}",
                     entries=[
