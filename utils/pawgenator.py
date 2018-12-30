@@ -128,10 +128,7 @@ class pagenator:
         except discord.HTTPException:
             pass
 
-        try:
-            self.controller.cancel()
-        except Exception:
-            pass
+        self.controller.cancel()
 
     def formmater(self, chunk):
         return "\n".join(
