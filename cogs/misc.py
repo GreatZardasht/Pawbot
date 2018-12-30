@@ -234,7 +234,7 @@ class Misc:
             )
             return
         msgtoedit = await ctx.channel.get_message(msgtoedit.id)
-        msgtosend = "Post link: `https://{netloc}.net/post/show/{eapi.processapi.imgid}/`\r\nArtist: `{eapi.processapi.imgartist}`\r\nSource: `{eapi.processapi.imgsource}`\r\nRating: {eapi.processapi.imgrating}\r\nTags: `{eapi.processapi.imgtags}` ...and more\r\nImage link: {eapi.processapi.file_link}"
+        msgtosend = f"Post link: `https://e926.net/post/show/{eapi.processapi.imgid}/`\r\nArtist: `{eapi.processapi.imgartist}`\r\nSource: `{eapi.processapi.imgsource}`\r\nRating: `{eapi.processapi.imgrating}`\r\nTags: `{eapi.processapi.imgtags}` ...and more\r\nImage link: {eapi.processapi.file_link}"
         await msgtoedit.edit(content=msgtosend)
 
     @commands.command()
@@ -757,11 +757,56 @@ class Misc:
     @commands.guild_only()
     @commands.cooldown(rate=2, per=5.0, type=commands.BucketType.user)
     async def spoiler(self, ctx, *, spoilertext: str):
+        await ctx.message.delete()
         file = BytesIO(spoilertext.encode("utf-8"))
         await ctx.send(
             content=f"**{ctx.author}** has made a spoiler!",
             file=discord.File(file, filename="spoiler.txt"),
         )
+
+    @commands.command()
+    @commands.guild_only()
+    async def tag(self, ctx, *, tagname: str):
+        query = "SELECT * FROM tags WHERE serverid=$1 AND tagname=$2;"
+        r = await self.bot.db.fetchrow(query, ctx.guild.id, tagname)
+        if not r:
+            return await ctx.send("No tag found...")
+        await ctx.send(r['tagtext'])
+
+    @commands.command()
+    @commands.guild_only()
+    async def tags(self, ctx):
+        query = "SELECT tagname FROM tags WHERE serverid=$1;"
+        query = await self.bot.db.fetch(query, ctx.guild.id)
+        msg = ""
+        for r in query:
+            msg += f"`{r['tagname']}` "
+        if not msg:
+            msg = "No tags found..."
+        await ctx.send(msg)
+
+    @commands.command()
+    @commands.guild_only()
+    async def addtag(self, ctx, tagname: str, *, tagtext: str):
+        query = "SELECT * FROM tags WHERE serverid=$1 AND tagname=$2;"
+        query = await self.bot.db.fetchrow(query, ctx.guild.id, tagname)
+        if query:
+            return await ctx.send("That tag already exists!")
+        query = "INSERT INTO tags VALUES ($1, $2, $3);"
+        await self.bot.db.execute(query, ctx.guild.id, tagname, tagtext)
+        await ctx.send(f"Created the tag `{tagname}`!")
+
+    @commands.command()
+    @commands.guild_only()
+    async def deltag(self, ctx, tagname: str):
+        query = "SELECT * FROM tags WHERE serverid=$1 AND tagname=$2;"
+        query = await self.bot.db.fetchrow(query, ctx.guild.id, tagname)
+        if not query:
+            return await ctx.send("No tag found...")
+        query = "DELETE FROM tags WHERE serverid=$1 AND tagname=$2;"
+        query = await self.bot.db.execute(query, ctx.guild.id, tagname)
+        await ctx.send(f"Successfully deleted {tagname}")
+
 
 
 def setup(bot):
