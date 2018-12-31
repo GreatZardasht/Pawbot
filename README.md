@@ -6,9 +6,9 @@
 [<img src="https://img.shields.io/badge/discord.py-rewrite-blue.svg?style=flat-square">](https://github.com/Rapptz/discord.py/tree/rewrite)
 [<img src="https://img.shields.io/badge/python-3.7.1-brightgreen.svg?style=flat-square">](https://www.python.org/downloads/release/python-360/)
 [<img src="https://img.shields.io/github/license/mashape/apistatus.svg?style=flat-square">](https://github.com/lyricalpaws/PyBot/blob/master/LICENSE)
-[<img src="https://img.shields.io/badge/Postgresql-11-brightgreen.svg?style=flat-square">](https://www.postgresql.org/)
 [![](https://img.shields.io/discord/508396955660189715.svg?style=flat-square&label=Support%20Guild&colorB=D896FF)](https://discordapp.com/invite/s4bSSCG)
 [![CodeFactor](https://www.codefactor.io/repository/github/pawbot-discord/pawbot/badge)](https://www.codefactor.io/repository/github/pawbot-discord/pawbot)
+[![Build Status](https://travis-ci.org/pawbot-discord/Pawbot.svg?branch=master)](https://travis-ci.org/pawbot-discord/Pawbot)
 [![Discord Bots](https://discordbots.org/api/widget/status/460383314973556756.svg)](https://discordbots.org/bot/460383314973556756)
 
 # PawBot
