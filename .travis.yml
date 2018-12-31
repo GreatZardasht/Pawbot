@@ -8,4 +8,4 @@ script:
   - python -m compileall ./data.py
   - python -m compileall ./cogs
   - python -m compileall ./util
-  - python ./index.py
+  - python -m compile ./index.py
