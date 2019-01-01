@@ -3,7 +3,7 @@
     {
       "name": "index",
       "script": "index.py",
-      "interpreter": "python",
+      "interpreter": "python3.7",
       "interpreter_args": "-u"
     }
   ]
