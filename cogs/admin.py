@@ -9,6 +9,7 @@ import requests
 import shlex
 import asyncio
 import gc
+import os
 
 from subprocess import Popen, PIPE
 from io import BytesIO
@@ -621,12 +622,11 @@ class Admin:
         await ctx.message.remove_reaction(
             "a:loading:528744937794043934", member=ctx.me
         )
-        for cog in self.bot.cogs:
-            try:
-                self.bot.unload_extension(f"cogs.{cog}")
-                self.bot.load_extension(f"cogs.{cog}")
-            except ModuleNotFoundError:
-                pass
+        for file in os.listdir("cogs"):
+            if file.endswith(".py"):
+                name = file[:-3]
+                self.bot.unload_extension(f"cogs.{name}")
+                self.bot.load_extension(f"cogs.{name}")
         await ctx.message.add_reaction(":done:513831607262511124")
 
     @commands.command(hidden=True)

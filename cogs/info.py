@@ -11,6 +11,7 @@ import unicodedata
 import inspect
 import random
 
+from urllib.parse import quote
 from collections import Counter
 from dhooks import Webhook
 from discord.ext import commands
@@ -525,12 +526,12 @@ class Information:
             )
         await ctx.send(f"{nitromote}")
 
-    # @commands.command()
-    # @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
-    # async def calc(self, ctx, *, calculation: str):
-    #     """ Performs a calculation """
-    #     r = requests.get(f"https://www.calcatraz.com/calculator/api?c={calculation}")
-    #     await ctx.send(r.text)
+    @commands.command()
+    @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
+    async def calc(self, ctx, *, calculation: str):
+        """ Performs a calculation """
+        r = requests.get(f"https://www.calcatraz.com/calculator/api?c={quote(calculation)}")
+        await ctx.send(r.text)
 
     @commands.command(name="eval")
     @commands.cooldown(rate=1, per=10.0, type=commands.BucketType.user)
