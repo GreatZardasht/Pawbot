@@ -95,7 +95,7 @@ class Events:
             storerow = await self.bot.db.fetchrow(query, guild.id)
         return storerow
 
-    async def getstorestuffmessagess(self, message):
+    async def getstorestuffmessages(self, message):
         storequery = "SELECT * FROM idstore WHERE serverid = $1;"
         storerow = await self.bot.db.fetchrow(storequery, message.guild.id)
         if storerow is None:
@@ -107,7 +107,7 @@ class Events:
             storerow = await self.bot.db.fetchrow(query, member.guild.id)
         return storerow
 
-    async def getserverstuffmessagess(self, message):
+    async def getserverstuffmessages(self, message):
         query = "SELECT * FROM adminpanel WHERE serverid = $1;"
         row = await self.bot.db.fetchrow(query, message.guild.id)
         if row is None:
@@ -117,7 +117,7 @@ class Events:
             row = await self.bot.db.fetchrow(query, guild.id)
         return row
 
-    async def getstorestuffmessagess(self, message):
+    async def getstorestuffmessages(self, message):
         storequery = "SELECT * FROM idstore WHERE serverid = $1;"
         storerow = await self.bot.db.fetchrow(storequery, message.guild.id)
         if storerow is None:
