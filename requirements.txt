@@ -1,8 +1,8 @@
 beautifulsoup4
 asyncpg
-requests
+requests==2.20.1
 dhooks
-aiohttp
+aiohttp<3.5.0,>=3.3.0
 discord
 git+https://github.com/Rapptz/discord.py@rewrite
 psutil
