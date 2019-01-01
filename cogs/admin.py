@@ -614,29 +614,21 @@ class Admin:
             with Popen(command, stdout=PIPE, stderr=PIPE, shell=True) as proc:
                 return [std.decode("utf-8") for std in proc.communicate()]
 
-        if silently:
-            pull = await self.bot.loop.run_in_executor(
-                None, run_shell, "git pull origin master -q"
-            )
-            await ctx.message.remove_reaction(
-                "a:loading:528744937794043934", member=ctx.me
-            )
-            await ctx.message.add_reaction(":done:513831607262511124")
-        else:
-            pull = await self.bot.loop.run_in_executor(
-                None, run_shell, "git pull origin master"
-            )
-            msg = await ctx.send(f"```css\n{pull}\n```", delete_after=6)
-            await ctx.message.remove_reaction(
-                "a:loading:528744937794043934", member=ctx.me
-            )
-            for cog in self.bot.cogs:
-                try:
-                    self.bot.unload_extension(cog)
-                    self.bot.load_extension(cog)
-                except ModuleNotFoundError:
-                    pass
-            await ctx.message.add_reaction(":done:513831607262511124")
+        pull = await self.bot.loop.run_in_executor(
+            None, run_shell, "git pull origin master"
+        )
+        msg = await ctx.send(f"```css\n{pull}\n```", delete_after=6)
+        await ctx.message.remove_reaction(
+            "a:loading:528744937794043934", member=ctx.me
+        )
+        await asyncio.sleep(3)
+        for cog in self.bot.cogs:
+            try:
+                self.bot.unload_extension(cog)
+                self.bot.load_extension(cog)
+            except ModuleNotFoundError:
+                pass
+        await ctx.message.add_reaction(":done:513831607262511124")
 
     @commands.command(hidden=True)
     @commands.guild_only()
