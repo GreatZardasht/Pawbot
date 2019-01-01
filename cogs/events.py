@@ -95,7 +95,7 @@ class Events:
             storerow = await self.bot.db.fetchrow(query, guild.id)
         return storerow
 
-    async def getstorestuffmessages(self, message):
+    async def getstorestuffmessagess(self, message):
         storequery = "SELECT * FROM idstore WHERE serverid = $1;"
         storerow = await self.bot.db.fetchrow(storequery, message.guild.id)
         if storerow is None:
@@ -107,7 +107,7 @@ class Events:
             storerow = await self.bot.db.fetchrow(query, member.guild.id)
         return storerow
 
-    async def getserverstuffmessages(self, message):
+    async def getserverstuffmessagess(self, message):
         query = "SELECT * FROM adminpanel WHERE serverid = $1;"
         row = await self.bot.db.fetchrow(query, message.guild.id)
         if row is None:
@@ -117,7 +117,7 @@ class Events:
             row = await self.bot.db.fetchrow(query, guild.id)
         return row
 
-    async def getstorestuffmessages(self, message):
+    async def getstorestuffmessagess(self, message):
         storequery = "SELECT * FROM idstore WHERE serverid = $1;"
         storerow = await self.bot.db.fetchrow(storequery, message.guild.id)
         if storerow is None:
@@ -284,9 +284,9 @@ class Events:
                 pass
 
     async def on_message_delete(self, message):
-        adminpanelcheck = await self.getserverstuffmessage(message)
-        serverstorecheck = await self.getstorestuffmessage(message)
-        automodcheck = await self.getautomodmessage(message)
+        adminpanelcheck = await self.getserverstuffmessages(message)
+        serverstorecheck = await self.getstorestuffmessages(message)
+        automodcheck = await self.getautomodmessages(message)
         try:
             self.bot.snipes[message.channel.id].appendleft(message)
         except KeyError:
@@ -321,9 +321,9 @@ class Events:
                 await logchan.send("", embed=embed)
 
     async def on_message_edit(self, before, after):
-        adminpanelcheck = await self.getserverstuffmessage(after)
-        serverstorecheck = await self.getstorestuffmessage(after)
-        automodcheck = await self.getautomodmessage(after)
+        adminpanelcheck = await self.getserverstuffmessages(after)
+        serverstorecheck = await self.getstorestuffmessages(after)
+        automodcheck = await self.getautomodmessages(after)
         if adminpanelcheck["automod"] is 1:
             if automodcheck["actionlog"] is 1:
                 if before.author.bot:
