@@ -90,7 +90,7 @@ class Information:
                 continue
             cog = ctx.bot.get_cog(category)
             if cog:
-                category = f"**<:cog:472833323937300480> {category}**"
+                category = f"**⚙️ {category}**"
             commands = ", ".join([c.qualified_name for c in commands])
             embed = (
                 discord.Embed(
@@ -117,7 +117,7 @@ class Information:
                 embed=discord.Embed(
                     color=random.randint(0x000000, 0xFFFFFF),
                     title=f"{ctx.bot.user.display_name} Commands",
-                    description=f"**<:cog:472833323937300480> {cogname}**",
+                    description=f"**⚙️ {cogname}**",
                 )
                 .add_field(
                     name="**Commands:**",
