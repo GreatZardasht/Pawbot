@@ -576,8 +576,14 @@ class Admin:
         argv = shlex.split(command)
         stdout, stderr = await self.bot.loop.run_in_executor(None, run_shell, argv)
         if stdout:
+            if len(stdout) >= 1500:
+                print(stdout)
+                return await ctx.send("Too big I'll print it instead")
             await ctx.send(f"```\n{stdout}\n```")
         if stderr:
+            if len(stderr) >= 1500:
+                print(stderr)
+                return await ctx.send("Too big I'll print it instead")
             await ctx.send(f"```\n{stderr}\n```")
 
     # @commands.command(hidden=True)
