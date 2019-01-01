@@ -3,6 +3,7 @@ import discord
 import json
 import requests
 
+from art import text2art
 from io import BytesIO
 from random import randint
 from discord.ext import commands
@@ -68,14 +69,6 @@ class Misc:
             return await ctx.send("I couldn't contact the api ;-;")
 
         await ctx.send(f"**Did you know?** 🤔\n\n{r[endpoint]}")
-
-    async def asciitext(self, ctx, url):
-        try:
-            with requests.get(url) as f:
-                html = f.text
-                await ctx.send(f"```\n{html}\n```")
-        except InvalidHTTPResponse as e:
-            print(e)
 
     @commands.command(aliases=["8ball"])
     @commands.guild_only()
@@ -436,8 +429,8 @@ class Misc:
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def asciify(self, ctx, *, text: str):
         """ Turns any text given into ascii """
-        texttoascii = text.replace(" ", "%20")
-        await self.asciitext(ctx, f"http://artii.herokuapp.com/make?text={texttoascii}")
+        Art=text2art(text)
+        await ctx.send(f"```\n{Art}\n```")
 
     @commands.command(aliases=["say"])
     @commands.guild_only()
