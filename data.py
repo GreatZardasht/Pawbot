@@ -91,7 +91,8 @@ class Bot(AutoShardedBot):
                                         break
                                     else:
                                         await message.channel.send(
-                                            f"{message.author.mention}, ads aren't allowed here!"
+                                            f"{message.author.mention}, ads aren't allowed here!",
+                                            delete_after=5
                                         )
                                     self.counter[
                                         f"{message.author.id}.{message.guild.id}.adblockpinged"
@@ -115,7 +116,8 @@ class Bot(AutoShardedBot):
                                     break
                                 else:
                                     await message.channel.send(
-                                        f"{message.author.mention}, ads aren't allowed here!"
+                                        f"{message.author.mention}, ads aren't allowed here!",
+                                        delete_after=5
                                     )
                                 self.counter[
                                     f"{message.author.id}.{message.guild.id}.adblockpinged"
