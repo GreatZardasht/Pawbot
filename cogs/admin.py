@@ -616,7 +616,7 @@ class Admin:
 
         if silently:
             pull = await self.bot.loop.run_in_executor(
-                None, run_shell, "sudo git pull origin master -q"
+                None, run_shell, "git pull origin master -q"
             )
             await ctx.message.remove_reaction(
                 "a:loading:528744937794043934", member=ctx.me
@@ -624,7 +624,7 @@ class Admin:
             await ctx.message.add_reaction(":done:513831607262511124")
         else:
             pull = await self.bot.loop.run_in_executor(
-                None, run_shell, "sudo git pull origin master"
+                None, run_shell, "git pull origin master"
             )
             msg = await ctx.send(f"```css\n{pull}\n```", delete_after=6)
             await ctx.message.remove_reaction(
