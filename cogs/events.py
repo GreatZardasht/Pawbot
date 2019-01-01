@@ -101,10 +101,10 @@ class Events:
         if storerow is None:
             query = "INSERT INTO idstore VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);"
             await self.bot.db.execute(
-                query, member.guild.id, "Default", "Default", 0, 0, 0, 0, 0, 0
+                query, message.guild.id, "Default", "Default", 0, 0, 0, 0, 0, 0
             )
             query = "SELECT * FROM idstore WHERE serverid = $1;"
-            storerow = await self.bot.db.fetchrow(query, member.guild.id)
+            storerow = await self.bot.db.fetchrow(query, message.guild.id)
         return storerow
 
     async def getserverstuffmessages(self, message):
@@ -112,9 +112,9 @@ class Events:
         row = await self.bot.db.fetchrow(query, message.guild.id)
         if row is None:
             query = "INSERT INTO adminpanel VALUES ($1, $2, $3, $4, $5, $6, $7);"
-            await self.bot.db.execute(query, guild.id, 0, 0, 1, 0, 0, 0)
+            await self.bot.db.execute(query, message.guild.id, 0, 0, 1, 0, 0, 0)
             query = "SELECT * FROM adminpanel WHERE serverid = $1;"
-            row = await self.bot.db.fetchrow(query, guild.id)
+            row = await self.bot.db.fetchrow(query, message.guild.id)
         return row
 
     async def getstorestuffmessages(self, message):
@@ -123,10 +123,10 @@ class Events:
         if storerow is None:
             query = "INSERT INTO idstore VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);"
             await self.bot.db.execute(
-                query, guild.id, "Default", "Default", 0, 0, 0, 0, 0, 0
+                query, message.guild.id, "Default", "Default", 0, 0, 0, 0, 0, 0
             )
             query = "SELECT * FROM idstore WHERE serverid = $1;"
-            storerow = await self.bot.db.fetchrow(query, guild.id)
+            storerow = await self.bot.db.fetchrow(query, message.guild.id)
         return storerow
 
     async def on_command_error(self, ctx, err):
