@@ -40,13 +40,6 @@ class Misc:
             row = await self.bot.db.fetchrow(query, ctx.guild.id)
         return row
 
-    @commands.command(aliases=["8ball"])
-    @commands.guild_only()
-    async def eightball(self, ctx, *, question: commands.clean_content):
-        """ Consult 8ball to receive an answer """
-        answer = random.choice(lists.ballresponse)
-        await ctx.send(f"🎱 **Question:** {question}\n**Answer:** {answer}")
-
     async def randomimageapi(self, ctx, url, endpoint):
         rowcheck = await self.getserverstuff(ctx)
         try:
