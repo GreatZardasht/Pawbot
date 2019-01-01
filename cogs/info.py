@@ -406,7 +406,7 @@ class Information:
     @commands.command()
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def suggest(self, ctx, *, suggestion_txt: str):
-        """ Send a suggestion to my owner or just tell him shes doing a bad job """
+        """ Send a suggestion to my owner or just tell her shes doing a bad job """
         webhook = Webhook(self.config.suggwebhook, is_async=True)
         suggestion = suggestion_txt
         if ctx.guild:
