@@ -621,11 +621,10 @@ class Admin:
         await ctx.message.remove_reaction(
             "a:loading:528744937794043934", member=ctx.me
         )
-        await asyncio.sleep(3)
         for cog in self.bot.cogs:
             try:
-                self.bot.unload_extension(cog)
-                self.bot.load_extension(cog)
+                self.bot.unload_extension(f"cogs.{cog}")
+                self.bot.load_extension(f"cogs.{cog}")
             except ModuleNotFoundError:
                 pass
         await ctx.message.add_reaction(":done:513831607262511124")
