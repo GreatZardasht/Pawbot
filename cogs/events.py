@@ -95,6 +95,40 @@ class Events:
             storerow = await self.bot.db.fetchrow(query, guild.id)
         return storerow
 
+    async def getstorestuffmessages(self, message):
+        storequery = "SELECT * FROM idstore WHERE serverid = $1;"
+        storerow = await self.bot.db.fetchrow(storequery, message.guild.id)
+        if storerow is None:
+            query = "INSERT INTO idstore VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);"
+            await self.bot.db.execute(
+                query, member.guild.id, "Default", "Default", 0, 0, 0, 0, 0, 0
+            )
+            query = "SELECT * FROM idstore WHERE serverid = $1;"
+            storerow = await self.bot.db.fetchrow(query, member.guild.id)
+        return storerow
+
+    async def getserverstuffmessages(self, message):
+        query = "SELECT * FROM adminpanel WHERE serverid = $1;"
+        row = await self.bot.db.fetchrow(query, message.guild.id)
+        if row is None:
+            query = "INSERT INTO adminpanel VALUES ($1, $2, $3, $4, $5, $6, $7);"
+            await self.bot.db.execute(query, guild.id, 0, 0, 1, 0, 0, 0)
+            query = "SELECT * FROM adminpanel WHERE serverid = $1;"
+            row = await self.bot.db.fetchrow(query, guild.id)
+        return row
+
+    async def getstorestuffmessages(self, message):
+        storequery = "SELECT * FROM idstore WHERE serverid = $1;"
+        storerow = await self.bot.db.fetchrow(storequery, message.guild.id)
+        if storerow is None:
+            query = "INSERT INTO idstore VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);"
+            await self.bot.db.execute(
+                query, guild.id, "Default", "Default", 0, 0, 0, 0, 0, 0
+            )
+            query = "SELECT * FROM idstore WHERE serverid = $1;"
+            storerow = await self.bot.db.fetchrow(query, guild.id)
+        return storerow
+
     async def on_command_error(self, ctx, err):
         if isinstance(err, (errors.BadArgument, errors.MissingRequiredArgument)):
             await send_cmd_help(ctx)
@@ -250,9 +284,9 @@ class Events:
                 pass
 
     async def on_message_delete(self, message):
-        adminpanelcheck = await self.getserverstuff(message.author)
-        serverstorecheck = await self.getstorestuff(message.author)
-        automodcheck = await self.getautomod(message.author)
+        adminpanelcheck = await self.getserverstuffmessage(message)
+        serverstorecheck = await self.getstorestuffmessage(message)
+        automodcheck = await self.getautomodmessage(message)
         try:
             self.bot.snipes[message.channel.id].appendleft(message)
         except KeyError:
@@ -287,9 +321,9 @@ class Events:
                 await logchan.send("", embed=embed)
 
     async def on_message_edit(self, before, after):
-        adminpanelcheck = await self.getserverstuff(before.author)
-        serverstorecheck = await self.getstorestuff(before.author)
-        automodcheck = await self.getautomod(before.author)
+        adminpanelcheck = await self.getserverstuffmessage(after)
+        serverstorecheck = await self.getstorestuffmessage(after)
+        automodcheck = await self.getautomodmessage(after)
         if adminpanelcheck["automod"] is 1:
             if automodcheck["actionlog"] is 1:
                 if before.author.bot:
