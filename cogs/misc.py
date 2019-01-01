@@ -77,6 +77,13 @@ class Misc:
         except InvalidHTTPResponse as e:
             print(e)
 
+    @commands.command(aliases=["8ball"])
+    @commands.guild_only()
+    async def eightball(self, ctx, *, question: commands.clean_content):
+        """ Consult 8ball to receive an answer """
+        answer = random.choice(lists.ballresponse)
+        await ctx.send(f"🎱 **Question:** {question}\n**Answer:** {answer}")
+            
     @commands.command()
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def cat(self, ctx):
