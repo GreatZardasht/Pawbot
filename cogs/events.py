@@ -7,7 +7,7 @@ import random
 
 from datetime import datetime
 from collections import deque
-from dhooks import Webhook
+from dhooks import Webhook, Embed
 from discord.ext.commands import errors
 from utils import default, lists
 
@@ -130,7 +130,7 @@ class Events:
         if not hasattr(self.bot, "uptime"):
             self.bot.uptime = datetime.utcnow()
         webhook = Webhook(self.config.readywebhook, is_async=True)
-        embed = dhooks.Embed(
+        embed = Embed(
             title=f"Reconnected, Online and Operational!",
             description="Ready Info",
             color=5_810_826,
@@ -158,7 +158,7 @@ class Events:
         findbots = sum(1 for member in guild.members if member.bot)
         findusers = sum(1 for member in guild.members if not member.bot)
         webhook = Webhook(self.config.guildjoinwebhook, is_async=True)
-        embed = dhooks.Embed(
+        embed = Embed(
             description=f"I've joined {guild.name}!", color=5_810_826, timestamp=True
         )
         embed.set_author(
@@ -182,7 +182,7 @@ class Events:
         findbots = sum(1 for member in guild.members if member.bot)
         findusers = sum(1 for member in guild.members if not member.bot)
         webhook = Webhook(self.config.guildleavewebhook, is_async=True)
-        embed = dhooks.Embed(
+        embed = Embed(
             description=f"I've left {guild.name}...", color=5_810_826, timestamp=True
         )
         embed.set_author(
