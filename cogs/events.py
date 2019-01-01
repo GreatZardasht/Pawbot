@@ -117,17 +117,15 @@ class Events:
             row = await self.bot.db.fetchrow(query, message.guild.id)
         return row
 
-    async def getstorestuffmessages(self, message):
-        storequery = "SELECT * FROM idstore WHERE serverid = $1;"
-        storerow = await self.bot.db.fetchrow(storequery, message.guild.id)
-        if storerow is None:
-            query = "INSERT INTO idstore VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);"
-            await self.bot.db.execute(
-                query, message.guild.id, "Default", "Default", 0, 0, 0, 0, 0, 0
-            )
-            query = "SELECT * FROM idstore WHERE serverid = $1;"
-            storerow = await self.bot.db.fetchrow(query, message.guild.id)
-        return storerow
+    async def getautomodmessages(self, message):
+        query = "SELECT * FROM automod WHERE serverid = $1;"
+        row = await self.bot.db.fetchrow(query, message.guild.id)
+        if row is None:
+            query = "INSERT INTO automod VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);"
+            await self.bot.db.execute(query, message.guild.id, 0, 0, 0, 0, 10, 10, 0, 0)
+            query = "SELECT * FROM automod WHERE serverid = $1;"
+            row = await self.bot.db.fetchrow(query, message.guild.id)
+        return row
 
     async def on_command_error(self, ctx, err):
         if isinstance(err, (errors.BadArgument, errors.MissingRequiredArgument)):
