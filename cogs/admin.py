@@ -580,23 +580,23 @@ class Admin:
         if stderr:
             await ctx.send(f"```\n{stderr}\n```")
 
-    @commands.command(hidden=True)
-    @commands.check(repo.is_owner)
-    async def gitpush(self, ctx: commands.Context, *, committext: str) -> None:
-        """ Push changes to github. """
-        await ctx.message.add_reaction("a:loading:528744937794043934")
+    # @commands.command(hidden=True)
+    # @commands.check(repo.is_owner)
+    # async def gitpush(self, ctx: commands.Context, *, committext: str) -> None:
+    #     """ Push changes to github. """
+    #     await ctx.message.add_reaction("a:loading:528744937794043934")
 
-        def run_shell(command):
-            with Popen(command, stdout=PIPE, stderr=PIPE, shell=True) as proc:
-                return [std.decode("utf-8") for std in proc.communicate()]
+    #     def run_shell(command):
+    #         with Popen(command, stdout=PIPE, stderr=PIPE, shell=True) as proc:
+    #             return [std.decode("utf-8") for std in proc.communicate()]
 
-        await self.bot.loop.run_in_executor(None, run_shell, "git add --all")
-        await self.bot.loop.run_in_executor(
-            None, run_shell, f'git commit -m "{committext}"'
-        )
-        await self.bot.loop.run_in_executor(None, run_shell, "git push origin master")
-        await ctx.message.remove_reaction("a:loading:528744937794043934", member=ctx.me)
-        await ctx.message.add_reaction(":done:513831607262511124")
+    #     await self.bot.loop.run_in_executor(None, run_shell, "git add --all")
+    #     await self.bot.loop.run_in_executor(
+    #         None, run_shell, f'git commit -m "{committext}"'
+    #     )
+    #     await self.bot.loop.run_in_executor(None, run_shell, "git push origin master")
+    #     await ctx.message.remove_reaction("a:loading:528744937794043934", member=ctx.me)
+    #     await ctx.message.add_reaction(":done:513831607262511124")
 
     @commands.command(hidden=True, aliases=["pull"])
     @commands.check(repo.is_owner)
@@ -610,7 +610,7 @@ class Admin:
 
         if silently:
             pull = await self.bot.loop.run_in_executor(
-                None, run_shell, "git pull origin master -q"
+                None, run_shell, "sudo git pull origin master -q"
             )
             await ctx.message.remove_reaction(
                 "a:loading:528744937794043934", member=ctx.me
@@ -618,7 +618,7 @@ class Admin:
             await ctx.message.add_reaction(":done:513831607262511124")
         else:
             pull = await self.bot.loop.run_in_executor(
-                None, run_shell, "git pull origin master"
+                None, run_shell, "sudo git pull origin master"
             )
             msg = await ctx.send(f"```css\n{pull}\n```", delete_after=6)
             await ctx.message.remove_reaction(
