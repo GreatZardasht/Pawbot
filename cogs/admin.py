@@ -619,9 +619,7 @@ class Admin:
             None, run_shell, "git pull origin master"
         )
         msg = await ctx.send(f"```css\n{pull}\n```", delete_after=6)
-        await ctx.message.remove_reaction(
-            "a:loading:528744937794043934", member=ctx.me
-        )
+        await ctx.message.remove_reaction("a:loading:528744937794043934", member=ctx.me)
         for file in os.listdir("cogs"):
             if file.endswith(".py"):
                 name = file[:-3]

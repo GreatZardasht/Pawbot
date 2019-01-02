@@ -76,7 +76,7 @@ class Misc:
         """ Consult 8ball to receive an answer """
         answer = random.choice(lists.ballresponse)
         await ctx.send(f"🎱 **Question:** {question}\n**Answer:** {answer}")
-            
+
     @commands.command()
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def cat(self, ctx):
@@ -429,7 +429,7 @@ class Misc:
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def asciify(self, ctx, *, text: str):
         """ Turns any text given into ascii """
-        Art=text2art(text)
+        Art = text2art(text)
         await ctx.send(f"```\n{Art}\n```")
 
     @commands.command(aliases=["say"])
@@ -775,7 +775,7 @@ class Misc:
         r = await self.bot.db.fetchrow(query, ctx.guild.id, tagname)
         if not r:
             return await ctx.send("No tag found...")
-        await ctx.send(r['tagtext'])
+        await ctx.send(r["tagtext"])
 
     @commands.command()
     @commands.guild_only()

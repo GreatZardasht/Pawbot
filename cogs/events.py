@@ -408,9 +408,11 @@ class Events:
             )
 
     async def on_command(self, ctx):
-        logchan = self.bot.get_channel(508420200815656966)
+        logchan = self.bot.get_channel(508_420_200_815_656_966)
         now = datetime.utcnow()
-        cmdmsg = await logchan.send(f'`[INFO]` `Command Run`\n```\nCommand: {ctx.command}\nUser: {ctx.author} ({ctx.author.id})\nChannel: {ctx.channel} ({ctx.channel.id})\n\nPerformed at: {now.strftime("%c")}```')
+        cmdmsg = await logchan.send(
+            f'`[INFO]` `Command Run`\n```\nCommand: {ctx.command}\nUser: {ctx.author} ({ctx.author.id})\nChannel: {ctx.channel} ({ctx.channel.id})\n\nPerformed at: {now.strftime("%c")}```'
+        )
 
 
 def setup(bot):

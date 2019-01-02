@@ -125,7 +125,9 @@ class NSFW:
         if "score:" in args:
             apilink = f"https://e621.net/post/index.json?tags={args}&limit=320"
         else:
-            apilink = f"https://e621.net/post/index.json?tags={args}&score:>25&limit=320"
+            apilink = (
+                f"https://e621.net/post/index.json?tags={args}&score:>25&limit=320"
+            )
         try:
             await processapi(apilink)
         except ResultNotFound:

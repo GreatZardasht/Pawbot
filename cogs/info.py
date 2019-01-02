@@ -530,7 +530,9 @@ class Information:
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def calc(self, ctx, *, calculation: str):
         """ Performs a calculation """
-        r = requests.get(f"https://www.calcatraz.com/calculator/api?c={quote(calculation)}")
+        r = requests.get(
+            f"https://www.calcatraz.com/calculator/api?c={quote(calculation)}"
+        )
         await ctx.send(r.text)
 
     @commands.command(name="eval")
