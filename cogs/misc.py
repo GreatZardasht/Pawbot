@@ -816,6 +816,5 @@ class Misc:
         await ctx.send(f"Successfully deleted {tagname}")
 
 
-
 def setup(bot):
     bot.add_cog(Misc(bot))
