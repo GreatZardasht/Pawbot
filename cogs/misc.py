@@ -671,7 +671,7 @@ class Misc:
         embed.set_image(url=r[endpoint])
         await ctx.send(embed=embed)
 
-    @commands.command()
+    @commands.command(aliases=["bap"])
     @commands.guild_only()
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def slap(self, ctx, user: discord.Member = None):
