@@ -430,7 +430,10 @@ class Misc:
     async def asciify(self, ctx, *, text: str):
         """ Turns any text given into ascii """
         Art = text2art(text)
-        await ctx.send(f"```\n{Art}\n```")
+        asciiart = f"```\n{Art}\n```"
+        if len(asciiart) > 2000:
+            return await ctx.send("That art is too big")
+        await ctx.send(asciiart)
 
     @commands.command(aliases=["say"])
     @commands.guild_only()
