@@ -171,7 +171,7 @@ class Events:
         embed.set_author(
             name=f"PawBot",
             url="https://discordapp.com/oauth2/authorize?client_id=460383314973556756&scope=bot&permissions=469888118",
-            icon_url="https://cdn.discordapp.com/avatars/460383314973556756/d96ff7682f89483c4864f7af4b3a096c.png?size=2048",
+            icon_url="https://cdn.discordapp.com/avatars/460383314973556756/2814a7328962f7947a25ccd2ee177ac1.webp",
         )
         embed.add_field(name="Guilds", value=f"**{len(self.bot.guilds)}**", inline=True)
         embed.add_field(name="Users", value=f"**{len(self.bot.users)}**", inline=True)
