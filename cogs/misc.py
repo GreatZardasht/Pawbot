@@ -409,20 +409,20 @@ class Misc:
             "message",
         )
 
-    @commands.command()
-    @commands.guild_only()
-    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
-    async def magik(self, ctx, intensity: str, imgtomagik: str):
-        """ why don'T WE JUST RELAX AND TURn on THe rADIO? """
-        if imgtomagik is None:
-            return await ctx.send("Include some text you dork!")
-        if intensity not in ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]:
-            return await ctx.send("Include an intensity to magik (1-10)")
-        await self.randomimageapi(
-            ctx,
-            f"https://nekobot.xyz/api/imagegen?type=magik&image={imgtomagik}&intensity={intensity}",
-            "message",
-        )
+    # @commands.command()
+    # @commands.guild_only()
+    # @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
+    # async def magik(self, ctx, intensity: str, imgtomagik: str = None):
+    #     """ why don'T WE JUST RELAX AND TURn on THe rADIO? """
+    #     if imgtomagik is None:
+    #         if not ctx.message.attachments
+    #     if intensity not in ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]:
+    #         return await ctx.send("Include an intensity to magik (1-10)")
+    #     await self.randomimageapi(
+    #         ctx,
+    #         f"https://nekobot.xyz/api/imagegen?type=magik&image={imgtomagik}&intensity={intensity}",
+    #         "message",
+    #     )
 
     @commands.command(aliases=["ascii"])
     @commands.guild_only()
