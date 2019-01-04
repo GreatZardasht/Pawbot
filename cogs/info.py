@@ -571,6 +571,7 @@ class Information:
     @commands.guild_only()
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def osu(self, ctx, osuplayer, usrhex: str = 170_041):
+        """ Shows an osu! profile. """
         embed = discord.Embed(color=random.randint(0x000000, 0xFFFFFF))
         embed.set_image(
             url="http://lemmmy.pw/osusig/sig.php?colour=hex{0}&uname={1}&pp=1&countryrank&removeavmargin&flagshadow&flagstroke&darktriangles&onlineindicator=undefined&xpbar&xpbarhex".format(
@@ -582,6 +583,11 @@ class Information:
             icon_url="https://raw.githubusercontent.com/F4stZ4p/resources-for-discord-bot/master/osusmall.ico",
         )
         await ctx.send(embed=embed)
+
+    @commands.command()
+    async def source(self, ctx):
+        """ Where did you come from where did you go? """
+        await ctx.send("You can find my source @ https://github.com/pawbot-discord/Pawbot x3")
 
 
 def setup(bot):
