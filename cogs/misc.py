@@ -2,6 +2,7 @@ import random
 import discord
 import json
 import requests
+import aiohttp
 
 from art import text2art
 from io import BytesIO
@@ -817,6 +818,18 @@ class Misc:
         query = "DELETE FROM tags WHERE serverid=$1 AND tagname=$2;"
         query = await self.bot.db.execute(query, ctx.guild.id, tagname)
         await ctx.send(f"Successfully deleted {tagname}")
+
+    @commands.command(aliases=["screenshot"])
+    @commands.cooldown(rate=1, per=7.0, type=commands.BucketType.guild)
+    async def ss(self, ctx, *, url: str):
+        """ Screenshots as a service """
+        if "<" in url or ">" in url:
+            url = url.replace("<", "").replace(">", "")
+        async with ctx.typing(), aiohttp.ClientSession() as session:
+            screener = "http://magmachain.herokuapp.com/api/v1"
+            async with session.post(screener, headers=dict(website=url)) as r:
+                website = (await r.json())["snapshot"]
+                await ctx.send(embed=discord.Embed(color=249_742).set_image(url=website))
 
 
 def setup(bot):
