@@ -561,11 +561,11 @@ class Moderation:
             await self.do_removal(ctx, 100, lambda e: substr in e.content)
 
     @prune.command(name="bots")
-    async def _bots(self, ctx, prefix=None, search: int):
+    async def _bots(self, ctx, search: int):
         """Removes a bot user's messages and messages with their optional prefix."""
 
         def predicate(m):
-            return m.author.bot or (prefix and m.content.startswith(prefix))
+            return m.author.bot
 
         await self.do_removal(ctx, search, predicate)
 
