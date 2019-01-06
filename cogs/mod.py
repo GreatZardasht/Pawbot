@@ -595,7 +595,10 @@ class Moderation:
     async def ra(self, ctx, member: discord.Member, *, rolename: str = None):
         """ Gives the role to the user. """
         role = discord.utils.get(ctx.guild.roles, name=rolename)
-        await member.add_roles(role)
+        try:
+            await member.add_roles(role)
+        except:
+            return await ctx.send("I don't have perms ;w;")
         await ctx.send(f"👌 I have given **{member.name}** the **{role.name}** role!")
 
     @commands.command()
@@ -605,7 +608,10 @@ class Moderation:
     async def rr(self, ctx, member: discord.Member, *, rolename: str = None):
         """ Removes the role from a user. """
         role = discord.utils.get(ctx.guild.roles, name=rolename)
-        await member.remove_roles(role)
+        try:
+            await member.remove_roles(role)
+        except:
+            return await ctx.send("I don't have perms ;w;")
         await ctx.send(
             f"👌 I have removed **{member.name}** from the **{role.name}** role!"
         )
