@@ -74,6 +74,7 @@ class Economy:
         )
 
     @bank.command()
+    @commands.cooldown(rate=1, per=86400.0, type=commands.BucketType.user)
     async def close(self, ctx):
         """ Closes an account """
         query = "SELECT * FROM userbal WHERE userid=$1;"
@@ -104,6 +105,7 @@ class Economy:
             await delmsg.edit(content="We're sorry to see you go ;w;")
 
     @bank.command()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def transfer(self, ctx, amount: int, user: discord.Member):
         """ Transfer coins """
         query = "SELECT * FROM userbal WHERE userid=$1;"
