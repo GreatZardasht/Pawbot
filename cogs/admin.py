@@ -627,7 +627,7 @@ class Admin:
                 self.bot.load_extension(f"cogs.{name}")
         await ctx.message.add_reaction(":done:513831607262511124")
 
-    @commands.command(hidden=True)
+    @commands.command(hidden=True, aliases=["botperms"])
     @commands.guild_only()
     @commands.check(repo.is_owner)
     async def botpermissions(self, ctx, *, channel: discord.TextChannel = None):
