@@ -154,15 +154,6 @@ class Misc:
             ctx, f"https://api.chewey-bot.ga/birb?auth={self.config.cheweyauth}", "data"
         )
 
-    @commands.command(aliases=["flip", "coin"])
-    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
-    async def coinflip(self, ctx):
-        """ Coinflip! """
-        coinsides = ["Heads", "Tails"]
-        await ctx.send(
-            f"**{ctx.author.name}** flipped a coin and got **{random.choice(coinsides)}**!"
-        )
-
     @commands.command()
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def reverse(self, ctx, *, text: str):
