@@ -81,6 +81,7 @@ class Economy:
         row = await self.bot.db.fetchrow(query, ctx.author.id)
         if not row:
             return await ctx.send("You don't have an account!")
+        N = 6
         delstring = ''.join(random.choices(string.ascii_uppercase + string.digits, k=N))
         def check(m):
             return m.content == delstring and m.channel == channel
@@ -89,7 +90,6 @@ class Economy:
         delmsg = await ctx.send(
             f"Are you sure you want to delete your account? If so, type: `{delstring}`"
         )
-        N = 6
         channel = ctx.channel
         try:
             msg = await self.bot.wait_for(
