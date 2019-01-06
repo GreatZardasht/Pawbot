@@ -1,5 +1,8 @@
 import discord
 import random
+import asyncio
+import random
+import string
 
 from discord.ext import commands
 from utils import permissions, default
@@ -26,7 +29,10 @@ class Economy:
             name="**:dizzy: Leaders**",
             value=f""":first_place: | {self.bot.get_user(row[0][0])}: **{row[0][1]}** <:coins:529700967097171969>\n:second_place: | {self.bot.get_user(row[1][0])}: **{row[1][1]}** <:coins:529700967097171969>\n:third_place: | {self.bot.get_user(row[2][0])}: **{row[2][1]}** <:coins:529700967097171969>""",
         )
-        embed.set_footer(text=f"These stats are global, {ctx.author.name}", icon_url=ctx.author.avatar_url)
+        embed.set_footer(
+            text=f"These stats are global, {ctx.author.name}",
+            icon_url=ctx.author.avatar_url,
+        )
         await ctx.send(embed=embed)
 
     @commands.group(hidden=True)
@@ -74,9 +80,28 @@ class Economy:
         row = await self.bot.db.fetchrow(query, ctx.author.id)
         if not row:
             return await ctx.send("You don't have an account!")
-        query = "DELETE FROM userbal WHERE userid=$1;"
-        row = await self.bot.db.fetchrow(query, ctx.author.id)
-        await ctx.send("We're sorry to see you go ;w;")
+        delstring = ''.join(random.choices(string.ascii_uppercase + string.digits, k=N))
+        def check(m):
+            return m.content == delstring and m.channel == channel
+
+        await ctx.message.delete()
+        delmsg = await ctx.send(
+            f"Are you sure you want to delete your account? If so, type: `{delstring}`"
+        )
+        N = 6
+        channel = ctx.channel
+        try:
+            msg = await self.bot.wait_for(
+                "message", timeout=60.0, check=check
+            )
+        except asyncio.TimeoutError:
+            await delmsg.edit(content="Timed out..")
+            await msg.delete()
+        else:
+            await msg.delete()
+            query = "DELETE FROM userbal WHERE userid=$1;"
+            row = await self.bot.db.fetchrow(query, ctx.author.id)
+            await delmsg.edit(content="We're sorry to see you go ;w;")
 
     @bank.command()
     async def transfer(self, ctx, amount: int, user: discord.Member):
@@ -93,15 +118,42 @@ class Economy:
             return await ctx.send("You don't have an account!")
         if row["money"] < amount:
             return await ctx.send("You don't have enough coins!")
-        transferfromamount = row["money"] - int(amount)
-        transfertoamount = altrow["money"] + int(amount)
-        query = "UPDATE userbal SET money = $1 WHERE userid = $2;"
-        altrow = await self.bot.db.fetchrow(query, transfertoamount, user.id)
-        query = "UPDATE userbal SET money = $1 WHERE userid = $2;"
-        altrow = await self.bot.db.fetchrow(query, transferfromamount, ctx.author.id)
-        await ctx.send(
-            f"{ctx.author.mention}, you have successfully transferred {amount} <:coins:529700967097171969> to **{user.name}**"
+        N = 6
+        delstring = ''.join(random.choices(string.ascii_uppercase + string.digits, k=N))
+        def check(m):
+            return m.content == delstring and m.channel == channel
+        try:
+            await ctx.message.delete()
+        except discord.Forbidden:
+            pass
+        delmsg = await ctx.send(
+            f"Are you sure you want to transfer **{amount}** <:coins:529700967097171969> to **{user}**? If so, type: `{delstring}`"
         )
+        channel = ctx.channel
+        try:
+            msg = await self.bot.wait_for(
+                "message", timeout=60.0, check=check
+            )
+        except asyncio.TimeoutError:
+            await delmsg.edit(content="Timed out..")
+            try:
+                await msg.delete()
+            except discord.Forbidden:
+                pass
+        else:
+            try:
+                await msg.delete()
+            except discord.Forbidden:
+                pass
+            transferfromamount = row["money"] - int(amount)
+            transfertoamount = altrow["money"] + int(amount)
+            query = "UPDATE userbal SET money = $1 WHERE userid = $2;"
+            altrow = await self.bot.db.fetchrow(query, transfertoamount, user.id)
+            query = "UPDATE userbal SET money = $1 WHERE userid = $2;"
+            altrow = await self.bot.db.fetchrow(query, transferfromamount, ctx.author.id)
+            await delmsg.edit(
+                content=f"{ctx.author.mention}, you have successfully transferred {amount} <:coins:529700967097171969> to **{user.name}**"
+            )
 
     @commands.command(aliases=["flip", "coin"])
     @commands.guild_only()
@@ -111,6 +163,8 @@ class Economy:
         row = await self.bot.db.fetchrow(query, ctx.author.id)
         if not row:
             return await ctx.send("You don't have an account!")
+        if bet > row["money"]:
+            return await ctx.send("You're betting more than you own!")
         coinsides = ["heads", "tails"]
         if side not in coinsides:
             return await ctx.send("Please only use `heads` or `tails`!")
@@ -122,13 +176,17 @@ class Economy:
             betresult = row["money"] + betresult
             query = "UPDATE userbal SET money = $1 WHERE userid = $2;"
             altrow = await self.bot.db.fetchrow(query, betresult, ctx.author.id)
-            return await ctx.send(f"The coin landed on {result} and... You won!")
+            msg = await ctx.send(f"The coin landed and...")
+            await asyncio.sleep(2)
+            return await msg.edit(content=f"{msg.content} You won!")
         query = "SELECT * FROM userbal WHERE userid=$1;"
         row = await self.bot.db.fetchrow(query, ctx.author.id)
         betresult = row["money"] - bet
         query = "UPDATE userbal SET money = $1 WHERE userid = $2;"
         altrow = await self.bot.db.fetchrow(query, betresult, ctx.author.id)
-        await ctx.send(f"The coin landed on {result} and... You lost!")
+        msg = await ctx.send(f"The coin landed and...")
+        await asyncio.sleep(2)
+        await msg.edit(content=f"{msg.content} You lost!")
 
 
 def setup(bot):
