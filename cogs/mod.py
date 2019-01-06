@@ -523,30 +523,30 @@ class Moderation:
                 )
 
     @prune.command()
-    async def embeds(self, ctx, search=100):
+    async def embeds(self, ctx, search: int):
         """Removes messages that have embeds in them."""
 
         await self.do_removal(ctx, search, lambda e: len(e.embeds))
 
     @prune.command()
-    async def files(self, ctx, search=100):
+    async def files(self, ctx, search: int):
         """Removes messages that have attachments in them."""
         await self.do_removal(ctx, search, lambda e: len(e.attachments))
 
     @prune.command()
-    async def images(self, ctx, search=100):
+    async def images(self, ctx, search: int):
         """Removes messages that have embeds or attachments."""
         await self.do_removal(
             ctx, search, lambda e: len(e.embeds) or len(e.attachments)
         )
 
     @prune.command(name="all")
-    async def _remove_all(self, ctx, search=100):
+    async def _remove_all(self, ctx, search: int):
         """Removes all messages."""
         await self.do_removal(ctx, search, lambda e: True)
 
     @prune.command()
-    async def user(self, ctx, member: discord.Member, search=100):
+    async def user(self, ctx, member: discord.Member, search: int):
         """Removes all messages by the member."""
         await self.do_removal(ctx, search, lambda e: e.author == member)
 
@@ -561,7 +561,7 @@ class Moderation:
             await self.do_removal(ctx, 100, lambda e: substr in e.content)
 
     @prune.command(name="bots")
-    async def _bots(self, ctx, prefix=None, search=100):
+    async def _bots(self, ctx, prefix=None, search: int):
         """Removes a bot user's messages and messages with their optional prefix."""
 
         def predicate(m):
@@ -570,7 +570,7 @@ class Moderation:
         await self.do_removal(ctx, search, predicate)
 
     @prune.command(name="users")
-    async def _users(self, ctx, search=100):
+    async def _users(self, ctx, search: int):
         """Removes only user messages. """
 
         def predicate(m):
@@ -579,7 +579,7 @@ class Moderation:
         await self.do_removal(ctx, search, predicate)
 
     @prune.command(name="emoji")
-    async def _emoji(self, ctx, search=100):
+    async def _emoji(self, ctx, search: int):
         """Removes all messages containing custom emoji."""
         custom_emoji = re.compile(r"<:(\w+):(\d+)>")
 
