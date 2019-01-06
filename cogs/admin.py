@@ -280,7 +280,7 @@ class Admin:
     @commands.command(pass_context=True, name="compile", hidden=True)
     @commands.check(repo.is_owner)
     async def _compile(self, ctx, *, body: str):
-        """Evaluates a code"""
+        """ Compiles some code """
         env = {
             "bot": self.bot,
             "ctx": ctx,
@@ -330,7 +330,7 @@ class Admin:
                     ret = self.config.realtoken
                 self._last_result = ret
                 await ctx.send(
-                    f"Inputted code:\n```py\n{body}\n```\n\nOutputted Code:\n```py\n{value}{ret}\n```\n*Evalled in {dt:.2f}ms*"
+                    f"Inputted code:\n```py\n{body}\n```\n\nOutputted Code:\n```py\n{value}{ret}\n```\n*Compiled in {dt:.2f}ms*"
                 )
 
     @commands.group(aliases=["as"], hidden=True)
