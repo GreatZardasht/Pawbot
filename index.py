@@ -40,7 +40,7 @@ async def run():
         "CREATE TABLE IF NOT EXISTS tags(serverid bigint, tagname varchar, tagtext varchar);"
     )
     await db.execute(
-        "CREATE TABLE IF NOT EXISTS userbal(userid bigint, money int);"
+        "CREATE TABLE IF NOT EXISTS userbal(userid bigint, money bigint);"
     )
 
     bot = Bot(command_prefix=config.prefix, pm_help=True, help_attrs=help_attrs, db=db)
