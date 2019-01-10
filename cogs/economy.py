@@ -54,7 +54,7 @@ class Economy:
         row = await self.bot.db.fetchrow(query, user.id)
         if row is None:
             return await ctx.send(
-                f"Hey! **{user.name}** doesn't have a bank account yet! Do `paw bank create` to create an account!"
+                f"Hey! **{user.name}** doesn't have a bank account yet! Do `paw bank open` to create an account!"
             )
         await ctx.send(
             f"**{user.name}** has {row['money']} <:coins:529700967097171969>"
@@ -82,7 +82,8 @@ class Economy:
         if not row:
             return await ctx.send("You don't have an account!")
         N = 6
-        delstring = ''.join(random.choices(string.ascii_uppercase + string.digits, k=N))
+        delstring = "".join(random.choices(string.ascii_uppercase + string.digits, k=N))
+
         def check(m):
             return m.content == delstring and m.channel == channel
 
@@ -92,9 +93,7 @@ class Economy:
         )
         channel = ctx.channel
         try:
-            msg = await self.bot.wait_for(
-                "message", timeout=60.0, check=check
-            )
+            msg = await self.bot.wait_for("message", timeout=60.0, check=check)
         except asyncio.TimeoutError:
             await delmsg.edit(content="Timed out..")
             await msg.delete()
@@ -121,9 +120,11 @@ class Economy:
         if row["money"] < amount:
             return await ctx.send("You don't have enough coins!")
         N = 6
-        delstring = ''.join(random.choices(string.ascii_uppercase + string.digits, k=N))
+        delstring = "".join(random.choices(string.ascii_uppercase + string.digits, k=N))
+
         def check(m):
             return m.content == delstring and m.channel == channel
+
         try:
             await ctx.message.delete()
         except discord.Forbidden:
@@ -133,9 +134,7 @@ class Economy:
         )
         channel = ctx.channel
         try:
-            msg = await self.bot.wait_for(
-                "message", timeout=60.0, check=check
-            )
+            msg = await self.bot.wait_for("message", timeout=60.0, check=check)
         except asyncio.TimeoutError:
             await delmsg.edit(content="Timed out..")
             try:
@@ -152,14 +151,16 @@ class Economy:
             query = "UPDATE userbal SET money = $1 WHERE userid = $2;"
             altrow = await self.bot.db.fetchrow(query, transfertoamount, user.id)
             query = "UPDATE userbal SET money = $1 WHERE userid = $2;"
-            altrow = await self.bot.db.fetchrow(query, transferfromamount, ctx.author.id)
+            altrow = await self.bot.db.fetchrow(
+                query, transferfromamount, ctx.author.id
+            )
             await delmsg.edit(
                 content=f"{ctx.author.mention}, you have successfully transferred {amount} <:coins:529700967097171969> to **{user.name}**"
             )
 
     @commands.command(aliases=["flip", "coin"])
     @commands.guild_only()
-    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
+    @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def coinflip(self, ctx, bet: int, side: str):
         query = "SELECT * FROM userbal WHERE userid=$1;"
         row = await self.bot.db.fetchrow(query, ctx.author.id)
@@ -190,6 +191,25 @@ class Economy:
         await asyncio.sleep(2)
         await msg.edit(content=f"{msg.content} You lost!")
 
+    @commands.command()
+    @commands.guild_only()
+    @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
+    async def dice(self, ctx, bet: int):
+        query = "SELECT * FROM userbal WHERE userid=$1;"
+        row = await self.bot.db.fetchrow(query, ctx.author.id)
+        if not row:
+            return await ctx.send("You don't have an account!")
+        roll = random.randint(0, 100)
+        if roll > 80:
+            betresult = bet * 2
+            betresult = row['money'] + betresult
+            rollsult = "won"
+        else:
+            betresult = row['money'] - bet
+            rollsult = "lost"
+        query = "UPDATE userbal SET money = $1 WHERE userid = $2;"
+        altrow = await self.bot.db.fetchrow(query, betresult, ctx.author.id)
+        await ctx.send(f"You rolled `{roll}`, and {rollsult}")
 
 def setup(bot):
     bot.add_cog(Economy(bot))
