@@ -597,7 +597,7 @@ class Moderation:
         role = discord.utils.get(ctx.guild.roles, name=rolename)
         try:
             await member.add_roles(role)
-        except:
+        except discord.Forbidden:
             return await ctx.send("I don't have perms ;w;")
         await ctx.send(f"👌 I have given **{member.name}** the **{role.name}** role!")
 
@@ -610,7 +610,7 @@ class Moderation:
         role = discord.utils.get(ctx.guild.roles, name=rolename)
         try:
             await member.remove_roles(role)
-        except:
+        except discord.Forbidden:
             return await ctx.send("I don't have perms ;w;")
         await ctx.send(
             f"👌 I have removed **{member.name}** from the **{role.name}** role!"
