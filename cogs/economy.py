@@ -1,7 +1,6 @@
 import discord
 import random
 import asyncio
-import random
 import string
 
 from discord.ext import commands
