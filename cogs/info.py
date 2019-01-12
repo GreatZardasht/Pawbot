@@ -108,7 +108,7 @@ class Information:
                 .add_field(name="**Commands:**", value=f"``{commands}``")
             )
             pages.append(embed)
-        await pawgenator.pagenator(
+        await pawgenator.SimplePaginator(
             extras=sorted(pages, key=lambda d: d.description)
         ).paginate(ctx)
 
@@ -150,7 +150,7 @@ class Information:
                     delete_after=10,
                 )
             if isinstance(entity, commands.Command):
-                await pawgenator.pagenator(
+                await pawgenator.SimplePaginator(
                     title=f"Command: {entity.name}",
                     entries=[
                         f"**:bulb: Command Help**\n```ini\n[{entity.help}]```",
@@ -587,7 +587,9 @@ class Information:
     @commands.command()
     async def source(self, ctx):
         """ Where did you come from where did you go? """
-        await ctx.send("You can find my source @ https://github.com/pawbot-discord/Pawbot x3")
+        await ctx.send(
+            "You can find my source @ https://github.com/pawbot-discord/Pawbot x3"
+        )
 
 
 def setup(bot):
