@@ -9,7 +9,7 @@ async def pager(entries, chunk: int):
         yield entries[x : x + chunk]
 
 
-class pagenator:
+class SimplePaginator:
 
     __slots__ = (
         "entries",
@@ -40,7 +40,7 @@ class pagenator:
 
         self.title = kwargs.get("title", None)
         self.description = kwargs.get("description", None)
-        self.colour = kwargs.get("colour", 0x170041)
+        self.colour = kwargs.get("colour", 0xFFD4D4)
         self.footer = kwargs.get("footer", None)
 
         self.length = kwargs.get("length", 10)
@@ -59,7 +59,7 @@ class pagenator:
         self.previous = 0
         self.eof = 0
 
-        self.controls = {"⏪": 0.0, "◀": -1, "⏹": "stop", "▶": +1, "⏩": None}
+        self.controls = {"⏮": 0.0, "◀": -1, "⏹": "stop", "▶": +1, "⏭": None}
 
     async def indexer(self, ctx, ctrl):
         if ctrl == "stop":
@@ -90,9 +90,9 @@ class pagenator:
         def check(r, u):
             if str(r) not in self.controls.keys():
                 return False
-            if u.id == bot.user.id or r.message.id != self.base.id:
+            elif u.id == bot.user.id or r.message.id != self.base.id:
                 return False
-            if u.id != author.id:
+            elif u.id != author.id:
                 return False
             return True
 
@@ -128,7 +128,10 @@ class pagenator:
         except discord.HTTPException:
             pass
 
-        self.controller.cancel()
+        try:
+            self.controller.cancel()
+        except Exception:
+            pass
 
     def formmater(self, chunk):
         return "\n".join(
@@ -154,10 +157,41 @@ class pagenator:
                 self.pages.append(page)
 
         if not self.pages:
-            raise Exception(
+            raise utils.EvieeBaseException(
                 "There must be enough data to create at least 1 page for pagination."
             )
 
         self.eof = float(len(self.pages) - 1)
-        self.controls["⏩"] = self.eof
+        self.controls["⏭"] = self.eof
+        self.controller = ctx.bot.loop.create_task(self.reaction_controller(ctx))
+
+
+class EmojiPaginator(SimplePaginator):
+
+    __slots__ = ("chunks",)
+
+    def __init__(self, **kwargs):
+        self.chunks = kwargs.get("chunks")
+        super().__init__(**kwargs)
+
+    async def paginate(self, ctx):
+        for index, chunk in enumerate(self.chunks):
+            if index % 2 == 0:
+                page = discord.Embed(color=self.colour)
+                page.add_field(
+                    name="\u200b",
+                    value="\n".join(f"{e} | [{e.name}]({e.url})" for e in chunk),
+                )
+                self.pages.append(page)
+            else:
+                page.add_field(
+                    name="\u200b",
+                    value="\n".join(f"{e} | [{e.name}]({e.url})" for e in chunk),
+                )
+
+        for index, page in enumerate(self.pages, 1):
+            page.title = f"{self.title} - {index}/{len(self.pages)}"
+
+        self.eof = float(len(self.pages) - 1)
+        self.controls["⏭"] = self.eof
         self.controller = ctx.bot.loop.create_task(self.reaction_controller(ctx))

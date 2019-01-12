@@ -8,7 +8,7 @@ from art import text2art
 from io import BytesIO
 from random import randint
 from discord.ext import commands
-from utils import lists, http, default, eapi, sfapi, permissions
+from utils import lists, http, default, eapi, sfapi, permissions, pawgenator
 
 processapi = eapi.processapi
 processshowapi = eapi.processshowapi
@@ -820,7 +820,36 @@ class Misc:
             screener = "http://magmachain.herokuapp.com/api/v1"
             async with session.post(screener, headers=dict(website=url)) as r:
                 website = (await r.json())["snapshot"]
-                await ctx.send(embed=discord.Embed(color=249_742).set_image(url=website))
+                await ctx.send(
+                    embed=discord.Embed(color=249_742).set_image(url=website)
+                )
+
+    @commands.command(name="emojis", alisases=["emojis"])
+    @commands.guild_only()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
+    async def _emojis(self, ctx, *, name: str = None):
+        """ Display all emojis I can see in a paginated embed. """
+        if name:
+            emojis = [e for e in self.bot.emojis if name in e.name]
+            if not emojis:
+                return await ctx.send(
+                    f"Could not find any emojis with search term: `{name}`"
+                )
+
+            chunks = [
+                e
+                async for e in pawgenator.pager(sorted(emojis, key=lambda _: _.name), 8)
+            ]
+        else:
+            chunks = [
+                e
+                async for e in pawgenator.pager(
+                    sorted(self.bot.emojis, key=lambda _: _.name), 8
+                )
+            ]
+
+        pagey = pawgenator.EmojiPaginator(title="Emojis", chunks=chunks)
+        self.bot.loop.create_task(pagey.paginate(ctx))
 
 
 def setup(bot):
