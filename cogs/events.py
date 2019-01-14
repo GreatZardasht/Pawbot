@@ -234,13 +234,13 @@ class Events:
         adminpanelcheck = await self.getserverstuff(member)
         serverstorecheck = await self.getstorestuff(member)
         automodcheck = await self.getautomod(member)
-        if adminpanelcheck["automod"] is 1:
-            if automodcheck["lockdown"] is 1:
+        if adminpanelcheck["automod"] == 1:
+            if automodcheck["lockdown"] == 1:
                 await member.send(
                     f"Sorry but **{member.guild.name}** is currently on lockdown, try again later! >.<"
                 )
                 return await member.kick(reason="[Automod] Lockdown Enabled")
-            if automodcheck["autorole"] is 1:
+            if automodcheck["autorole"] == 1:
                 try:
                     autorolerole = member.guild.get_role(
                         serverstorecheck["autorolerole"]
@@ -248,7 +248,7 @@ class Events:
                     await member.add_roles(autorolerole)
                 except discord.Forbidden:
                     pass
-        if adminpanelcheck["joins"] is 1:
+        if adminpanelcheck["joins"] == 1:
             try:
                 welcomechannel = member.guild.get_channel(serverstorecheck["joinchan"])
                 welcomemsg = (
@@ -266,7 +266,7 @@ class Events:
     async def on_member_remove(self, member):
         adminpanelcheck = await self.getserverstuff(member)
         serverstorecheck = await self.getstorestuff(member)
-        if adminpanelcheck["leaves"] is 1:
+        if adminpanelcheck["leaves"] == 1:
             try:
                 byechan = member.guild.get_channel(serverstorecheck["leavechan"])
                 byemsg = (
@@ -292,8 +292,8 @@ class Events:
         except KeyError:
             self.bot.snipes[message.channel.id] = SnipeHistory()
             self.bot.snipes[message.channel.id].appendleft(message)
-        if adminpanelcheck["automod"] is 1:
-            if automodcheck["actionlog"] is 1:
+        if adminpanelcheck["automod"] == 1:
+            if automodcheck["actionlog"] == 1:
                 if message.author.bot:
                     return
                 logchan = message.guild.get_channel(serverstorecheck["actionlogchan"])
@@ -302,7 +302,7 @@ class Events:
                 messagecontent = message.content
                 if len(messagecontent) > 1500:
                     messagecontent = "Too big xwx"
-                if adminpanelcheck["embeds"] is 0:
+                if adminpanelcheck["embeds"] == 0:
                     try:
                         return await logchan.send(
                             f"```\nMessage Deleted\nUser: {message.author}\nMessage: {messagecontent}\n\nDone at: {now} (UTC)\n```"
@@ -324,8 +324,8 @@ class Events:
         adminpanelcheck = await self.getserverstuffmessages(after)
         serverstorecheck = await self.getstorestuffmessages(after)
         automodcheck = await self.getautomodmessages(after)
-        if adminpanelcheck["automod"] is 1:
-            if automodcheck["actionlog"] is 1:
+        if adminpanelcheck["automod"] == 1:
+            if automodcheck["actionlog"] == 1:
                 if before.author.bot:
                     return
                 logchan = before.guild.get_channel(serverstorecheck["actionlogchan"])
@@ -337,7 +337,7 @@ class Events:
                 aftercontent = after.content
                 if len(aftercontent) > 600:
                     aftercontent = "Too big xwx"
-                if adminpanelcheck["embeds"] is 0:
+                if adminpanelcheck["embeds"] == 0:
                     try:
                         return await logchan.send(
                             f"```\nMessage Edited\nUser: {before.author}\nMessage Before: {beforecontent}\nMessage After: {aftercontent}\n\nDone at: {now} (UTC)\n```"
@@ -358,7 +358,7 @@ class Events:
     async def on_member_ban(self, guild, user):
         adminpanelcheck = await self.getserverstuffalt(guild)
         serverstorecheck = await self.getstorestuffalt(guild)
-        if adminpanelcheck["modlog"] is 1:
+        if adminpanelcheck["modlog"] == 1:
             logchan = guild.get_channel(serverstorecheck["modlogchan"])
             casenum = self.generatecase()
             reason = (
@@ -385,7 +385,7 @@ class Events:
     async def on_member_unban(self, guild, user):
         adminpanelcheck = await self.getserverstuffalt(guild)
         serverstorecheck = await self.getstorestuffalt(guild)
-        if adminpanelcheck["modlog"] is 1:
+        if adminpanelcheck["modlog"] == 1:
             logchan = guild.get_channel(serverstorecheck["modlogchan"])
             casenum = self.generatecase()
             reason = (
