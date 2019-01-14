@@ -106,6 +106,8 @@ class Economy:
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def transfer(self, ctx, amount: int, user: discord.Member):
         """ Transfer coins """
+        if 1 > amount:
+            return await ctx.send("Give some money! ;w;")
         query = "SELECT * FROM userbal WHERE userid=$1;"
         altrow = await self.bot.db.fetchrow(query, user.id)
         if not altrow:
@@ -161,6 +163,8 @@ class Economy:
     @commands.guild_only()
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def coinflip(self, ctx, bet: int, side: str):
+        if 1 > bet:
+            return await ctx.send("Give some money! ;w;")
         query = "SELECT * FROM userbal WHERE userid=$1;"
         row = await self.bot.db.fetchrow(query, ctx.author.id)
         if not row:
@@ -194,6 +198,8 @@ class Economy:
     @commands.guild_only()
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def dice(self, ctx, bet: int):
+        if 1 > bet:
+            return await ctx.send("Give some money! ;w;")
         query = "SELECT * FROM userbal WHERE userid=$1;"
         row = await self.bot.db.fetchrow(query, ctx.author.id)
         if not row:
