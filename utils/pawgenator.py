@@ -90,9 +90,9 @@ class SimplePaginator:
         def check(r, u):
             if str(r) not in self.controls.keys():
                 return False
-            elif u.id == bot.user.id or r.message.id != self.base.id:
+            if u.id == bot.user.id or r.message.id != self.base.id:
                 return False
-            elif u.id != author.id:
+            if u.id != author.id:
                 return False
             return True
 
@@ -128,10 +128,7 @@ class SimplePaginator:
         except discord.HTTPException:
             pass
 
-        try:
-            self.controller.cancel()
-        except Exception:
-            pass
+        self.controller.cancel()
 
     def formmater(self, chunk):
         return "\n".join(
