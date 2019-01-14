@@ -285,7 +285,7 @@ class Events:
         adminpanelcheck = await self.getserverstuffmessages(message)
         serverstorecheck = await self.getstorestuffmessages(message)
         automodcheck = await self.getautomodmessages(message)
-        if message.bot:
+        if message.author.bot:
             return
         try:
             self.bot.snipes[message.channel.id].appendleft(message)
