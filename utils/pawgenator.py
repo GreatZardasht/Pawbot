@@ -124,7 +124,7 @@ class SimplePaginator:
 
     async def stop_controller(self, message):
         try:
-            await message.delete()
+            await message.clear_reactions()
         except discord.HTTPException:
             pass
 
