@@ -202,7 +202,7 @@ class Information:
         ramUsage = self.process.memory_full_info().rss / 1024 ** 2
         avgmembers = round(len(self.bot.users) / len(self.bot.guilds))
 
-        if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
+        if rowcheck["embeds"] == 0 or not permissions.can_embed(ctx):
             return await ctx.send(
                 f"```\nAbout {ctx.bot.user.name} | {repo.version}\nUptime: {self.get_bot_uptime()}\nDev: Paws#0001\nLibrary: discord.py\nCommands Loaded: {len([x.name for x in self.bot.commands])}\nGuilds: {len(ctx.bot.guilds)} (avg: {avgmembers} users/server )\nRAM: {ramUsage:.2f} MB\n```"
             )
@@ -240,7 +240,7 @@ class Information:
         if user is None:
             user = ctx.author
 
-        if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
+        if rowcheck["embeds"] == 0 or not permissions.can_embed(ctx):
             return await ctx.send(user.avatar_url)
 
         embed = discord.Embed(colour=249_742)
@@ -256,7 +256,7 @@ class Information:
         if user is None:
             user = ctx.author
 
-        if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
+        if rowcheck["embeds"] == 0 or not permissions.can_embed(ctx):
             return await ctx.send(
                 f"**{user}** joined **{ctx.guild.name}**\n{default.date(user.joined_at)}"
             )
@@ -284,7 +284,7 @@ class Information:
             if len(emojilist) > 1024:
                 emojilist = "Too long!"
 
-            if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
+            if rowcheck["embeds"] == 0 or not permissions.can_embed(ctx):
                 return await ctx.send(
                     f"```\nServer Name: {ctx.guild.name}\nServer ID: {ctx.guild.id}\nMembers: {ctx.guild.member_count}\nBots: {findbots}\nOwner: {ctx.guild.owner}\nRegion: {ctx.guild.region}\nCreated At: {default.date(ctx.guild.created_at)}\n```\nEmojis: {emojilist}"
                 )
@@ -350,7 +350,7 @@ class Information:
         if len(usrroles) > 1024:
             usrroles = "Too many to count!"
 
-        if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
+        if rowcheck["embeds"] == 0 or not permissions.can_embed(ctx):
             return await ctx.send(
                 f"Name: `{user.name}#{user.discriminator}`\nNick: `{nick}`\nUID: `{user.id}`\nStatus: {usrstatus}\nGame: `{usrgame}`\nIs a bot? `{user.bot}`\nCreated On: `{default.date(user.created_at)}`\nRoles:\n```\n{usrroles}\n```"
             )
