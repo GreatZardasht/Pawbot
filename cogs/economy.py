@@ -207,14 +207,15 @@ class Economy:
         roll = random.randint(0, 100)
         if roll > 80:
             betresult = bet * 2
-            betresult = row['money'] + betresult
+            betresult = row["money"] + betresult
             rollsult = "won"
         else:
-            betresult = row['money'] - bet
+            betresult = row["money"] - bet
             rollsult = "lost"
         query = "UPDATE userbal SET money = $1 WHERE userid = $2;"
         altrow = await self.bot.db.fetchrow(query, betresult, ctx.author.id)
         await ctx.send(f"You rolled `{roll}`, and {rollsult}")
+
 
 def setup(bot):
     bot.add_cog(Economy(bot))

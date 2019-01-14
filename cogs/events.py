@@ -178,7 +178,9 @@ class Events:
         await webhook.execute(embeds=embed)
         await webhook.close()
         await self.bot.change_presence(
-            activity=discord.Game(type=0, name=f"{random.choice(lists.randomPlayings)} | paw help"),
+            activity=discord.Game(
+                type=0, name=f"{random.choice(lists.randomPlayings)} | paw help"
+            ),
             status=discord.Status.online,
         )
 

@@ -484,7 +484,7 @@ class Information:
     @commands.guild_only()
     async def remindme(self, ctx, time: int, *, reminder):
         """ Pings you with the reminder after an amount of minutes """
-        if self.counter[f"{ctx.author.id}.reminder"] is 1:
+        if self.counter[f"{ctx.author.id}.reminder"] == 1:
             return await ctx.send("You already have a current reminder!")
         if len(reminder) > 1500:
             return ctx.send("That reminder is too big!")

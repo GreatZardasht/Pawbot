@@ -145,7 +145,7 @@ randomPlayings = [
     "in her burrow!",
     "with her friends",
     "in the fields",
-    "with Python"
+    "with Python",
 ]
 
 discordAds = [
@@ -166,5 +166,5 @@ discordAds = [
     ".discord-bots.ga",
     "discordlist.net/",
     "listcord.com/",
-    "discord.paws.website/"
+    "discord.paws.website/",
 ]

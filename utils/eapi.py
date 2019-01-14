@@ -50,7 +50,7 @@ async def processapi(apilink):
         imgartist = ", ".join(imgartists)
         imgtag = dataimage["tags"]
         imgtag = imgtag.split(" ")
-        tags = [imgtag[x:x + 25] for x in range(0, len(imgtag), 25)]
+        tags = [imgtag[x : x + 25] for x in range(0, len(imgtag), 25)]
         imgtags = tags[0]
         imgrate = dataimage["rating"]
         if imgrate == "e":
@@ -96,7 +96,7 @@ async def processshowapi(apilink):
     imgartist = ", ".join(imgartists)
     imgtag = data["tags"]
     imgtag = imgtag.split(" ")
-    tags = [imgtag[x:x + 25] for x in range(0, len(imgtag), 25)]
+    tags = [imgtag[x : x + 25] for x in range(0, len(imgtag), 25)]
     imgtags = tags[0]
     imgrate = data["rating"]
     if imgrate == "e":

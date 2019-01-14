@@ -49,7 +49,7 @@ class Misc:
             r = await http.get(urltouse, res_method="json", no_cache=True)
         except json.JSONDecodeError:
             return await ctx.send("I couldn't contact the api ;-;")
-        if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
+        if rowcheck["embeds"] == 0 or not permissions.can_embed(ctx):
             return await ctx.send(r[endpoint])
         embed = discord.Embed(colour=249_742)
         embed.set_image(url=r[endpoint])
@@ -318,7 +318,7 @@ class Misc:
             name1 = name1[: int(len(name1) / 2) :]
             name2 = user2.name.replace(" ", "")
             name2 = name2[int(len(name2) / 2) : :]
-            if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
+            if rowcheck["embeds"] == 0 or not permissions.can_embed(ctx):
                 return await ctx.send(
                     f"```\n{user.name} x {user2.name}\n\n{n}% {bar} {heart}\n\nShipname: {str(name1 + name2).lower()}\n```"
                 )
@@ -451,7 +451,7 @@ class Misc:
                 ":warning: | **No message to snipe or index must not be greater than 5 or lower than 1**",
                 delete_after=10,
             )
-        if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
+        if rowcheck["embeds"] == 0 or not permissions.can_embed(ctx):
             return await ctx.send(
                 f"```\n{sniped.author}: {sniped.clean_content}\n\nSniped by: {ctx.author}\n```"
             )
@@ -505,7 +505,7 @@ class Misc:
             )
         except json.JSONDecodeError:
             return await ctx.send("I couldn't contact the api ;-;")
-        if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
+        if rowcheck["embeds"] == 0 or not permissions.can_embed(ctx):
             return await ctx.send(f"💖 | **{ctx.author.name}** hugs **{user.name}**")
         embed = discord.Embed(
             colour=249_742, description=f"**{ctx.author.name}** hugs **{user.name}**"
@@ -532,7 +532,7 @@ class Misc:
             )
         except json.JSONDecodeError:
             return await ctx.send("I couldn't contact the api ;-;")
-        if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
+        if rowcheck["embeds"] == 0 or not permissions.can_embed(ctx):
             return await ctx.send(
                 f"💗 | **{ctx.author.name}** gives **{user.name}** a kiss~!"
             )
@@ -562,7 +562,7 @@ class Misc:
             )
         except json.JSONDecodeError:
             return await ctx.send("I couldn't contact the api ;-;")
-        if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
+        if rowcheck["embeds"] == 0 or not permissions.can_embed(ctx):
             return await ctx.send(
                 f"💗 | **{ctx.author.name}** pats **{user.name}** on the head"
             )
@@ -592,7 +592,7 @@ class Misc:
             )
         except json.JSONDecodeError:
             return await ctx.send("I couldn't contact the api ;-;")
-        if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
+        if rowcheck["embeds"] == 0 or not permissions.can_embed(ctx):
             return await ctx.send(
                 f"🍲 | **{ctx.author.name}** feeds **{user.name}** sum nums"
             )
@@ -622,7 +622,7 @@ class Misc:
             )
         except json.JSONDecodeError:
             return await ctx.send("I couldn't contact the api ;-;")
-        if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
+        if rowcheck["embeds"] == 0 or not permissions.can_embed(ctx):
             return await ctx.send(
                 f"😍 | **{ctx.author.name}** cuddles **{user.name}** tightly!"
             )
@@ -652,7 +652,7 @@ class Misc:
             )
         except json.JSONDecodeError:
             return await ctx.send("I couldn't contact the api ;-;")
-        if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
+        if rowcheck["embeds"] == 0 or not permissions.can_embed(ctx):
             return await ctx.send(
                 f"🧡 | Boop! **{ctx.author.name}** pokes **{user.name}** on the nose!"
             )
@@ -682,7 +682,7 @@ class Misc:
             )
         except json.JSONDecodeError:
             return await ctx.send("I couldn't contact the api ;-;")
-        if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
+        if rowcheck["embeds"] == 0 or not permissions.can_embed(ctx):
             return await ctx.send(
                 f"😢 | **{ctx.author.name}** slaps **{user.name}**! Yowch!"
             )
@@ -712,7 +712,7 @@ class Misc:
             )
         except json.JSONDecodeError:
             return await ctx.send("I couldn't contact the api ;-;")
-        if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
+        if rowcheck["embeds"] == 0 or not permissions.can_embed(ctx):
             return await ctx.send(f"😘 | **{ctx.author.name}** tickles **{user.name}**!")
         embed = discord.Embed(
             colour=249_742,
@@ -746,7 +746,7 @@ class Misc:
         page = await http.get(
             "http://inspirobot.me/api?generate=true", res_method="text", no_cache=True
         )
-        if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
+        if rowcheck["embeds"] == 0 or not permissions.can_embed(ctx):
             return await ctx.send(page)
         embed = discord.Embed(colour=249_742)
         embed.set_image(url=page)
