@@ -69,13 +69,13 @@ class Bot(AutoShardedBot):
             await uplinkchannel.send(
                 f"{message.author.name}#{message.author.discriminator}: {message.content}"
             )
-        if adminpanelcheck["automod"] is 1:
+        if adminpanelcheck["automod"] == 1:
             automodcheck = await self.getautomod(message)
             serverstorecheck = await self.getstorestuff(message)
-            if automodcheck["adblock"] is 1:
+            if automodcheck["adblock"] == 1:
                 for entry in lists.discordAds:
                     if entry in message.content:
-                        if automodcheck["ignorerole"] is 1:
+                        if automodcheck["ignorerole"] == 1:
                             ignorerole = message.guild.get_role(
                                 serverstorecheck["ignorerolerole"]
                             )
@@ -86,7 +86,7 @@ class Bot(AutoShardedBot):
                                         self.counter[
                                             f"{message.author.id}.{message.guild.id}.adblockpinged"
                                         ]
-                                        is 1
+                                        == 1
                                     ):
                                         break
                                     else:
@@ -111,7 +111,7 @@ class Bot(AutoShardedBot):
                                     self.counter[
                                         f"{message.author.id}.{message.guild.id}.adblockpinged"
                                     ]
-                                    is 1
+                                    == 1
                                 ):
                                     break
                                 else:
@@ -129,8 +129,8 @@ class Bot(AutoShardedBot):
                                 break
                             except discord.Forbidden:
                                 pass
-            if automodcheck["antispam"] is 1:
-                if automodcheck["ignorerole"] is 1:
+            if automodcheck["antispam"] == 1:
+                if automodcheck["ignorerole"] == 1:
                     ignorerole = message.guild.get_role(
                         serverstorecheck["ignorerolerole"]
                     )
