@@ -772,7 +772,7 @@ class Misc:
             return await ctx.send("No tag found...")
         await ctx.send(r["tagtext"])
 
-    @commands.command()
+    @commands.command(aliases=["t"])
     @commands.guild_only()
     async def tags(self, ctx):
         query = "SELECT tagname FROM tags WHERE serverid=$1;"
@@ -784,7 +784,7 @@ class Misc:
             msg = "No tags found..."
         await ctx.send(msg)
 
-    @commands.command()
+    @commands.command(aliases=["at"])
     @commands.guild_only()
     @permissions.has_permissions(manage_messages=True)
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
@@ -797,7 +797,7 @@ class Misc:
         await self.bot.db.execute(query, ctx.guild.id, tagname, tagtext)
         await ctx.send(f"Created the tag `{tagname}`!")
 
-    @commands.command()
+    @commands.command(aliases=["dt"])
     @commands.guild_only()
     @permissions.has_permissions(manage_messages=True)
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
