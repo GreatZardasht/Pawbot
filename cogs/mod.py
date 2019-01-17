@@ -116,7 +116,7 @@ class Moderation:
         try:
             msgtoedit = await logchannel.get_message(row["caseid"])
             await msgtoedit.edit(
-                content=f"**{row['casetype']}** | Case {row['casenumber']}\n**User**: {target} ({row["target"]}) ({target.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {moderator}"
+                content=f"**{row['casetype']}** | Case {row['casenumber']}\n**User**: {target} ({target.id}) ({target.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {moderator}"
             )
         except discord.Forbidden:
             return await ctx.send("Something broke ;w;")

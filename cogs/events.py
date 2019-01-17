@@ -368,7 +368,7 @@ class Events:
             )
             try:
                 logmsg = await logchan.send(
-                    f"**Ban** | Case {casenum}\n**User**: {user.name}#{user.discriminator} ({user.id}) ({user.mention})\n**Reason**: {reason}\n**Responsible Moderator**: unknown moderator"
+                    f"**Ban** | Case {casenum}\n**User**: {user} ({user.id}) ({user.mention})\n**Reason**: {reason}\n**Responsible Moderator**: unknown moderator"
                 )
             except discord.Forbidden:
                 pass
