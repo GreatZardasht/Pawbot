@@ -91,7 +91,7 @@ class Moderation:
     @permissions.has_permissions(kick_members=True)
     @commands.cooldown(rate=2, per=3.5, type=commands.BucketType.user)
     async def reason(self, ctx, case: int = None, *, reason: str = None):
-        """ Kicks a user from the current server. """
+        """ Sets a reason in modlogs. """
         rowcheck = await self.getserverstuff(ctx)
         if rowcheck["modlog"] is 0 or None:
             return await ctx.send("Modlog isn't enabled ;-;")
@@ -110,6 +110,7 @@ class Moderation:
             "UPDATE modlogs SET moderator = $1 WHERE serverid = $2 AND casenumber = $3;"
         )
         await self.bot.db.execute(query, ctx.author.id, ctx.guild.id, case)
+        target = await self.bot.get_user_info(row["target"])
         moderator = ctx.author
         logchannel = await self.getmodlogstuff(ctx)
         logchannel = ctx.guild.get_channel(logchannel["modlogchan"])
@@ -119,6 +120,8 @@ class Moderation:
                 content=f"**{row['casetype']}** | Case {row['casenumber']}\n**User**: {target} ({target.id}) ({target.mention})\n**Reason**: {reason}\n**Responsible Moderator**: {moderator}"
             )
         except discord.Forbidden:
+            return await ctx.send("Something broke ;w;")
+        except discord.HTTPException:
             return await ctx.send("Something broke ;w;")
         await ctx.message.delete()
 
@@ -210,6 +213,7 @@ class Moderation:
         """ Kicks a user from the current server. """
         try:
             await member.kick()
+            await ctx.message.add_reaction("🔨")
             logchannel = await self.getmodlogstuff(ctx)
             logchannel = ctx.guild.get_channel(logchannel["modlogchan"])
             casenum = self.generatecase()
@@ -260,7 +264,7 @@ class Moderation:
         """ Bans a user from the current server. """
         try:
             await ctx.guild.ban(member)
-            await ctx.message.delete()
+            await ctx.message.add_reaction("🔨")
         except discord.Forbidden as e:
             await ctx.send(e)
 
@@ -272,7 +276,7 @@ class Moderation:
         """ Bans a user id from the current server. """
         try:
             await ctx.guild.ban(discord.Object(id=banmember))
-            await ctx.message.delete()
+            await ctx.message.add_reaction("🔨")
         except discord.Forbidden as e:
             await ctx.send(e)
 
@@ -284,7 +288,7 @@ class Moderation:
         """ Unbans a user from the current server. """
         try:
             await ctx.guild.unban(discord.Object(id=banmember))
-            await ctx.message.delete()
+            await ctx.message.add_reaction("🔨")
         except discord.Forbidden as e:
             await ctx.send(e)
 
@@ -294,7 +298,7 @@ class Moderation:
     @commands.cooldown(rate=1, per=3.5, type=commands.BucketType.user)
     async def mute(self, ctx, member: discord.Member, *, reason: str = None):
         """ Mutes a user from the current server. """
-        await ctx.message.delete()
+        await ctx.message.add_reaction("🔨")
         message = []
         for role in ctx.guild.roles:
             if role.name == "Muted":
@@ -341,7 +345,7 @@ class Moderation:
     @commands.cooldown(rate=1, per=3.5, type=commands.BucketType.user)
     async def unmute(self, ctx, member: discord.Member, *, reason: str = None):
         """ Unmutes a user from the current server. """
-        await ctx.message.delete()
+        await ctx.message.add_reaction("🔨")
         message = []
         for role in ctx.guild.roles:
             if role.name == "Muted":
