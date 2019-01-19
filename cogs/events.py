@@ -152,7 +152,8 @@ class Events:
 
         elif isinstance(err, errors.CommandOnCooldown):
             await ctx.send(
-                f"You're being rate limited... Try again in {err.retry_after:.0f} seconds."
+                f"You're being rate limited... Try again in {err.retry_after:.0f} seconds.",
+                delete_after=4
             )
 
         elif isinstance(err, errors.CommandNotFound):
