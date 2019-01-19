@@ -851,6 +851,49 @@ class Misc:
         pagey = pawgenator.EmojiPaginator(title="Emojis", chunks=chunks)
         self.bot.loop.create_task(pagey.paginate(ctx))
 
+    @commands.command()
+    async def card(self, ctx, *, name):
+        """ Searches for a Hearthstone card """
+        msg = await ctx.send("I'm looking for that card...")
+
+        r = requests.get(
+            f"https://omgvamp-hearthstone-v1.p.mashape.com/cards/{name}?collectible=1",
+            headers={
+                "X-Mashape-Key": "sly1A6Ur3tmshrDtRbWe4q738Afxp1cnkhajsnWqVf9HMJ7ZOJ"
+            },
+        )
+
+        if r.status_code == 404:
+            return await msg.edit(content=f"Card {name} not found.")
+        await msg.edit(
+            content="",
+            embed=discord.Embed(
+                title=name, description=r.json()[0]["flavor"], color=249_742
+            ).set_image(url=r.json()[0]["img"]),
+        )
+
+    @commands.command()
+    async def gcard(self, ctx, *, name):
+        """ Searches for a gold Hearthstone card """
+
+        msg = await ctx.send("I'm looking for that card...")
+
+        r = requests.get(
+            f"https://omgvamp-hearthstone-v1.p.mashape.com/cards/{name}?collectible=1",
+            headers={
+                "X-Mashape-Key": "sly1A6Ur3tmshrDtRbWe4q738Afxp1cnkhajsnWqVf9HMJ7ZOJ"
+            },
+        )
+
+        if r.status_code == 404:
+            return await msg.edit(content=f"Card {name} not found.")
+        await msg.edit(
+            content="",
+            embed=discord.Embed(
+                title=name, description=r.json()[0]["flavor"], color=249_742
+            ).set_image(url=r.json()[0]["imgGold"]),
+        )
+
 
 def setup(bot):
     bot.add_cog(Misc(bot))
