@@ -852,6 +852,8 @@ class Misc:
         self.bot.loop.create_task(pagey.paginate(ctx))
 
     @commands.command()
+    @commands.guild_only()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def card(self, ctx, *, name):
         """ Searches for a Hearthstone card """
         msg = await ctx.send("I'm looking for that card...")
@@ -873,6 +875,8 @@ class Misc:
         )
 
     @commands.command()
+    @commands.guild_only()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def gcard(self, ctx, *, name):
         """ Searches for a gold Hearthstone card """
 
