@@ -763,7 +763,7 @@ class Misc:
             file=discord.File(file, filename="spoiler.txt"),
         )
 
-    @commands.command()
+    @commands.command(aliases=["t"])
     @commands.guild_only()
     async def tag(self, ctx, *, tagname: str):
         query = "SELECT * FROM tags WHERE serverid=$1 AND tagname=$2;"
@@ -772,7 +772,7 @@ class Misc:
             return await ctx.send("No tag found...")
         await ctx.send(r["tagtext"])
 
-    @commands.command(aliases=["t"])
+    @commands.command(aliases=["tl"])
     @commands.guild_only()
     async def tags(self, ctx):
         query = "SELECT tagname FROM tags WHERE serverid=$1;"
