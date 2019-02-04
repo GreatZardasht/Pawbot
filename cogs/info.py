@@ -595,11 +595,14 @@ class Information:
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def resolve(self, ctx, url: str):
         """ Resolve links """
-        if 'http' not in url or 'https' not in url:
-            return await ctx.send("Invalid url")
         if "<" in url or ">" in url:
             url = url.replace("<", "").replace(">", "")
-        r = requests.head(url, allow_redirects=True)
+        try:
+            r = requests.head(url, allow_redirects=True)
+        except requests.MissingSchema:
+            return await ctx.send("Missing/Invalid Schema")
+        except requests.InvalidSchema:
+            return await ctx.send("Missing/Invalid Schema")
         if r.raise_for_status():
             return await ctx.send("Something went wrong")
         await ctx.send(f"<{r.url}>")
