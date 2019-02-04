@@ -590,6 +590,15 @@ class Information:
         await ctx.send(
             "You can find my source @ https://github.com/pawbot-discord/Pawbot x3"
         )
+        
+    @commands.command()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
+    async def resolve(self, ctx, *, url: str):
+        """ Resolve links """
+        r = requests.head(url, allow_redirects=True)
+        if r.status_code is not 200:
+            return await ctx.send("Something was wrong with that url")
+        await ctx.send(f"<{r.url}>")
 
 
 def setup(bot):
