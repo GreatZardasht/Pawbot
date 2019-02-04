@@ -596,7 +596,7 @@ class Information:
     async def resolve(self, ctx, *, url: str):
         """ Resolve links """
         r = requests.head(url, allow_redirects=True)
-        if r.status_code is not 200:
+        if r.status_code != requests.codes.ok:
             return await ctx.send("Something was wrong with that url")
         await ctx.send(f"<{r.url}>")
 
