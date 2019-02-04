@@ -93,7 +93,7 @@ class Moderation:
     async def reason(self, ctx, case: int = None, *, reason: str = None):
         """ Sets a reason in modlogs. """
         rowcheck = await self.getserverstuff(ctx)
-        if rowcheck["modlog"] is 0 or None:
+        if rowcheck["modlog"] == 0 or rowcheck["modlog"] is None:
             return await ctx.send("Modlog isn't enabled ;-;")
         if case is None:
             return await ctx.send("That isn't a valid case...")
@@ -221,7 +221,7 @@ class Moderation:
                 reason = f"Responsible moderator, please type `paw reason {casenum} <reason>`"
 
             rowcheck = await self.getserverstuff(ctx)
-            if rowcheck["modlog"] is 0 or None:
+            if rowcheck["modlog"] == 0 or rowcheck["modlog"] is None:
                 return
 
             logmsg = await logchannel.send(
@@ -319,7 +319,7 @@ class Moderation:
                 reason = f"Responsible moderator, please type `paw reason {casenum} <reason>`"
 
             rowcheck = await self.getserverstuff(ctx)
-            if rowcheck["modlog"] is 0 or None:
+            if rowcheck["modlog"] == 0 or rowcheck["modlog"] is None:
                 return
 
             logmsg = await logchannel.send(
@@ -366,7 +366,7 @@ class Moderation:
                 reason = f"Responsible moderator, please type `paw reason {casenum} <reason>`"
 
             rowcheck = await self.getserverstuff(ctx)
-            if rowcheck["modlog"] is 0 or None:
+            if rowcheck["modlog"] == 0 or rowcheck["modlog"] is None:
                 return
 
             logmsg = await logchannel.send(
@@ -455,7 +455,7 @@ class Moderation:
         self, ctx, limit, predicate, *, before=None, after=None, message=True
     ):
         checker = await self.getautomod(ctx)
-        if checker["actionlog"] is 1:
+        if checker["actionlog"] == 1:
             thequery = "UPDATE automod SET actionlog=0 WHERE serverid=$1;"
             await self.bot.db.execute(thequery, ctx.guild.id)
             if limit > 2000:
