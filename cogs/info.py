@@ -595,10 +595,16 @@ class Information:
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def resolve(self, ctx, *, url: str):
         """ Resolve links """
+        urlstart = ['https://', 'http://']
+        if urlstart not in url:
+            return await ctx.send("Invalid url")
         url = url.strip("<>")
-        r = requests.head(url, allow_redirects=True)
-        if r.status_code != requests.codes.ok:
-            return await ctx.send("Something was wrong with that url")
+        try:
+            r = requests.head(url, allow_redirects=True)
+        except requests.InvalidURL:
+            return await ctx.send("Invalid url")
+        if r.raise_for_status():
+            return await ctx.send("Something went wrong")
         await ctx.send(f"<{r.url}>")
 
 
