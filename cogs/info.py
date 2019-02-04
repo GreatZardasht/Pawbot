@@ -595,7 +595,7 @@ class Information:
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def resolve(self, ctx, url: str):
         """ Resolve links """
-        if 'http://' not in url or 'https://' not in url:
+        if 'http' not in url or 'https' not in url:
             return await ctx.send("Invalid url")
         if "<" in url or ">" in url:
             url = url.replace("<", "").replace(">", "")
