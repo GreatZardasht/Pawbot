@@ -216,6 +216,45 @@ class Economy:
         altrow = await self.bot.db.fetchrow(query, betresult, ctx.author.id)
         await ctx.send(f"You rolled `{roll}`, and {rollsult}")
 
+    @commands.command()
+    @commands.guild_only()
+    @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
+    async def slots(self, ctx, bet: int):
+        if 1 > bet:
+            return await ctx.send("Give some money! ;w;")
+        query = "SELECT * FROM userbal WHERE userid=$1;"
+        row = await self.bot.db.fetchrow(query, ctx.author.id)
+        if not row:
+            return await ctx.send("You don't have an account!")
+        losshearts = ["🖤", "💔"]
+        doublehearts = ["❤️", "💚", "💛", "🧡", "💜", "💙"] 
+        triplehearts = ["💗", "💖"]
+        jackpothearts = ["💘"]
+        hearts = {}
+        heartlist = ["❤️", "🖤", "💗", "💚", "💖", "💛", "💔", "🧡", "💜", "💙", "💘"]
+        for x in range(1, 10):
+            hearts[f'heart{x}'] = random.choice(heartlist)
+        msg = await ctx.send(f"```\n{hearts['heart1']}{hearts['heart2']}{hearts['heart3']}\n{hearts['heart4']}{hearts['heart5']}{hearts['heart6']}\n{hearts['heart7']}{hearts['heart8']}{hearts['heart9']}\n```")
+        if hearts['heart4'] == hearts['heart5'] == hearts['heart6']:
+            if hearts['heart4'] in losshearts:
+                multiplier = 0
+            if hearts['heart4'] in doublehearts:
+                multiplier = 2
+            if hearts['heart4'] in triplehearts:
+                multiplier = 3
+            if hearts['heart4'] in jackpothearts:
+                multiplier = 10
+        else:
+            multiplier = 0
+        msg = await ctx.channel.get_message(msg.id)
+        await msg.edit(content=f"{msg.content}\nAnd you got a multiplier of {multiplier}!")
+        betresult = int(bet * multiplier)
+        if multiplier is 0:
+            betresult = int(-bet)
+        betresult = row["money"] + betresult
+        query = "UPDATE userbal SET money = $1 WHERE userid = $2;"
+        altrow = await self.bot.db.fetchrow(query, betresult, ctx.author.id)
+
 
 def setup(bot):
     bot.add_cog(Economy(bot))
