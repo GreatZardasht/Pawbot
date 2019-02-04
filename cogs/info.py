@@ -603,8 +603,7 @@ class Information:
             return await ctx.send("Missing/Invalid Schema")
         except requests.InvalidSchema:
             return await ctx.send("Missing/Invalid Schema")
-        if r.raise_for_status():
-            return await ctx.send("Something went wrong")
+        r.raise_for_status():
         await ctx.send(f"<{r.url}>")
 
 
