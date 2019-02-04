@@ -599,11 +599,12 @@ class Information:
             url = url.replace("<", "").replace(">", "")
         try:
             r = requests.head(url, allow_redirects=True)
-        except requests.MissingSchema:
+        except requests.exceptions.MissingSchema:
             return await ctx.send("Missing/Invalid Schema")
-        except requests.InvalidSchema:
+        except requests.exceptions.InvalidSchema:
             return await ctx.send("Missing/Invalid Schema")
-        r.raise_for_status()
+        if r.status_code != 200:
+            return await ctx.send("That didn't work...")
         await ctx.send(f"<{r.url}>")
 
 
