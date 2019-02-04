@@ -590,22 +590,6 @@ class Information:
         await ctx.send(
             "You can find my source @ https://github.com/pawbot-discord/Pawbot x3"
         )
-        
-    @commands.command()
-    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
-    async def resolve(self, ctx, url: str):
-        """ Resolve links """
-        if "<" in url or ">" in url:
-            url = url.replace("<", "").replace(">", "")
-        try:
-            r = requests.head(url, allow_redirects=True)
-        except requests.exceptions.MissingSchema:
-            return await ctx.send("Missing/Invalid Schema")
-        except requests.exceptions.InvalidSchema:
-            return await ctx.send("Missing/Invalid Schema")
-        if r.status_code != 200:
-            return await ctx.send("That didn't work...")
-        await ctx.send(f"<{r.url}>")
 
 
 def setup(bot):
