@@ -595,6 +595,7 @@ class Information:
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def resolve(self, ctx, *, url: str):
         """ Resolve links """
+        url = url.strip("<>")
         r = requests.head(url, allow_redirects=True)
         if r.status_code != requests.codes.ok:
             return await ctx.send("Something was wrong with that url")
