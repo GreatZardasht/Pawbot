@@ -194,41 +194,54 @@ class Information:
 
         await ctx.send(f"**{ctx.author.name}**, this is my home.")
 
-    @commands.command(aliases=["info", "stats", "status"])
-    @commands.guild_only()
+    @commands.command()
     async def about(self, ctx):
-        """ About the bot """
-        rowcheck = await self.getserverstuff(ctx)
-        ramUsage = self.process.memory_full_info().rss / 1024 ** 2
-        avgmembers = round(len(self.bot.users) / len(self.bot.guilds))
+        """Tells you information about the bot itself."""
+        cmd = r'git show -s HEAD~3..HEAD --format="[{}](https://github.com/pawbot-discord/Pawbot/commit/%H) %s (%cr)"'
+        if os.name == 'posix':
+            cmd = cmd.format(r'\`%h\`')
+        else:
+            cmd = cmd.format(r'`%h`')
 
-        if rowcheck["embeds"] == 0 or not permissions.can_embed(ctx):
-            return await ctx.send(
-                f"```\nAbout {ctx.bot.user.name} | {repo.version}\nUptime: {self.get_bot_uptime()}\nDev: Paws#0001\nLibrary: discord.py\nCommands Loaded: {len([x.name for x in self.bot.commands])}\nGuilds: {len(ctx.bot.guilds)} (avg: {avgmembers} users/server )\nRAM: {ramUsage:.2f} MB\n```"
-            )
+        try:
+            revision = os.popen(cmd).read().strip()
+        except OSError:
+            revision = 'Could not fetch due to memory error. Sorry.'
 
-        embed = discord.Embed(
-            title=f"About **{ctx.bot.user.name}** | **{repo.version}**",
-            colour=ctx.me.colour,
-            url="https://discordapp.com/oauth2/authorize?client_id=460383314973556756&scope=bot&permissions=469888118",
-        )
-        embed.set_thumbnail(url=ctx.bot.user.avatar_url)
-        embed.add_field(name="Uptime", value=self.get_bot_uptime(), inline=False)
-        embed.add_field(name="Dev", value="Paws#0001", inline=True)
-        embed.add_field(name="Library", value="discord.py", inline=True)
-        embed.add_field(
-            name="Commands loaded",
-            value=len([x.name for x in self.bot.commands]),
-            inline=True,
-        )
-        embed.add_field(
-            name="Guilds",
-            value=f"{len(ctx.bot.guilds)} (avg: {avgmembers} users/server )",
-            inline=True,
-        )
-        embed.add_field(name="RAM", value=f"{ramUsage:.2f} MB", inline=True)
-        embed.add_field(name="Support", value=f"[Here]({repo.invite})", inline=True)
+        embed = discord.Embed(description='Latest Changes:\n' + revision)
+        embed.title = 'Official Bot Server Invite'
+        embed.url = repo.invite
+        embed.colour = discord.Colour.blurple()
 
+        botinfo = self.bot.get_user(460383314973556756)
+        embed.set_author(name=str(botinfo), icon_url=botinfo.avatar_url)
+
+        # statistics
+        total_members = sum(1 for _ in self.bot.get_all_members())
+        total_online = len({m.id for m in self.bot.get_all_members() if m.status is not discord.Status.offline})
+        total_unique = len(self.bot.users)
+
+        voice_channels = []
+        text_channels = []
+        for guild in self.bot.guilds:
+            voice_channels.extend(guild.voice_channels)
+            text_channels.extend(guild.text_channels)
+
+        text = len(text_channels)
+        voice = len(voice_channels)
+
+        embed.add_field(name='Members', value=f'{total_members} total\n{total_unique} unique\n{total_online} unique online')
+        embed.add_field(name='Channels', value=f'{text + voice} total\n{text} text\n{voice} voice')
+
+        memory_usage = self.process.memory_full_info().uss / 1024**2
+        cpu_usage = self.process.cpu_percent() / psutil.cpu_count()
+        embed.add_field(name='Process', value=f'{memory_usage:.2f} MiB\n{cpu_usage:.2f}% CPU')
+
+
+        embed.add_field(name='Guilds', value=len(self.bot.guilds))
+        embed.add_field(name='Uptime', value=self.get_bot_uptime(brief=True))
+        embed.add_field(name='Owner', value="Paws#0001")
+        embed.set_footer(text='Made with discord.py', icon_url='http://i.imgur.com/5BFecvA.png')
         await ctx.send(embed=embed)
 
     @commands.command()

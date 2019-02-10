@@ -898,6 +898,10 @@ class Misc:
             ).set_image(url=r.json()[0]["imgGold"]),
         )
 
+    @commands.command()
+    async def hello(self, ctx):
+        await ctx.send(f"Hello {ctx.author.name}! ^-^")
+
 
 def setup(bot):
     bot.add_cog(Misc(bot))

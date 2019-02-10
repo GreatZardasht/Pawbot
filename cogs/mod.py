@@ -632,8 +632,11 @@ class Moderation:
         await msgtodel.delete()
         await ctx.message.delete()
         if msgtodel.attachments:
-            return await channel.send(f"```\n{msgtodel.author.name}#{msgtodel.author.discriminator}: {msgtodel.content}\n```", file=discord.File(bytes, "attachment.png"))
-        await channel.send(f"```\n{msgtodel.author.name}#{msgtodel.author.discriminator}: {msgtodel.content}\n```")
+            return await channel.send(
+                f"```\n{msgtodel.author}: {msgtodel.content}\n```",
+                file=discord.File(bytes, "attachment.png"),
+            )
+        await channel.send(f"```\n{msgtodel.author}: {msgtodel.content}\n```")
 
 
 def setup(bot):

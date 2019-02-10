@@ -146,9 +146,7 @@ class Events:
             errorlog = f"`[WARN]` `Command Error`\n{error}\nRoot Server: {ctx.guild.name} ({ctx.guild.id})\nRoot Channel: {ctx.channel.name} ({ctx.channel.id})\nRoot User: {ctx.author.name}#{ctx.author.discriminator} ({ctx.author.id})\n\n<@127452209070735361>"
             if len(errorlog) > 1500:
                 print(errorlog)
-            await logchannel.send(
-                f"{errorlog}"
-            )
+            await logchannel.send(f"{errorlog}")
 
         elif isinstance(err, errors.CheckFailure):
             pass
@@ -156,7 +154,7 @@ class Events:
         elif isinstance(err, errors.CommandOnCooldown):
             await ctx.send(
                 f"You're being rate limited... Try again in {err.retry_after:.0f} seconds.",
-                delete_after=4
+                delete_after=4,
             )
 
         elif isinstance(err, errors.CommandNotFound):
