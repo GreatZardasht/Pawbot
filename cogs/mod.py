@@ -626,20 +626,14 @@ class Moderation:
     async def move(self, ctx, msgid: int, channel: discord.TextChannel):
         """ Moves a message id to another channel. """
         msgtodel = await ctx.channel.get_message(msgid)
-        rowcheck = await self.getserverstuff(ctx)
+        if msgtodel.attachments:
+            bytes = BytesIO()
+            await msgtodel.attachments[0].save(bytes)
         await msgtodel.delete()
         await ctx.message.delete()
-        if rowcheck["embeds"] is 0 or not permissions.can_embed(ctx):
-            return await channel.send(
-                f"```\n{msgtodel.author.name}#{msgtodel.author.discriminator}: {msgtodel.content}\n```"
-            )
-        embed = discord.Embed(
-            colour=discord.Colour(0x5FA05E), description=f"{msgtodel.content}"
-        )
-        embed.set_author(
-            name=f"{msgtodel.author.name}", icon_url=f"{msgtodel.author.avatar_url}"
-        )
-        await channel.send(embed=embed)
+        if msgtodel.attachments:
+            return await channel.send(f"```\n{msgtodel.author.name}#{msgtodel.author.discriminator}: {msgtodel.content}\n```", file=discord.File(bytes, "attachment.png"))
+        await channel.send(f"```\n{msgtodel.author.name}#{msgtodel.author.discriminator}: {msgtodel.content}\n```")
 
 
 def setup(bot):

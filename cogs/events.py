@@ -143,8 +143,11 @@ class Events:
             await ctx.send(
                 "There was an error in processing the command, our staff team have been notified, and will be in contact soon."
             )
+            errorlog = f"`[WARN]` `Command Error`\n{error}\nRoot Server: {ctx.guild.name} ({ctx.guild.id})\nRoot Channel: {ctx.channel.name} ({ctx.channel.id})\nRoot User: {ctx.author.name}#{ctx.author.discriminator} ({ctx.author.id})\n\n<@127452209070735361>"
+            if len(errorlog) > 1500:
+                print(errorlog)
             await logchannel.send(
-                f"`[WARN]` `Command Error`\n{error}\nRoot Server: {ctx.guild.name} ({ctx.guild.id})\nRoot Channel: {ctx.channel.name} ({ctx.channel.id})\nRoot User: {ctx.author.name}#{ctx.author.discriminator} ({ctx.author.id})\n\n<@127452209070735361>"
+                f"{errorlog}"
             )
 
         elif isinstance(err, errors.CheckFailure):
