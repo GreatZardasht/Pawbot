@@ -3,7 +3,9 @@ import discord
 import json
 import requests
 import aiohttp
+import re
 
+from lxml import html
 from art import text2art
 from io import BytesIO
 from random import randint
@@ -27,7 +29,7 @@ class InvalidHTTPResponse(Exception):
     pass
 
 
-class Misc:
+class Misc(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.config = default.get("config.json")
@@ -900,7 +902,60 @@ class Misc:
 
     @commands.command()
     async def hello(self, ctx):
+        """ Hi """
         await ctx.send(f"Hello {ctx.author.name}! ^-^")
+
+    @commands.command(pass_context=True)
+    async def villager(self, ctx, villager):
+        """ Returns info on a villager from animal crossing """
+        description = "Villager info for " + villager
+        data = discord.Embed(colour=0x67AC42)
+        data.set_author(name=description, icon_url="https://i.imgur.com/ef8GJOL.png")
+        attributes = [
+            "species",
+            "gender",
+            "personality",
+            "birthday",
+            "clothes",
+            "starsign",
+            "phrase",
+            "song",
+        ]
+
+        page = requests.get("https://nookipedia.com/wiki/" + villager)
+
+        if page.status_code == 404:
+            data.add_field(name="Error", value="Villager does not exist!")
+        else:
+            tree = html.fromstring(page.content)
+
+            for att in attributes:
+                id = str("Infobox-villager-" + att)
+                temp = str(tree.xpath('//td[@id="' + id + '"]//text()'))
+                if len(temp) > 2:
+                    if att == "clothes":
+                        temp = temp.replace("', '*', '", "\n")
+                    temp = (
+                        temp.replace("['", "")
+                        .replace("']", "")
+                        .replace("*", "")
+                        .replace("', '", "")
+                    )  # Remove list notation surrounding data
+                    temp = temp[
+                        :-2
+                    ]  # Remove trailing '\n' at the end of each string; for some reason, .replace or .rstrip doesn't work
+                    if att == "phrase":
+                        temp = re.sub(
+                            r"\([^)]*\)", "", temp
+                        )  # Remove sets of parenthese and their contents (in this case, language indications: (EN), (JP), etc.)
+                        temp = re.sub(
+                            "[^a-zA-Z]", "", temp
+                        )  # Remove any non-English alphabet characters (in this case, Japanese)
+                    data.add_field(name=att.capitalize(), value=temp)
+                else:
+                    temp = "N/A"
+                    data.add_field(name=att.capitalize(), value=temp)
+        await ctx.send(embed=data)
 
 
 def setup(bot):

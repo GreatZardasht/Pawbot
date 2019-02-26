@@ -19,7 +19,7 @@ from datetime import datetime
 from utils import repo, default, permissions, pawgenator
 
 
-class Information:
+class Information(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.config = default.get("config.json")
@@ -198,27 +198,33 @@ class Information:
     async def about(self, ctx):
         """Tells you information about the bot itself."""
         cmd = r'git show -s HEAD~3..HEAD --format="[{}](https://github.com/pawbot-discord/Pawbot/commit/%H) %s (%cr)"'
-        if os.name == 'posix':
-            cmd = cmd.format(r'\`%h\`')
+        if os.name == "posix":
+            cmd = cmd.format(r"\`%h\`")
         else:
-            cmd = cmd.format(r'`%h`')
+            cmd = cmd.format(r"`%h`")
 
         try:
             revision = os.popen(cmd).read().strip()
         except OSError:
-            revision = 'Could not fetch due to memory error. Sorry.'
+            revision = "Could not fetch due to memory error. Sorry."
 
-        embed = discord.Embed(description='Latest Changes:\n' + revision)
-        embed.title = 'Official Bot Server Invite'
+        embed = discord.Embed(description="Latest Changes:\n" + revision)
+        embed.title = "Official Bot Server Invite"
         embed.url = repo.invite
         embed.colour = discord.Colour.blurple()
 
-        botinfo = self.bot.get_user(460383314973556756)
+        botinfo = self.bot.get_user(460_383_314_973_556_756)
         embed.set_author(name=str(botinfo), icon_url=botinfo.avatar_url)
 
         # statistics
         total_members = sum(1 for _ in self.bot.get_all_members())
-        total_online = len({m.id for m in self.bot.get_all_members() if m.status is not discord.Status.offline})
+        total_online = len(
+            {
+                m.id
+                for m in self.bot.get_all_members()
+                if m.status is not discord.Status.offline
+            }
+        )
         total_unique = len(self.bot.users)
 
         voice_channels = []
@@ -230,18 +236,26 @@ class Information:
         text = len(text_channels)
         voice = len(voice_channels)
 
-        embed.add_field(name='Members', value=f'{total_members} total\n{total_unique} unique\n{total_online} unique online')
-        embed.add_field(name='Channels', value=f'{text + voice} total\n{text} text\n{voice} voice')
+        embed.add_field(
+            name="Members",
+            value=f"{total_members} total\n{total_unique} unique\n{total_online} unique online",
+        )
+        embed.add_field(
+            name="Channels", value=f"{text + voice} total\n{text} text\n{voice} voice"
+        )
 
-        memory_usage = self.process.memory_full_info().uss / 1024**2
+        memory_usage = self.process.memory_full_info().uss / 1024 ** 2
         cpu_usage = self.process.cpu_percent() / psutil.cpu_count()
-        embed.add_field(name='Process', value=f'{memory_usage:.2f} MiB\n{cpu_usage:.2f}% CPU')
+        embed.add_field(
+            name="Process", value=f"{memory_usage:.2f} MiB\n{cpu_usage:.2f}% CPU"
+        )
 
-
-        embed.add_field(name='Guilds', value=len(self.bot.guilds))
-        embed.add_field(name='Uptime', value=self.get_bot_uptime(brief=True))
-        embed.add_field(name='Owner', value="Paws#0001")
-        embed.set_footer(text='Made with discord.py', icon_url='http://i.imgur.com/5BFecvA.png')
+        embed.add_field(name="Guilds", value=len(self.bot.guilds))
+        embed.add_field(name="Uptime", value=self.get_bot_uptime(brief=True))
+        embed.add_field(name="Owner", value="Paws#0001")
+        embed.set_footer(
+            text="Made with discord.py", icon_url="http://i.imgur.com/5BFecvA.png"
+        )
         await ctx.send(embed=embed)
 
     @commands.command()

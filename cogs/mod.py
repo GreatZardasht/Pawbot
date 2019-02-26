@@ -44,7 +44,7 @@ class ActionReason(commands.Converter):
         return ret
 
 
-class Moderation:
+class Moderation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.config = default.get("config.json")

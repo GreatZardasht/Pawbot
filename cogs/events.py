@@ -8,6 +8,7 @@ import random
 from datetime import datetime
 from collections import deque
 from dhooks import Webhook, Embed
+from discord.ext import commands
 from discord.ext.commands import errors
 from utils import default, lists
 
@@ -30,7 +31,7 @@ async def send_cmd_help(ctx):
         await ctx.send(page)
 
 
-class Events:
+class Events(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.config = default.get("config.json")
@@ -127,6 +128,7 @@ class Events:
             row = await self.bot.db.fetchrow(query, message.guild.id)
         return row
 
+    @commands.Cog.listener()
     async def on_command_error(self, ctx, err):
         if isinstance(err, (errors.BadArgument, errors.MissingRequiredArgument)):
             await send_cmd_help(ctx)
@@ -160,6 +162,7 @@ class Events:
         elif isinstance(err, errors.CommandNotFound):
             pass
 
+    @commands.Cog.listener()
     async def on_ready(self):
         if not hasattr(self.bot, "uptime"):
             self.bot.uptime = datetime.utcnow()
@@ -186,6 +189,7 @@ class Events:
             status=discord.Status.online,
         )
 
+    @commands.Cog.listener()
     async def on_guild_join(self, guild):
         if not guild.icon_url:
             guildicon = "https://cdn.discordapp.com/attachments/443347566231289856/513380120451350541/2mt196.jpg"
@@ -210,6 +214,7 @@ class Events:
         await webhook.execute(embeds=embed, username=guild.name, avatar_url=guildicon)
         await webhook.close()
 
+    @commands.Cog.listener()
     async def on_guild_remove(self, guild):
         if not guild.icon_url:
             guildicon = "https://cdn.discordapp.com/attachments/443347566231289856/513380120451350541/2mt196.jpg"
@@ -234,6 +239,7 @@ class Events:
         await webhook.execute(embeds=embed, username=guild.name, avatar_url=guildicon)
         await webhook.close()
 
+    @commands.Cog.listener()
     async def on_member_join(self, member):
         adminpanelcheck = await self.getserverstuff(member)
         serverstorecheck = await self.getstorestuff(member)
@@ -267,6 +273,7 @@ class Events:
             except discord.Forbidden:
                 pass
 
+    @commands.Cog.listener()
     async def on_member_remove(self, member):
         adminpanelcheck = await self.getserverstuff(member)
         serverstorecheck = await self.getstorestuff(member)
@@ -285,6 +292,7 @@ class Events:
             except discord.Forbidden:
                 pass
 
+    @commands.Cog.listener()
     async def on_message_delete(self, message):
         adminpanelcheck = await self.getserverstuffmessages(message)
         serverstorecheck = await self.getstorestuffmessages(message)
@@ -324,6 +332,7 @@ class Events:
                 embed.set_footer(text=f"Deleted at: {now}")
                 await logchan.send("", embed=embed)
 
+    @commands.Cog.listener()
     async def on_message_edit(self, before, after):
         adminpanelcheck = await self.getserverstuffmessages(after)
         serverstorecheck = await self.getstorestuffmessages(after)
@@ -359,6 +368,7 @@ class Events:
                 embed.set_footer(text=f"Edited at: {now}")
                 await logchan.send("", embed=embed)
 
+    @commands.Cog.listener()
     async def on_member_ban(self, guild, user):
         adminpanelcheck = await self.getserverstuffalt(guild)
         serverstorecheck = await self.getstorestuffalt(guild)
@@ -386,6 +396,7 @@ class Events:
                 reason,
             )
 
+    @commands.Cog.listener()
     async def on_member_unban(self, guild, user):
         adminpanelcheck = await self.getserverstuffalt(guild)
         serverstorecheck = await self.getstorestuffalt(guild)
@@ -413,6 +424,7 @@ class Events:
                 reason,
             )
 
+    @commands.Cog.listener()
     async def on_command(self, ctx):
         logchan = self.bot.get_channel(508_420_200_815_656_966)
         now = datetime.utcnow()

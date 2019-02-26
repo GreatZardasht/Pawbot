@@ -4,7 +4,7 @@ from discord.ext import commands
 from utils import permissions, default
 
 
-class AdminPanel:
+class AdminPanel(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.config = default.get("config.json")

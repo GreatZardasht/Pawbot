@@ -7,7 +7,7 @@ from discord.ext import commands
 from utils import permissions, default
 
 
-class Economy:
+class Economy(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.config = default.get("config.json")
@@ -227,27 +227,31 @@ class Economy:
         if not row:
             return await ctx.send("You don't have an account!")
         losshearts = ["🖤", "💔"]
-        doublehearts = ["❤️", "💚", "💛", "🧡", "💜", "💙"] 
+        doublehearts = ["❤️", "💚", "💛", "🧡", "💜", "💙"]
         triplehearts = ["💗", "💖"]
         jackpothearts = ["💘"]
         hearts = {}
         heartlist = ["❤️", "🖤", "💗", "💚", "💖", "💛", "💔", "🧡", "💜", "💙", "💘"]
         for x in range(1, 10):
-            hearts[f'heart{x}'] = random.choice(heartlist)
-        msg = await ctx.send(f"```\n{hearts['heart1']}{hearts['heart2']}{hearts['heart3']}\n{hearts['heart4']}{hearts['heart5']}{hearts['heart6']}\n{hearts['heart7']}{hearts['heart8']}{hearts['heart9']}\n```")
-        if hearts['heart4'] == hearts['heart5'] == hearts['heart6']:
-            if hearts['heart4'] in losshearts:
+            hearts[f"heart{x}"] = random.choice(heartlist)
+        msg = await ctx.send(
+            f"```\n{hearts['heart1']}{hearts['heart2']}{hearts['heart3']}\n{hearts['heart4']}{hearts['heart5']}{hearts['heart6']}\n{hearts['heart7']}{hearts['heart8']}{hearts['heart9']}\n```"
+        )
+        if hearts["heart4"] == hearts["heart5"] == hearts["heart6"]:
+            if hearts["heart4"] in losshearts:
                 multiplier = 0
-            if hearts['heart4'] in doublehearts:
+            if hearts["heart4"] in doublehearts:
                 multiplier = 2
-            if hearts['heart4'] in triplehearts:
+            if hearts["heart4"] in triplehearts:
                 multiplier = 3
-            if hearts['heart4'] in jackpothearts:
+            if hearts["heart4"] in jackpothearts:
                 multiplier = 10
         else:
             multiplier = 0
         msg = await ctx.channel.get_message(msg.id)
-        await msg.edit(content=f"{msg.content}\nAnd you got a multiplier of {multiplier}!")
+        await msg.edit(
+            content=f"{msg.content}\nAnd you got a multiplier of {multiplier}!"
+        )
         betresult = int(bet * multiplier)
         if multiplier is 0:
             betresult = int(-bet)
