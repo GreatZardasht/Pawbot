@@ -495,48 +495,6 @@ class Admin(commands.Cog):
             await msguplinkchan.send("The connection was closed.")
             await ctx.send("Disconnected")
 
-    @commands.group(hidden=True)
-    @commands.check(repo.is_owner)
-    async def blacklist(self, ctx):
-        await ctx.send("Arguments: `BADD` / `BREMOVE` / `BDISCARD` / `BSHOW`")
-
-    @blacklist.command(hidden=True)
-    @commands.check(repo.is_owner)
-    async def badd(self, ctx, userid: int, *, reason: str):
-        self.bot.blacklist.append(userid)
-        user = self.bot.find_user(userid)
-        try:
-            await user.send(
-                f"**{ctx.author.name}#{ctx.author.discriminator}** blocked you from using the bot for: **{reason}**"
-            )
-        except discord.forbidden:
-            await ctx.send(":warning: | **Unable to send DMs to specified user.**")
-        await ctx.send(":ok_hand:")
-
-    @blacklist.command(hidden=True)
-    @commands.check(repo.is_owner)
-    async def bremove(self, ctx, *, userid: int):
-        self.bot.blacklist.remove(userid)
-        user = self.bot.find_user(userid)
-        try:
-            await user.send(
-                f"**{user.name}#{user.discriminator}**, **{ctx.author.name}#{ctx.author.discriminator}** unblocked you from using the bot. Don't abuse the bot again or you will get blocked **permanently**."
-            )
-        except discord.forbidden:
-            await ctx.send(":warning: | **Unable to send DMs to specified user.**")
-        await ctx.send(":ok_hand:")
-
-    @blacklist.command(hidden=True)
-    @commands.check(repo.is_owner)
-    async def bdiscard(self, ctx):
-        self.bot.blacklist = []
-        await ctx.send(":ok_hand:")
-
-    @blacklist.command(hidden=True)
-    @commands.check(repo.is_owner)
-    async def bshow(self, ctx):
-        await ctx.send(f"``{self.bot.blacklist}``")
-
     @commands.command(hidden=True)
     @commands.check(repo.is_owner)
     async def parsehtml(self, ctx, url: str):
