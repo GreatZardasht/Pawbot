@@ -638,6 +638,15 @@ class Moderation(commands.Cog):
             )
         await channel.send(f"```\n{msgtodel.author}: {msgtodel.content}\n```")
 
+    @commands.command(aliases=["channeltopic"])
+    @commands.guild_only()
+    @permissions.has_permissions(manage_channels=True)
+    @commands.cooldown(rate=2, per=3.5, type=commands.BucketType.user)
+    async def st(self, ctx, *, channeltopic=""):
+        """ Sets channel topic. """
+        await ctx.channel.edit(topic=channeltopic)
+        await ctx.message.delete()
+
 
 def setup(bot):
     bot.add_cog(Moderation(bot))
